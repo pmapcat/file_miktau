@@ -1,0 +1,13 @@
+name: miktau
+root: .
+startup_window: lein
+windows:
+  - lein:
+      layout: main-vertical
+      panes:
+        - shell:
+            ls
+        - repl:
+            boot dev
+        - ring:
+            boot auto-test
