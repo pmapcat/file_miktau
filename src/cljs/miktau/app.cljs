@@ -1,18 +1,12 @@
 (ns miktau.app
-  (:require [reagent.core :as reagent :refer [atom]]))
-
-(defn some-component []
-  [:div
-   [:h3 "I am a component!"]
-   [:p.someclass
-    "I have " [:strong "bold"]
-    [:span {:style {:color "red"}} " and red"]
-    " text."]])
-
-(defn calling-component []
-  [:div "Parent component"
-   [some-component]])
+  (:require
+   [miktau.events]
+   [miktau.effects]
+   [miktau.subs]
+   [re-frame.core :as refe]
+   [reagent.core :as reagent]
+   [miktau.views.core :as views_core]))
 
 (defn init []
-  (reagent/render-component [calling-component]
+  (reagent/render-component [views_core/main]
                             (.getElementById js/document "container")))

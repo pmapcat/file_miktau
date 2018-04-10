@@ -12,6 +12,8 @@
                  [crisptrutski/boot-cljs-test "0.3.0" :scope "test"]
                  [reagent "0.6.0"]
                  [re-frame "0.10.5"]
+                 [day8.re-frame/http-fx "0.1.6"]
+                 [cljs-ajax "0.7.3"]
                  [org.martinklepsch/boot-garden "1.3.2-0" :scope "test"]])
 
 (require
