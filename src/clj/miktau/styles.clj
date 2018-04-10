@@ -25,14 +25,14 @@
    (map mik-float ["left" "right"])
    (map mik-flush ["left" "right" "center"])
    (map mik-rotate [45 90 180])
-   [:.padded-as-button {:padding-top 12.8
-                        :padding-bottom 6.4
-                        :padding-left 12.8
-                        :padding-right 12.8}]
-   [:.margin-as-button {:margin-top 12.8
-                        :margin-bottom 6.4
-                        :margin-left 12.8
-                        :margin-right 12.8}]])
+   [:.padded-as-button {:padding-top "12.8px"
+                        :padding-bottom "6.4px"
+                        :padding-left "12.8px"
+                        :padding-right "12.8px"}]
+   [:.margin-as-button {:margin-top "12.8px"
+                        :margin-bottom "6.4px"
+                        :margin-left "12.8px"
+                        :margin-right "12.8px"}]])
 
 ;; ============================  >  TYPE  <  ===========================
 
@@ -62,7 +62,7 @@
     
     [:& :td :th {:border "none !important" :padding "0 !important"}]]
    ;; tag input
-   [[:tags :input {:background "none !important"}]
+   [[:tags>:div>:input {:background "none !important"}]
     [:tags :tag :x:hover {:background "#ABABA9"}]
     [:tags :tag>div:before {:background "#dddddd"}]]
    [:.table-hover:hover {:background "white !important"}]
