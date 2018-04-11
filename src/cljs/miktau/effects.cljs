@@ -3,6 +3,11 @@
    [day8.re-frame.http-fx]
    [re-frame.core :as refe]))
 
+(refe/reg-fx
+ :log!
+ (fn [data]
+   (.log js/console (str data))))
+
 ;; (reg-fx
 ;;  :store!
 ;;  (fn [data]

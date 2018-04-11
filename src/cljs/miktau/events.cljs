@@ -1,23 +1,54 @@
 (ns miktau.events
   (:require
    [day8.re-frame.http-fx]
-   [ajax.core :as ajax]
+   [miktau.utils :as utils]
+   [clojure.string :as clojure-string]
    [re-frame.core :as refe]))
 
-;; (refe/reg-event-fx
-;;  :initialize
-;;  (fn [_ _]
-;;    {:fx-load-data {:on-success :on-initialized
-;;                    :on-error   :http-error}
-;;     :db
-;;     {:status :loading
-;;      :csrf-token (aget js/window "csrftoken")
-;;      :Total 0
-;;      :userid 0
-;;      :ins-and-outs nil
-;;      :modal nil
-;;      :auth?  false
-;;      :username ""}}))
+(refe/reg-event-db
+ :init-db
+ (fn [_ _]
+   {:loading? true
+    :filtering ""
+    
+    :nodes [{:name "hello.mkv" :tags #{"blab" "blip" "blop"} :modified "2018.02.03"}]
+    :nodes-selected #{"*"}
+    :nodes-sorted {:field :name :reverse? false}
+
+    :cloud-selected #{"blab"}
+    :cloud  {"VolutPatem" {"blab" 43 "blip" 27 "blop" 12}}
+    :cloud-can-select #{"blip"}
+    
+    :calendar-selected {:year  "2018"  :day "23" :month "11"}
+    :calendar   {:year ["2018" "2017" "2016"]
+                 :month ["January" "February" "Whatever"]
+                 :day   ["1" "2" "3"]}
+    :calendar-can-select {:year #{}
+                          :month #{}
+                          :day   #{}}}))
+
+(defn http-error
+  [db response]
+  {:db     (assoc db :loading? false)
+   :log!   (str response)})
+
+(utils/register-server-roundtrip
+ :get-app-data
+ {:method :get :url "/get-app-data/"}
+ (fn [db]
+   {:cloud-selected (into [] (db :cloud-selected))
+    :calendar-selected (db :calendar-selected)
+    :nodes-sorted (db :nodes-sorted)})
+ (fn [db]
+   (assoc db :loading? true))
+ (fn [db response]
+   {:db
+    (assoc
+     db :loading? true
+     :nodes-selected #{}
+     :nodes (:nodes response))
+    (response ) (assoc  db :loading? false)})
+ http-error)
 
 ;; (refe/reg-event-db
 ;;  :on-initialized
@@ -104,18 +135,7 @@
 ;;                  :timeout         8000
 ;;                  :on-success      [:on-got-data-from-server]
 ;;                  :on-failure      [:http-error]}}))
-;; (reg-event-fx
-;;  :get-app-data-from-server.no-loading
-;;  (fn [{:keys [db]} _]
-;;    {:db db
-;;     :http-xhrio {:method          :get
-;;                  :uri             "/tabel/users/get_app_state/"
-;;                  :response-format (ajax/json-response-format {:keywords? true})
-;;                  :params          {:username (db :username)}
-;;                  :headers         {"X-CSRFToken" (db  :csrf-token)}
-;;                  :timeout         8000
-;;                  :on-success      [:on-got-data-from-server]
-;;                  :on-failure      [:http-error]}}))
+
 
 ;; (reg-event-fx
 ;;  :on-got-data-from-server
@@ -164,11 +184,6 @@
 ;;                      :on-failure      [:http-error]}}
 ;;        {:db (assoc db :status :ready :auth? false)}))))
 
-;; (reg-event-fx
-;;  :http-error
-;;  (fn [{:keys [db]} [_ body]]
-;;    {:db      (assoc  db :status :ready)
-;;     :notify! (str body)}))
 
 ;; ;;       ============================= MUTABLE CHANGES =========================
 ;; (reg-event-fx

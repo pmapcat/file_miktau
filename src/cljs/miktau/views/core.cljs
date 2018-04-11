@@ -295,5 +295,6 @@
      "Processing..."]
     [:div.mik-flush-center.background-1
      [:img {:src "/loading.gif"}]]]])
+
 (defn main []
   (drill))
