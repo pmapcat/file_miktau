@@ -12,35 +12,6 @@ type serve_ struct {
 
 var serve = serve_{}
 
-type RestNodeItem struct {
-	Modified string   `json:"modified"`
-	Tags     []string `json:"tags"`
-	Name     string   `json:"name"`
-}
-type RestCalendar struct {
-	Year  []string `json:"year"`
-	Month []string `json:"month"`
-	Day   []string `json:"day"`
-}
-type RestCloudItem struct {
-	Name string         `json:"string"`
-	Tags map[string]int `json:"tags"`
-}
-
-type RestNodeSorted struct {
-	Field     string `json:"field"`
-	IsReverse bool   `json:"reverse?"`
-}
-
-type RestAppDataResponse struct {
-	NodeSorting       RestNodeSorted  `json:"nodes-sorted"`
-	Nodes             []RestNodeItem  `json:"nodes"`
-	CloudCanSelect    []string        `json:"cloud-can-select"`
-	Cloud             []RestCloudItem `json:"cloud"`
-	CalendarCanSelect RestCalendar    `json:"calendar-can-select"`
-	Calendar          RestCalendar    `json:"calendar"`
-}
-
 func (s *serve_) GetAppData(w rest.ResponseWriter, r *rest.Request) {
 	rsp := RestAppDataResponse{}
 
