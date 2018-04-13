@@ -30,6 +30,12 @@ func (n *CoreNodeItem) ModifiedInDays() uint32 {
 	return n._modified_days
 }
 
+// will have to call only on mutable actions
+func (n *CoreNodeItemStorage) WipeCache() {
+	n._thesaurus = nil
+	n._nodes_sorted = nil
+}
+
 func (n *CoreNodeItem) ApplyFilter(c *CoreQuery) bool {
 	// if query contains ids list, then it is likely that we
 	// must filter by ids
@@ -82,7 +88,17 @@ func (n *CoreNodeItemStorage) MutableUpdateInBulk(query CoreQuery, cb func(*Core
 func newCoreNodeItemStorage() CoreNodeItemStorage {
 	return CoreNodeItemStorage{nodes: []*CoreNodeItem{}}
 }
-// ================= > CONTINUE FROM HERE < =====================
+func sort_slice(inverse bool, slice interface{}, less func(i, j int) bool) {
+	if inverse {
+		sort.Slice(slice, func(i, j int) bool {
+			return !less(i, j)
+		})
+		return
+	}
+	sort.Slice(slice, less)
+	return
+}
+
 func (n *CoreNodeItemStorage) GetNodesSorted(field string) []*CoreNodeItem {
 	// check if initialized
 	if n._nodes_sorted == nil {
@@ -96,21 +112,28 @@ func (n *CoreNodeItemStorage) GetNodesSorted(field string) []*CoreNodeItem {
 
 	// if not, sort it according to a preset
 	inverse := false
+	sfield := field
 	if strings.HasPrefix(field, "-") {
 		inverse := true
-		field = field[1:]
+		sfield = field[1:]
 	}
-	new_sortable
-	switch field {
+
+	new_sortable := make([]*CoreNodeItem, len(n.nodes))
+	copy(new_sortable, n.nodes)
+	switch sfield {
 	case "name":
-		sort.Slice(n.nodes, less func(i int, j int) bool{
-			
+		sort_slice(inverse, new_sortable, func(i, j int) bool {
+			return new_sortable[i].Name < new_sortable[j].Name
 		})
-		
 	case "modified":
-
+		sort_slice(inverse, new_sortable, func(i, j int) bool {
+			return new_sortable[i].ModifiedInDays() < new_sortable[j].ModifiedInDays()
+		})
 	}
-
+	// set cache
+	n._nodes_sorted[field] = new_sortable
+	// return result
+	return new_sortable
 }
 
 func (n *CoreNodeItemStorage) GetThesaurus() map[string]int {
@@ -148,13 +171,14 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	cloud := map[string]map[string]int{}
 	cloud_can_select := map[string]bool{}
 	nodes_list := []*CoreNodeItem{}
+	tag_thesaurus := n.GetThesaurus()
 
 	calendar := CoreDateFacet{Year: map[int]int{}, Month: map[int]int{}, Day: map[int]int{}}
 	calendar_can_select := CoreDateFacet{Year: map[int]int{}, Month: map[int]int{}, Day: map[int]int{}}
 	// Gathering and processing
-	for nodeid, node := range n.nodes {
+	for nodeid, node := range n.GetNodesSorted(query.Sorted) {
 		// getting MPT
-		tagroot := node.TagRoot(n.tag_thesaurus)
+		tagroot := node.TagRoot(tag_thesaurus)
 		_, ok := cloud[tagroot]
 		if !ok {
 			cloud[tagroot] = map[string]int{}
@@ -181,7 +205,6 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 			nodes_list = append(nodes_list, node)
 		}
 	}
-
 	// sorting nodes according to the sort parameter in a search query
 
 	total_nodes := len(nodes_list)
