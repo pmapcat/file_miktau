@@ -33,6 +33,17 @@ func (n *CoreNodeItem) ModifiedInDays() uint32 {
 
 // will have to call only on mutable actions
 func (n *CoreNodeItem) ApplyFilter(c *CoreQuery) bool {
+	// if query contains filepathes list, then it is most likely
+	// that we must filter by filepaths
+	if len(c.FilePaths) > 0 {
+		for _, fpath := range c.FilePaths {
+			if n.FilePath == fpath {
+				return true
+			}
+		}
+		return false
+	}
+
 	// if query contains ids list, then it is likely that we
 	// must filter by ids
 	if len(c.Ids) > 0 {
@@ -99,7 +110,7 @@ func newCoreNodeItemStorage() CoreNodeItemStorage {
 
 func (c *CoreNodeItemStorage) MutableAddManyForTestPurposes(data []*CoreNodeItem) {
 	for _, item := range data {
-		c.MutableAddNode(item.Tags, item.Name, item.Modified.Day, item.Modified.Month, item.Modified.Year)
+		c.MutableAddNode(item.Tags, item.FilePath, item.Name, item.Modified.Day, item.Modified.Month, item.Modified.Year)
 	}
 }
 func sort_slice(inverse bool, slice interface{}, less func(i, j int) bool) {
@@ -140,6 +151,11 @@ func (t *CoreQuery) WithDate(year, month, day int) *CoreQuery {
 	t.Modified = CoreDateField{Year: year, Month: month, Day: day}
 	return t
 }
+func (t *CoreQuery) WithFilePathes(data ...string) *CoreQuery {
+	t.FilePaths = data
+	return t
+}
+
 func newCoreQuery() *CoreQuery {
 	return &CoreQuery{
 		Modified: CoreDateField{},
@@ -186,14 +202,52 @@ func (n *CoreNodeItemStorage) GetThesaurus() map[string]int {
 	}
 	return thesaurus
 }
-func (n *CoreNodeItemStorage) MutableAddNode(tags []string, fname string, day, month, year int) {
+func (n *CoreNodeItemStorage) MutableAddNode(tags []string, fpath, fname string, day, month, year int) {
 	// empty tags set has the tendency to look like this [""]
 	if len(tags) == 1 && tags[0] == "" {
 		tags = []string{}
 	}
-
 	n.nodes = append(n.nodes,
-		&CoreNodeItem{Id: len(n.nodes), Name: fname, Tags: tags, Modified: CoreDateField{Year: year, Day: day, Month: month}})
+		&CoreNodeItem{Id: len(n.nodes), FilePath: fpath, Name: fname, Tags: undublicate_list(tags), Modified: CoreDateField{Year: year, Day: day, Month: month}})
+}
+func (n *CoreNodeItem) AddTags(tags []string) {
+	n.Tags = append(n.Tags, tags...)
+}
+func (n *CoreNodeItem) RemoveTags(tags []string) {
+	result := []string{}
+	for _, current_tag := range n.Tags {
+		should_append := true
+		for _, tag_to_remove := range tags {
+			if current_tag == tag_to_remove {
+				should_append = false
+				break
+			}
+		}
+		if should_append {
+			result = append(result, current_tag)
+		}
+	}
+	n.Tags = result
+}
+func newErrorCoreAppDataResponse(err error) CoreAppDataResponse {
+	return CoreAppDataResponse{Error: err.Error()}
+}
+func newErrorModifyRecordsResponse(err error) ModifyRecordsRequest {
+	return ModifyRecordsRequest{Error: err.Error()}
+}
+
+func (n *CoreNodeItemStorage) MutableAddRemoveTagsToSelection(query CoreQuery, tags_to_add, tags_to_remove []string) int {
+	records_affected := 0
+	for nodeid, node := range n.nodes {
+		if node.ApplyFilter(&query) {
+			node.RemoveTags(tags_to_remove)
+			node.AddTags(tags_to_add)
+			node.Tags = undublicate_list(node.Tags)
+			n.nodes[nodeid] = node
+			records_affected += 1
+		}
+	}
+	return records_affected
 }
 
 func (n *CoreNodeItemStorage) GetInBulk(query CoreQuery, cb func(*CoreNodeItem)) {

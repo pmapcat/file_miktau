@@ -12,7 +12,19 @@ func timeEval(perfname string, cb func()) {
 	cb()
 	elapsed := time.Since(start)
 	log.Printf("%s took: %s", perfname, elapsed)
+}
 
+func undublicate_list(list []string) []string {
+	checker := map[string]bool{}
+	result := []string{}
+	for _, v := range list {
+		if checker[v] {
+			continue
+		}
+		result = append(result, v)
+		checker[v] = true
+	}
+	return result
 }
 
 func randomDateField() CoreDateField {

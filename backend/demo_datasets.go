@@ -78,7 +78,10 @@ func buildDachaDataset() []*CoreNodeItem {
 	for _, v := range points {
 		filename, tags, date := v[0], v[1], v[2]
 		t, err := time.Parse("2006-01-02 15:04:05.9999999", strings.TrimSpace(date))
-		log.Fatal(err)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		result = append(result,
 			&CoreNodeItem{Name: strings.TrimSpace(filename), Tags: strings.Split(strings.TrimSpace(tags), " "), Modified: CoreDateField{
 				Year:  t.Year(),
@@ -91,38 +94,39 @@ func buildDachaDataset() []*CoreNodeItem {
 
 func buildDemoDataset() []*CoreNodeItem {
 	points := [][]string{
-		[]string{"2016.07.21", "blab.mp4", "", "пустая запись"},
-		[]string{"2017.07.20", "hello.mp4", "natan work bibliostore moscow_market", "удалить таблицу alib_full_book_en(и слить результаты)"},
-		[]string{"2018.07.19", "blab.mp4", "natan work bibliostore moscow_market", "сделать autosuggester"},
-		[]string{"2016.07.18", "glib.mp4", "natan work bibliostore moscow_market", "сделать autosuggester"},
-		[]string{"2017.02.17", "blob.mp4", "natan work bibliostore translator", "использовать новоприобретенный(быстрый) mosesdecoder"},
-		[]string{"2018.02.16", "plop.mp4", "natan work bibliostore moscow_market", "исключить dixidu из списка книг(перекачать их на новый лад) "},
-		[]string{"2016.02.15", "grop.mp4", "natan work bibliostore moscow_market", "исключить dixidu из списка книг "},
-		[]string{"2016.02.14", "drop.mp4", "natan work moscow_market amazon", "сформировать uie для amazon"},
-		[]string{"2016.04.13", "nrap.mp4", "natan work devops moscow_market bibliostore translator amazon", "поднять CI сервер(для того чтобы перезагрузка данных шла быстрее)"},
-		[]string{"2017.04.12", "zlip.mp4", "natan work wiki sforim согласовать", "сделать шаблон вики по базе сфорим"},
-		[]string{"2017.04.11", "zlop.mp4", "natan work moscow_market скачка_источников биржа", "мешок/авито/алиб"},
-		[]string{"2017.04.10", "zip.mp4", "natan work магазины sforim", "сделать простой магазин для сфорим(на woocommerce)"},
-		[]string{"2016.02.09", "nop.mp4", "natan work магазины moscow_market bibliostore", "сделать магазин для книг московского рынка(bibliostore)"},
-		[]string{"2016.02.08", "nar.mp4", "natan work биржа UI", "сделать мокапы пользовательского интерфейса"},
-		[]string{"2016.02.07", "gor.mp4", "work personal", "Сделать этот проект"},
-		[]string{"2016.02.05", "dar.mp4", "work personal blog", "Начать вести блог"},
-		[]string{"2016.05.05", "gir.mp4", "work personal usecases", "Сделать landing с юз-кейсами(то что я сделал)  "},
-		[]string{"2016.05.04", "grar.mp4", "work personal usecases", "Сделать этот проект"},
-		[]string{"2016.05.03", "grion.mp4", "work zeldin ", "Собери же  cropper наконец"},
-		[]string{"2016.05.02", "grano.mp4", "work zeldin ", "Этот проект ему(в принципе) тоже понравится"},
-		[]string{"2016.03.01", "dramo.mp4", "work everybook ", "Общайтесь с Жанной. Вытягивайте денюжку"},
-		[]string{"2017.01.24", "blab.mp4", "работа_сделана ", "сделал парсер bidspirit(так-же починил проблему с форматом estimate) обнаружил возможности оптимизации хорошего переводчика(случайно) попробовал исполь его при названиях на bidspirit(по этому парсинг bidspirit затянулся) Однако в перспективе можно использовать хороший перевод"}}
+		[]string{"/home/mik/this_must_be_it/", "2016.07.21", "blab.mp4", "", "пустая запись"},
+		[]string{"/home/mik/this_must_be_it/", "2017.07.20", "hello.mp4", "natan work bibliostore moscow_market", "удалить таблицу alib_full_book_en(и слить результаты)"},
+		[]string{"/home/mik/this_must_be_it/", "2018.07.19", "blab.mp4", "natan work bibliostore moscow_market", "сделать autosuggester"},
+		[]string{"/home/mik/this_must_be_it/", "2016.07.18", "glib.mp4", "natan work bibliostore moscow_market", "сделать autosuggester"},
+		[]string{"/home/mik/chosen_one/", "2017.02.17", "blob.mp4", "natan work bibliostore translator", "использовать новоприобретенный(быстрый) mosesdecoder"},
+		[]string{"/home/mik/chosen_one/", "2018.02.16", "plop.mp4", "natan work bibliostore moscow_market", "исключить dixidu из списка книг(перекачать их на новый лад) "},
+		[]string{"/home/mik/chosen_one/", "2016.02.15", "grop.mp4", "natan work bibliostore moscow_market", "исключить dixidu из списка книг "},
+		[]string{"/home/mik/chosen_one/", "2016.02.14", "drop.mp4", "natan work moscow_market amazon", "сформировать uie для amazon"},
+		[]string{"/home/mik/this_must_be_it/", "2016.04.13", "nrap.mp4", "natan work devops moscow_market bibliostore translator amazon", "поднять CI сервер(для того чтобы перезагрузка данных шла быстрее)"},
+		[]string{"/home/mik/another/", "2017.04.12", "zlip.mp4", "natan work wiki sforim согласовать", "сделать шаблон вики по базе сфорим"},
+		[]string{"/home/mik/another/", "2017.04.11", "zlop.mp4", "natan work moscow_market скачка_источников биржа", "мешок/авито/алиб"},
+		[]string{"/home/mik/another/", "2017.04.10", "zip.mp4", "natan work магазины sforim", "сделать простой магазин для сфорим(на woocommerce)"},
+		[]string{"/home/mik/another/", "2016.02.09", "nop.mp4", "natan work магазины moscow_market bibliostore", "сделать магазин для книг московского рынка(bibliostore)"},
+		[]string{"/home/mik/another/", "2016.02.08", "nar.mp4", "natan work биржа UI", "сделать мокапы пользовательского интерфейса"},
+		[]string{"/home/mik/another/", "2016.02.07", "gor.mp4", "work personal", "Сделать этот проект"},
+		[]string{"/home/mik/figuratively/", "2016.02.05", "dar.mp4", "work personal blog", "Начать вести блог"},
+		[]string{"/home/mik/figuratively/", "2016.05.05", "gir.mp4", "work personal usecases", "Сделать landing с юз-кейсами(то что я сделал)  "},
+		[]string{"/home/mik/figuratively/", "2016.05.04", "grar.mp4", "work personal usecases", "Сделать этот проект"},
+		[]string{"/home/mik/figuratively/literally", "2016.05.03", "grion.mp4", "work zeldin ", "Собери же  cropper наконец"},
+		[]string{"/home/mik/figuratively/literally", "2016.05.02", "grano.mp4", "work zeldin ", "Этот проект ему(в принципе) тоже понравится"},
+		[]string{"/home/mik/figuratively/literally", "2016.03.01", "dramo.mp4", "work everybook ", "Общайтесь с Жанной. Вытягивайте денюжку"},
+
+		[]string{"/home/mik/figuratively/", "2017.01.24", "blab.mp4", "работа_сделана ", "сделал парсер bidspirit(так-же починил проблему с форматом estimate) обнаружил возможности оптимизации хорошего переводчика(случайно) попробовал исполь его при названиях на bidspirit(по этому парсинг bidspirit затянулся) Однако в перспективе можно использовать хороший перевод"}}
 	result := []*CoreNodeItem{}
 	for _, v := range points {
-		date, filename, tags := v[0], v[1], v[2]
+		fpath, date, filename, tags := v[0], v[1], v[2], v[3]
 		t, err := time.Parse("2006.01.02", strings.TrimSpace(date))
 		if err != nil {
 			log.Fatal("Error on: ", date, err)
 		}
 
 		result = append(result,
-			&CoreNodeItem{Name: strings.TrimSpace(filename), Tags: strings.Split(strings.TrimSpace(tags), " "), Modified: CoreDateField{
+			&CoreNodeItem{Name: strings.TrimSpace(filename), FilePath: fpath, Tags: strings.Split(strings.TrimSpace(tags), " "), Modified: CoreDateField{
 				Year:  t.Year(),
 				Month: int(t.Month()),
 				Day:   t.Day(),

@@ -4,16 +4,31 @@ import (
 	"sync"
 )
 
+const MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM = 32
+
 type CoreNodeItemStorage struct {
-	sync.Mutex
+	sync.RWMutex
 	nodes []*CoreNodeItem
 }
 
+type ModifyRecordsRequest struct {
+	RecordsAffected int       `json:"records-affected"`
+	Error           string    `json:"error"`
+	TagsToAdd       []string  `json:"tags-to-add"`
+	TagsToDelete    []string  `json:"tags-to-delete"`
+	Request         CoreQuery `json:"request"`
+}
+type FileActionRequest struct {
+	Action  string    `json:"action"` // symlinks/default/filebrowser
+	Request CoreQuery `json:"request"`
+}
+
 type CoreQuery struct {
-	Modified CoreDateField `json:"modified"`
-	Sorted   string        `json:"sorted"`
-	Ids      []int         `json:"ids"`
-	Tags     []string      `json:"tags"`
+	Modified  CoreDateField `json:"modified"`
+	Sorted    string        `json:"sorted"`
+	FilePaths []string      `json:"file-paths"`
+	Ids       []int         `json:"ids"`
+	Tags      []string      `json:"tags"`
 }
 
 type CoreDateField struct {
@@ -30,12 +45,14 @@ type CoreDateFacet struct {
 type CoreNodeItem struct {
 	Id             int           `json:"id"`
 	Name           string        `json:"name"`
+	FilePath       string        `json:"file-path"`
 	Tags           []string      `json:"tags"`
 	Modified       CoreDateField `json:"modified"`
 	_modified_days uint32
 }
 
 type CoreAppDataResponse struct {
+	Error             string                    `json:"error"`
 	NodeSorting       string                    `json:"nodes-sorted"`
 	TotalNodes        uint32                    `json:"total-nodes"`
 	Nodes             []*CoreNodeItem           `json:"nodes"`
