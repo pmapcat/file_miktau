@@ -1,9 +1,12 @@
 package main
 
+import (
+	"sync"
+)
+
 type CoreNodeItemStorage struct {
-	nodes         []*CoreNodeItem
-	_thesaurus    map[string]int
-	_nodes_sorted map[string][]*CoreNodeItem
+	sync.Mutex
+	nodes []*CoreNodeItem
 }
 
 type CoreQuery struct {

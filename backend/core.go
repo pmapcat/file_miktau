@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "log"
 	"sort"
 	"strings"
 )
@@ -31,11 +32,6 @@ func (n *CoreNodeItem) ModifiedInDays() uint32 {
 }
 
 // will have to call only on mutable actions
-func (n *CoreNodeItemStorage) WipeCache() {
-	n._thesaurus = nil
-	n._nodes_sorted = nil
-}
-
 func (n *CoreNodeItem) ApplyFilter(c *CoreQuery) bool {
 	// if query contains ids list, then it is likely that we
 	// must filter by ids
@@ -48,21 +44,32 @@ func (n *CoreNodeItem) ApplyFilter(c *CoreQuery) bool {
 		return false
 	}
 	// check equivalence for time
-	if !(c.Modified.Year > 0 && n.Modified.Year == c.Modified.Year) {
+
+	// if year is not specified, than skip.
+	// if year is specified and not matched, then the rest of the checking is meaningless
+	// log.Println("Checking for year equivavalency")
+	if c.Modified.Year > 0 && !(n.Modified.Year == c.Modified.Year) {
 		return false
 	}
-	if !(c.Modified.Day > 0 && n.Modified.Day == c.Modified.Day) {
+	// the same for the month
+	// log.Println("Checking for month equivavalency")
+	if c.Modified.Month > 0 && !(n.Modified.Month == c.Modified.Month) {
 		return false
 	}
-	if !(c.Modified.Month > 0 && n.Modified.Month == c.Modified.Month) {
+
+	// and the same for the day
+	// log.Println("Checking for day equivavalency")
+	if c.Modified.Day > 0 && !(n.Modified.Day == c.Modified.Day) {
 		return false
 	}
-	// match nothing as everything
+
+	// match all tags
 	if len(c.Tags) == 0 {
 		return true
 	}
 
 	// and perform is_subset on tags
+	// log.Println("Checking for tag subsets")
 	for _, query_tag := range c.Tags {
 		has_node_tag := false
 		for _, this_node_tag := range n.Tags {
@@ -74,6 +81,7 @@ func (n *CoreNodeItem) ApplyFilter(c *CoreQuery) bool {
 		if !has_node_tag {
 			return false
 		}
+		has_node_tag = false
 	}
 	return true
 }
@@ -88,6 +96,12 @@ func (n *CoreNodeItemStorage) MutableUpdateInBulk(query CoreQuery, cb func(*Core
 func newCoreNodeItemStorage() CoreNodeItemStorage {
 	return CoreNodeItemStorage{nodes: []*CoreNodeItem{}}
 }
+
+func (c *CoreNodeItemStorage) MutableAddManyForTestPurposes(data []*CoreNodeItem) {
+	for _, item := range data {
+		c.MutableAddNode(item.Tags, item.Name, item.Modified.Day, item.Modified.Month, item.Modified.Year)
+	}
+}
 func sort_slice(inverse bool, slice interface{}, less func(i, j int) bool) {
 	if inverse {
 		sort.Slice(slice, func(i, j int) bool {
@@ -99,22 +113,52 @@ func sort_slice(inverse bool, slice interface{}, less func(i, j int) bool) {
 	return
 }
 
-func (n *CoreNodeItemStorage) GetNodesSorted(field string) []*CoreNodeItem {
-	// check if initialized
-	if n._nodes_sorted == nil {
-		n._nodes_sorted = map[string][]*CoreNodeItem{}
+func (t *CoreQuery) WithTags(tags ...string) *CoreQuery {
+	t.Tags = tags
+	return t
+}
+
+func (t *CoreQuery) WithIds(ids ...int) *CoreQuery {
+	t.Ids = ids
+	return t
+}
+func (t *CoreQuery) OrderBy(sorted string) *CoreQuery {
+	t.Sorted = sorted
+	return t
+}
+func (t *CoreQuery) WithDate(year, month, day int) *CoreQuery {
+	if year < 0 {
+		year = 0
 	}
-	// check whether cache is present
-	nodes_list, ok := n._nodes_sorted[field]
-	if ok {
-		return nodes_list
+	if month < 0 {
+		month = 0
+	}
+	if day < 0 {
+		day = 0
 	}
 
+	t.Modified = CoreDateField{Year: year, Month: month, Day: day}
+	return t
+}
+func newCoreQuery() *CoreQuery {
+	return &CoreQuery{
+		Modified: CoreDateField{},
+		Sorted:   "",
+		Ids:      []int{},
+		Tags:     []string{},
+	}
+}
+
+func (n *CoreNodeItemStorage) GetNodesSorted(field string) []*CoreNodeItem {
+	// if no sort order was specified
+	if field == "" {
+		return n.nodes
+	}
 	// if not, sort it according to a preset
 	inverse := false
 	sfield := field
 	if strings.HasPrefix(field, "-") {
-		inverse := true
+		inverse = true
 		sfield = field[1:]
 	}
 
@@ -127,34 +171,33 @@ func (n *CoreNodeItemStorage) GetNodesSorted(field string) []*CoreNodeItem {
 		})
 	case "modified":
 		sort_slice(inverse, new_sortable, func(i, j int) bool {
-			return new_sortable[i].ModifiedInDays() < new_sortable[j].ModifiedInDays()
+			return new_sortable[i].ModifiedInDays() > new_sortable[j].ModifiedInDays()
 		})
 	}
-	// set cache
-	n._nodes_sorted[field] = new_sortable
-	// return result
 	return new_sortable
 }
 
 func (n *CoreNodeItemStorage) GetThesaurus() map[string]int {
-	if n._thesaurus == nil {
-		n._thesaurus = map[string]int{}
-		for _, node := range n.nodes {
-			for _, tag := range node.Tags {
-				n._thesaurus[tag] += 1
-			}
+	thesaurus := map[string]int{}
+	for _, node := range n.nodes {
+		for _, tag := range node.Tags {
+			thesaurus[tag] += 1
 		}
 	}
-	return n._thesaurus
-
+	return thesaurus
 }
 func (n *CoreNodeItemStorage) MutableAddNode(tags []string, fname string, day, month, year int) {
+	// empty tags set has the tendency to look like this [""]
+	if len(tags) == 1 && tags[0] == "" {
+		tags = []string{}
+	}
+
 	n.nodes = append(n.nodes,
-		&CoreNodeItem{Id: len(n.nodes) + 1, Name: fname, Tags: tags, Modified: CoreDateField{Year: year, Day: day, Month: month}})
+		&CoreNodeItem{Id: len(n.nodes), Name: fname, Tags: tags, Modified: CoreDateField{Year: year, Day: day, Month: month}})
 }
 
 func (n *CoreNodeItemStorage) GetInBulk(query CoreQuery, cb func(*CoreNodeItem)) {
-	for k, v := range n.nodes {
+	for _, v := range n.nodes {
 		if v.ApplyFilter(&query) {
 			cb(v)
 		}
@@ -176,7 +219,7 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	calendar := CoreDateFacet{Year: map[int]int{}, Month: map[int]int{}, Day: map[int]int{}}
 	calendar_can_select := CoreDateFacet{Year: map[int]int{}, Month: map[int]int{}, Day: map[int]int{}}
 	// Gathering and processing
-	for nodeid, node := range n.GetNodesSorted(query.Sorted) {
+	for _, node := range n.GetNodesSorted(query.Sorted) {
 		// getting MPT
 		tagroot := node.TagRoot(tag_thesaurus)
 		_, ok := cloud[tagroot]
@@ -217,6 +260,7 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	rsp := CoreAppDataResponse{}
 	rsp.NodeSorting = query.Sorted
 	rsp.TotalNodes = uint32(total_nodes)
+	rsp.Nodes = nodes_list
 	rsp.Calendar = calendar
 	rsp.CalendarCanSelect = calendar_can_select
 	rsp.Cloud = cloud

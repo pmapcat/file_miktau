@@ -1,9 +1,19 @@
 package main
 
 import (
+	"log"
 	"math/rand"
 	"strings"
+	"time"
 )
+
+func timeEval(perfname string, cb func()) {
+	start := time.Now()
+	cb()
+	elapsed := time.Since(start)
+	log.Printf("%s took: %s", perfname, elapsed)
+
+}
 
 func randomDateField() CoreDateField {
 	return CoreDateField{
@@ -29,11 +39,18 @@ func markovLorem(input string) func(outlen int) string {
 			res[var_arr[i-1]] = []string{}
 		}
 		item = append(item, var_arr[i])
+		res[var_arr[i-1]] = item
 	}
 	return func(maxlen int) string {
+		if maxlen == 0 {
+			return ""
+		}
 		return_data := []string{var_arr[rand.Intn(len(var_arr))]}
-		for i := 0; i <= maxlen; i++ {
+		for i := 0; i < maxlen; i++ {
 			seed := return_data[len(return_data)-1]
+			if len(res[seed]) == 0 {
+				return strings.Join(return_data, " ")
+			}
 			return_data = append(return_data, res[seed][rand.Intn(len(res[seed]))])
 		}
 		return strings.Join(return_data, " ")

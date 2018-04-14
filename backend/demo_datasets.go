@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -10,14 +11,27 @@ type DemoNode struct {
 	Tags []string
 }
 
-// generate dataset of a larger size(by using markov chain generator)
+// generate dataset of a larger size (by using markov chains generator)
 func generateStressDataSet(input []*CoreNodeItem, amount int) []*CoreNodeItem {
 	tags := []string{}
-	file_names []string{}
+	file_names := []string{}
+	fnames_regexp := regexp.MustCompile(`[A-zА-Яа-я\.]+`)
 	for _, v := range input {
-
+		tags = append(tags, v.Tags...)
+		file_names = append(file_names, fnames_regexp.FindAllString(v.Name, -1)...)
 	}
-
+	tagsLorem := markovLorem(strings.Join(tags, " "))
+	fnamesLorem := markovLorem(strings.Join(file_names, " "))
+	result := []*CoreNodeItem{}
+	for i := 0; i <= amount; i++ {
+		result = append(result,
+			&CoreNodeItem{
+				Name:     fnamesLorem(3),
+				Tags:     strings.Split(tagsLorem(10), " "),
+				Modified: randomDateField(),
+			})
+	}
+	return result
 }
 
 func buildDachaDataset() []*CoreNodeItem {
@@ -103,7 +117,10 @@ func buildDemoDataset() []*CoreNodeItem {
 	for _, v := range points {
 		date, filename, tags := v[0], v[1], v[2]
 		t, err := time.Parse("2006.01.02", strings.TrimSpace(date))
-		log.Fatal(err)
+		if err != nil {
+			log.Fatal("Error on: ", date, err)
+		}
+
 		result = append(result,
 			&CoreNodeItem{Name: strings.TrimSpace(filename), Tags: strings.Split(strings.TrimSpace(tags), " "), Modified: CoreDateField{
 				Year:  t.Year(),

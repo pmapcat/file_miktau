@@ -13,8 +13,7 @@ type serve_ struct {
 var serve = serve_{}
 
 func (s *serve_) GetAppData(w rest.ResponseWriter, r *rest.Request) {
-	rsp := RestAppDataResponse{}
-
+	// rsp := RestAppDataResponse{}
 }
 
 func (s *serve_) Serve(port int) {
