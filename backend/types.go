@@ -8,7 +8,8 @@ const MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM = 32
 
 type CoreNodeItemStorage struct {
 	sync.RWMutex
-	nodes []*CoreNodeItem
+	nodes    []*CoreNodeItem
+	core_dir string
 }
 
 type ModifyRecordsRequest struct {
@@ -19,8 +20,13 @@ type ModifyRecordsRequest struct {
 	Request         CoreQuery `json:"request"`
 }
 type FileActionRequest struct {
+	Error   error     `json:"error"`
 	Action  string    `json:"action"` // symlinks/default/filebrowser
 	Request CoreQuery `json:"request"`
+}
+type SwitchFoldersRequest struct {
+	Error    error  `json:"error"`
+	FilePath string `json:"file-path"`
 }
 
 type CoreQuery struct {
@@ -55,6 +61,7 @@ type CoreAppDataResponse struct {
 	Error             string                    `json:"error"`
 	NodeSorting       string                    `json:"nodes-sorted"`
 	TotalNodes        uint32                    `json:"total-nodes"`
+	CoreDirectory     string                    `json:"core-directory"`
 	Nodes             []*CoreNodeItem           `json:"nodes"`
 	CloudCanSelect    map[string]bool           `json:"cloud-can-select"`
 	Cloud             map[string]map[string]int `json:"cloud"`

@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-var CNIS = newCoreNodeItemStorage()
+var CNIS = newCoreNodeItemStorage("empty")
 
 type serve_ struct {
 }
@@ -53,11 +53,39 @@ func (s *serve_) BulkFileWorkage(w rest.ResponseWriter, r *rest.Request) {
 	// read lock (will not require changing of the main structure)
 	CNIS.RLock()
 	defer CNIS.Unlock()
-	// ==================== > CONTINUE FROM HERE < ==========================
+	enq := FileActionRequest{}
+	err := r.DecodeJsonPayload(&enq)
+	if err != nil {
+		w.WriteJson(newErrorBulkFileWorkage(err))
+		return
+	}
+	// process request & write response
+	enq.Error = CNIS.FSActionOnAListOfFiles(enq.Request, enq.Action)
+	w.WriteJson(enq)
 }
 
 func (s *serve_) SwitchFolders(w rest.ResponseWriter, r *rest.Request) {
+	// lock main structure
+	// write lock (will require "rewiping" of the working data structure)
+	CNIS.Lock()
+	defer CNIS.Unlock()
 
+	enq := SwitchFoldersRequest{}
+	err := r.DecodeJsonPayload(&enq)
+	if err != nil {
+		w.WriteJson(newErrorSwitchFoldersRequest(err))
+		return
+	}
+
+	// build new system structure based on
+	// newly loaded data from FS
+	nodes, err := fs_backend.BuildAppStateOnAFolder(enq.FilePath)
+	if err != nil {
+		w.WriteJson(newErrorSwitchFoldersRequest(err))
+		return
+	}
+	CNIS.RebirthWithNewData(nodes)
+	w.WriteJson(enq)
 }
 
 func (s *serve_) Serve(port int) {
@@ -66,7 +94,7 @@ func (s *serve_) Serve(port int) {
 	router, err := rest.MakeRouter(
 		rest.Post("/get-app-data", s.GetAppData),
 		rest.Post("/update-records", s.UpdateRecords),
-		rest.Post("/bulk-operate-on-files", s.BulkOperateOnFiles),
+		rest.Post("/bulk-operate-on-files", s.BulkFileWorkage),
 		rest.Post("/switch-projects", s.SwitchFolders),
 	)
 	if err != nil {

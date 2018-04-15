@@ -2,6 +2,7 @@ package main
 
 import (
 	// "log"
+	"errors"
 	"sort"
 	"strings"
 )
@@ -104,11 +105,16 @@ func (n *CoreNodeItemStorage) MutableUpdateInBulk(query CoreQuery, cb func(*Core
 		}
 	}
 }
-func newCoreNodeItemStorage() CoreNodeItemStorage {
-	return CoreNodeItemStorage{nodes: []*CoreNodeItem{}}
+func newCoreNodeItemStorage(core_dir string) CoreNodeItemStorage {
+	return CoreNodeItemStorage{nodes: []*CoreNodeItem{}, core_dir: core_dir}
 }
 
-func (c *CoreNodeItemStorage) MutableAddManyForTestPurposes(data []*CoreNodeItem) {
+func (c *CoreNodeItemStorage) RebirthWithNewData(new_data []*CoreNodeItem) {
+	c.nodes = new_data
+
+}
+
+func (c *CoreNodeItemStorage) MutableAddMany(data []*CoreNodeItem) {
 	for _, item := range data {
 		c.MutableAddNode(item.Tags, item.FilePath, item.Name, item.Modified.Day, item.Modified.Month, item.Modified.Year)
 	}
@@ -236,6 +242,13 @@ func newErrorModifyRecordsResponse(err error) ModifyRecordsRequest {
 	return ModifyRecordsRequest{Error: err.Error()}
 }
 
+func newErrorBulkFileWorkage(err error) FileActionRequest {
+	return FileActionRequest{Error: err}
+}
+func newErrorSwitchFoldersRequest(err error) SwitchFoldersRequest {
+	return SwitchFoldersRequest{Error: err}
+}
+
 func (n *CoreNodeItemStorage) MutableAddRemoveTagsToSelection(query CoreQuery, tags_to_add, tags_to_remove []string) int {
 	records_affected := 0
 	for nodeid, node := range n.nodes {
@@ -248,6 +261,22 @@ func (n *CoreNodeItemStorage) MutableAddRemoveTagsToSelection(query CoreQuery, t
 		}
 	}
 	return records_affected
+}
+
+func (n *CoreNodeItemStorage) FSActionOnAListOfFiles(query CoreQuery, action string) error {
+	fpathes := []string{}
+	n.GetInBulk(query, func(item *CoreNodeItem) {
+		fpathes = append(fpathes, item.FilePath)
+	})
+	switch action {
+	case "symlinks":
+		return fs_backend.OpenAsSymlinksInASingleFolder(fpathes)
+	case "filebrowser":
+		return fs_backend.OpenEachInFileExplorer(fpathes)
+	case "default":
+		return fs_backend.OpenEachInDefaultProgram(fpathes)
+	}
+	return errors.New("No action was specified for this dataset")
 }
 
 func (n *CoreNodeItemStorage) GetInBulk(query CoreQuery, cb func(*CoreNodeItem)) {
@@ -319,5 +348,6 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	rsp.CalendarCanSelect = calendar_can_select
 	rsp.Cloud = cloud
 	rsp.CloudCanSelect = cloud_can_select
+	rsp.CoreDirectory = n.core_dir
 	return rsp
 }

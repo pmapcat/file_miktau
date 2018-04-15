@@ -9,11 +9,20 @@ import (
 type fs_backend_ struct {
 }
 
+var fs_backend = fs_backend_{}
+
 func (f *fs_backend_) OpenAsSymlinksInASingleFolder(fpathes []string) error {
 	log.Println("Made symlinks of  ", len(fpathes), " files to /tmp/xyz")
 	log.Println("Some of them were renamed into (1) (2) variants")
 	log.Println("Now opening /tmp/xyz in file browser")
 	return nil
+}
+
+func (f *fs_backend_) BuildAppStateOnAFolder(fpath string) ([]*CoreNodeItem, error) {
+	log.Println("Reading the folder: ", fpath)
+	log.Println("Reading files, line by line")
+	log.Println("Populating CoreNodeItem with Files metadata")
+	return buildDemoDataset(), nil
 }
 
 func (f *fs_backend_) OpenEachInDefaultProgram(fpathes []string) error {

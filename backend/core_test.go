@@ -25,9 +25,9 @@ func TestLoremGenerator(t *testing.T) {
 func TestPerformance(t *testing.T) {
 	perfsize := 100000
 	tstd := generateStressDataSet(buildDemoDataset(), perfsize)
-	res := newCoreNodeItemStorage()
+	res := newCoreNodeItemStorage("testing")
 	timeEval(fmt.Sprintf("Inserting data in bulk on %v", perfsize), func() {
-		res.MutableAddManyForTestPurposes(tstd)
+		res.MutableAddMany(tstd)
 	})
 	timeEval(fmt.Sprintf("Baseline get_app_data on %v", perfsize), func() {
 		res.GetAppData(*newCoreQuery())
@@ -46,8 +46,8 @@ func TestPerformance(t *testing.T) {
 }
 
 func TestApplyFilter(t *testing.T) {
-	cnis := newCoreNodeItemStorage()
-	cnis.MutableAddManyForTestPurposes(buildDemoDataset())
+	cnis := newCoreNodeItemStorage("testing")
+	cnis.MutableAddMany(buildDemoDataset())
 	// check subset mechanics
 	assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithTags("natan")), true)
 	assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithTags("natan", "work")), true)
@@ -74,8 +74,8 @@ func TestApplyFilter(t *testing.T) {
 
 }
 func TestGettingStationaryAppData(t *testing.T) {
-	cnis := newCoreNodeItemStorage()
-	cnis.MutableAddManyForTestPurposes(buildDemoDataset())
+	cnis := newCoreNodeItemStorage("testing")
+	cnis.MutableAddMany(buildDemoDataset())
 	// test getting cloud
 	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).Cloud,
 		map[string]map[string]int{"": map[string]int{},
@@ -112,15 +112,15 @@ func TestGettingStationaryAppData(t *testing.T) {
 }
 
 func TestMutableWorkage(t *testing.T) {
-	cnis := newCoreNodeItemStorage()
-	cnis.MutableAddManyForTestPurposes(buildDemoDataset())
+	cnis := newCoreNodeItemStorage("testing")
+	cnis.MutableAddMany(buildDemoDataset())
 	cnis.MutableAddRemoveTagsToSelection(*newCoreQuery().WithTags("work"), []string{"bolo"}, []string{"work"})
 	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).Cloud, map[string]map[string]int{"": map[string]int{}, "bolo": map[string]int{"магазины": 2, "personal": 4, "amazon": 2, "wiki": 1, "sforim": 2, "биржа": 2, "blog": 1, "zeldin": 2, "everybook": 1, "bibliostore": 8, "translator": 2, "devops": 1, "согласовать": 1, "скачка_источников": 1, "UI": 1, "usecases": 2, "natan": 13, "moscow_market": 9, "bolo": 20}, "работа_сделана": map[string]int{"работа_сделана": 1}})
 }
 func TestGetAppData(t *testing.T) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	cnis := newCoreNodeItemStorage()
-	cnis.MutableAddManyForTestPurposes(buildDemoDataset())
+	cnis := newCoreNodeItemStorage("testing")
+	cnis.MutableAddMany(buildDemoDataset())
 
 	// assert.Equal(t, cnis.GetAppData(*newCoreQuery()).Cloud, "blab")
 
@@ -136,12 +136,20 @@ func TestGetAppData(t *testing.T) {
 }
 
 func TestGettingNodesByFilePaths(t *testing.T) {
+	cnis := newCoreNodeItemStorage("testing")
+	cnis.MutableAddMany(buildDemoDataset())
+
+	counter := 0
+	cnis.GetInBulk(*newCoreQuery().WithFilePathes("/home/mik/chosen_one/", "/home/mik/this_must_be_it/"), func(cni *CoreNodeItem) {
+		counter += 1
+	})
+	assert.Equal(t, counter, 9)
 
 }
 func TestDachaBaselineDataset(t *testing.T) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	cnis := newCoreNodeItemStorage()
-	cnis.MutableAddManyForTestPurposes(buildDachaDataset())
+	cnis := newCoreNodeItemStorage("testing")
+	cnis.MutableAddMany(buildDachaDataset())
 	assert.Equal(t, cnis.GetAppData(*newCoreQuery().WithTags("дервья")).Cloud,
 		map[string]map[string]int{"дача": map[string]int{"дом": 23, "ближний": 2, "утепление": 2, "обратный_клапан": 1, "магистраль_до_колодца": 1, "потребные_материалы": 2, "сад": 3, "окна": 2, "верстак": 1, "лестница": 1, "план_чередования": 1, "конструкция": 2, "чертежи": 1, "ворот": 1, "раковина": 2, "ванная": 2, "душ": 1, "на_кухню": 1, "к_душу": 2, "огород": 4, "стол": 1, "от_раковины_в_ванной": 1, "от_раковины_в_туалете": 1, "от_раковины_с": 1, "дача": 37, "канализация": 2, "уличная_мебель": 1, "вывод_из_дома": 1, "сушилка": 1, "отопление": 1, "шланг_верхний": 1, "тросы_подвеса_насоса": 1, "газовый_балон": 1, "каркас": 1, "магистраль_в": 1, "колодец": 2, "фундамент": 2, "санузел": 4, "план_грядок": 2, "однолетники": 1, "каркас_под_насос": 1, "фильтрационный_колодец": 1, "погреб": 4, "перед_домом": 1, "у_дорожки_слева": 2, "шланг_нижний": 1, "к_раковине_в_туалете": 1, "цвет?": 1, "стелажи": 2, "многолетники": 1, "сорта_культур": 1, "к_ванне": 1, "перекрытия": 1, "обшивка": 1, "у_дорожки_справа": 2, "уплотнение": 2, "эскизы": 1, "стулья": 1, "туалет": 1, "кухни": 1, "припасы": 2, "беседка": 3, "стены": 3, "вода": 2, "доме": 1, "крыша": 2, "замки": 2, "тумбы": 1, "замок": 1, "гриль": 1, "дверь": 2, "внутренние": 1, "трос_ведра": 1, "разводка_воды_в_доме": 3, "к_раковине_в_ванной": 1, "холодильник": 1, "сарай": 3, "перегородки": 1, "деревья": 1, "кусты": 1, "клубника": 1, "ручки": 3, "насос": 1, "полки": 1, "плита": 1, "ванна": 1, "пол": 1, "забор": 1, "малина": 1, "наружные": 8, "": 1, "ведро": 1, "ввод": 1, "двери": 9, "кухня": 3, "цветники": 4, "перед_беседкой": 1, "дальний": 2, "список_культур": 2, "к_унитазу": 1, "освещение": 1}})
 
