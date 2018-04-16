@@ -87,15 +87,19 @@ func (s *serve_) SwitchFolders(w rest.ResponseWriter, r *rest.Request) {
 	CNIS.RebirthWithNewData(nodes)
 	w.WriteJson(enq)
 }
+func (s *serve_) CheckIsLive(w rest.ResponseWriter, r *rest.Request) {
+	w.WriteJson(map[string]string{"status": "alive and kickin!"})
+}
 
 func (s *serve_) Serve(port int) {
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
 	router, err := rest.MakeRouter(
-		rest.Post("/get-app-data", s.GetAppData),
-		rest.Post("/update-records", s.UpdateRecords),
-		rest.Post("/bulk-operate-on-files", s.BulkFileWorkage),
-		rest.Post("/switch-projects", s.SwitchFolders),
+		rest.Get("/api", s.CheckIsLive),
+		rest.Post("/api/get-app-data", s.GetAppData),
+		rest.Post("/api/update-records", s.UpdateRecords),
+		rest.Post("/api/bulk-operate-on-files", s.BulkFileWorkage),
+		rest.Post("/api/switch-projects", s.SwitchFolders),
 	)
 	if err != nil {
 		log.Fatal(err)

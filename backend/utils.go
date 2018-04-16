@@ -7,6 +7,15 @@ import (
 	"time"
 )
 
+func dateNow() CoreDateField {
+	t := time.Now()
+	return CoreDateField{
+		Year:  t.Year(),
+		Day:   t.Day(),
+		Month: int(t.Month()),
+	}
+
+}
 func timeEval(perfname string, cb func()) {
 	start := time.Now()
 	cb()

@@ -5,6 +5,9 @@ windows:
   - lein:
       layout: main-vertical
       panes:
+        - backend:
+            - cd backend/
+            - ./backend
         - shell:
             ls
         - repl:

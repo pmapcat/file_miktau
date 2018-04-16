@@ -1,6 +1,34 @@
 (ns miktau.utils
   (:require    [ajax.core :as ajax]
+               [clojure.string :as cljs-string]
                [re-frame.core :as refe]))
+(defn with-http-xhrio [params]
+  (merge
+   {:response-format (ajax/json-response-format {:keywords? true})
+    :format          (ajax/json-request-format)
+    :timeout         8000}
+   params))
+
+(defn parse-sorting-field
+  [input]
+  (let [input    (str input)
+        inverse? (cljs-string/starts-with? input "-")
+        field    (if inverse? (apply str (rest input)) input)]
+    {:inverse? inverse?
+     :field   (keyword field)}))
+
+(defn month-name
+  [month-number]
+  (get ["January" "February" "March"  "April"  "May"  "June" "July" "August" "September" "October" "November" "December"] (dec month-number)))
+
+(defn whether-this-date-adheres-to-now-date?
+  [db items]
+  (every?
+   identity
+   (for [i items]
+     (contains?  (:calendar-can-select db)
+                 (i (db :date-now))))))
+
 
 (defn register-server-roundtrip
   [fx-name url-params request-params before-load success-fn error-fn]

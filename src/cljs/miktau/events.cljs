@@ -11,44 +11,131 @@
    {:loading? true
     :filtering ""
     
-    :nodes [{:name "hello.mkv" :tags #{"blab" "blip" "blop"} :modified "2018.02.03"}]
-    :nodes-selected #{"*"}
-    :nodes-sorted {:field :name :reverse? false}
-
-    :cloud-selected #{"blab"}
-    :cloud  {"VolutPatem" {"blab" 43 "blip" 27 "blop" 12}}
-    :cloud-can-select #{"blip"}
+    :nodes-sorted "-name"
+    :core-directory ":test:"
+    :date-now {:year 2016 :month 7 :day 21}
     
-    :calendar-selected {:year  "2018"  :day "23" :month "11"}
-    :calendar   {:year ["2018" "2017" "2016"]
-                 :month ["January" "February" "Whatever"]
-                 :day   ["1" "2" "3"]}
-    :calendar-can-select {:year #{}
-                          :month #{}
-                          :day   #{}}}))
+    :nodes [{:id 0, :name "blab.mp4" :file-path "/home/mik/this_must_be_it/" :tags []
+             :modified {:year 2016 :month 7 :day 21}}]
+    :nodes-selected #{"*"}
+    
+    :cloud-selected #{:blab}
+    :cloud  {:VolutPatem {:blab 43 :blip 27 :blop 12}}
+    :cloud-can-select {:blip true :blop true}
+    
+    :calendar-selected {:year  2018  :day 23 :month 11}
+    :calendar   {:year {:2018 12 :2017 13 :2016 12}
+                 :month {:12 1 :13 1 :14 2}
+                 :day   {:1 3 :2 3 :3 4}}
+    :calendar-can-select {:year {:2018 2}
+                          :month {:11 3}
+                          :day   {:9 3}}}))
 
-(defn http-error
-  [db response]
-  {:db     (assoc db :loading? false)
-   :log!   (str response)})
+(refe/reg-event-fx
+ :http-error
+ (fn [{:keys [db]} [_ response]]
+   {:db (assoc db :loading? false)
+    :log!  (str response)}))
 
-(utils/register-server-roundtrip
+(refe/reg-event-fx
  :get-app-data
- {:method :get :url "/get-app-data/"}
- (fn [db]
-   {:cloud-selected (into [] (db :cloud-selected))
-    :calendar-selected (db :calendar-selected)
-    :nodes-sorted (db :nodes-sorted)})
- (fn [db]
-   (assoc db :loading? true))
- (fn [db response]
-   {:db
-    (assoc
-     db :loading? true
-     :nodes-selected #{}
-     :nodes (:nodes response))
-    (response ) (assoc  db :loading? false)})
- http-error)
+ (fn [{:keys [db]} _]
+   {:db (assoc  db :loading? true) 
+    :http-xhrio
+    (utils/with-http-xhrio
+      {:method :post
+       :uri    "/api/get-app-data"
+       :params  {}
+       :on-success [:got-app-data]
+       :on-failure [:http-error]})}))
+
+(refe/reg-event-db
+ :got-app-data
+ (fn [{:keys [db]} [_ response]]
+   (assoc
+    (merge
+     db
+     response)
+    db :loading? false)))
+
+(comment
+  (refe/dispatch [:get-app-data])
+  (println (first (:nodes  heho)))
+  (:nodes-sorted heho)
+  (:cloud heho)
+  (:calendar heho)
+  (:calendar-can-select heho)
+  (:core-directory heho)
+  (keys heho))
+
+(refe/reg-event-db
+ :back
+ (fn [db _]
+   (.log js/console "registered <back> event")))
+
+(refe/reg-event-db
+ :filtering
+ (fn [_ [_ data]]
+   (.log js/console "registered filtering event on: " data)))
+
+(refe/reg-event-db
+ :clear
+ (fn [db _]
+   (.log js/console "registered clearing event on: " data)))
+
+(refe/reg-event-db
+ :click-on-calendar-item
+ (fn [db [_ group key-name]]
+   (if (=  group "FastAccess")
+     (.log js/console "registered point clicking event on: " (str key-name))
+     (.log js/console "registered clicking event on calendar: " (str group) " " (str key-name)))))
+
+(refe/reg-event-db
+ :clicked-cloud-item
+ (fn [db [_ item]]
+   (.log js/console "Clicked cloud item: " (str item))))
+
+(refe/reg-event-db
+ :clicked-many-cloud-items
+ (fn [db [_ items]]
+   (.log js/console "Clicked many clou  items: " (str items))))
+
+
+(refe/reg-event-db
+ :select-all-nodes
+ (fn [db i]
+   (.log js/console "Clicked on <select all nodes> button")))
+
+(refe/reg-event-db
+ :unselect-all-nodes
+ (fn [db i]
+   (.log js/console "Clicked on <unselect all nodes> button")))
+
+
+(refe/reg-event-db
+ :sort
+ (fn [db [_ sort-order]]
+   (.log js/console "Sorting in order: " sort-order)))
+
+(refe/reg-event-db
+ :select-node
+ (fn [db [_ file-path]]
+   (.log js/console "Selected node by filepath: " filepath)))
+
+(refe/reg-event-db
+ :file-operation
+ (fn [db [_ operation-name]]
+   (.log js/console "Operating on selected files: " (str (name operation-name)))))
+
+
+
+
+
+
+
+
+
+
 
 ;; (refe/reg-event-db
 ;;  :on-initialized

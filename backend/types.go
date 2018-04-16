@@ -62,6 +62,7 @@ type CoreAppDataResponse struct {
 	NodeSorting       string                    `json:"nodes-sorted"`
 	TotalNodes        uint32                    `json:"total-nodes"`
 	CoreDirectory     string                    `json:"core-directory"`
+	DateNow           CoreDateField             `json:"date-now"`
 	Nodes             []*CoreNodeItem           `json:"nodes"`
 	CloudCanSelect    map[string]bool           `json:"cloud-can-select"`
 	Cloud             map[string]map[string]int `json:"cloud"`

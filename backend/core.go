@@ -349,5 +349,6 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	rsp.Cloud = cloud
 	rsp.CloudCanSelect = cloud_can_select
 	rsp.CoreDirectory = n.core_dir
+	rsp.DateNow = dateNow()
 	return rsp
 }
