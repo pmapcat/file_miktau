@@ -1,6 +1,7 @@
 (ns miktau.utils
   (:require    [ajax.core :as ajax]
                [clojure.string :as cljs-string]
+               [clojure.set :as clojure-set]
                [re-frame.core :as refe]))
 (defn with-http-xhrio [params]
   (merge
@@ -16,6 +17,11 @@
         field    (if inverse? (apply str (rest input)) input)]
     {:inverse? inverse?
      :field   (keyword field)}))
+(defn jaccard
+  [set-a set-b]
+  (/
+   (count (clojure-set/intersection set-a set-b))
+   (count (clojure-set/union set-a set-b))))
 
 (defn month-name
   [month-number]

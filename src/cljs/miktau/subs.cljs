@@ -1,27 +1,35 @@
 (ns miktau.subs
   (:require [re-frame.core :as refe]
+            [clojure.string :as cljs-string]
             [miktau.utils :as utils]))
-(refe/reg-sub
- :filtering
- (fn [db _]
-   (or (db :filtering) "")))
+(defn filtering [db _]
+  (or (db :filtering) ""))
+(refe/reg-sub :filtering filtering)
 
-(refe/reg-sub
- :cloud
- (fn [db _]
+(defn cloud
+  [db _]
    (for [[group-name group] (:cloud db)]
-     (let [max-size (apply max (vals group))]
+     (let [max-size (apply max (vals group))
+           filtering (into #{} (cljs-string/lower-case (db :filtering)))
+           is-filtering? (not= "" (db :filtering))]
        {:group-name (str (name group-name))
         :max-size   max-size
         :group
-        (for [[tag tag-size] group]
-          {:name    (str (name tag))
-           :key-name tag
-           :size     tag-size
-           :group    group-name
-           :wieghted-size (/ tag-size max-size)
-           :selected?      (contains? (db :selected) tag)
-           :can-select?    (contains? (:cloud-can-select db) tag)})}))))
+        (filter
+         (fn [item]
+           (if is-filtering?
+             (>  (utils/jaccard filtering (item :compare-name)) 0.7)
+             true))
+         (for [[tag tag-size] group]
+           {:name    (str (name tag))
+            :compare-name (into #{} (cljs-string/lower-case (str (name tag))))
+            :key-name tag
+            :size     tag-size
+            :group    group-name
+            :wieghted-size (/ tag-size max-size)
+            :selected?      (contains? (db :selected) tag)
+            :can-select?    (contains? (:cloud-can-select db) tag)}))})))
+(refe/reg-sub :cloud cloud)
 
 (refe/reg-sub
  :calendar
@@ -95,9 +103,11 @@
          :all-tags (map keyword (i :tags))
          :file-path (i :file-path)
          :tags
-         (for [tag (i :tags)]
+         (for [tag (into #{} (concat  (i :tags) (db :nodes-temp-tags-to-add)))]
            {:name    (str (name tag))
             :key-name (keyword (str tag))
+            :to-add?        (contains? (db :nodes-temp-tags-to-add) tag)
+            :to-delete?     (contains? (db :nodes-temp-tags-to-delete) tag)
             :selected?      (contains? (db :selected) (keyword tag))
             :can-select?    true})})})))
 
@@ -110,18 +120,9 @@
       :total-amount
       (if all-selected? (db :total-nodes)
           (count (db :nodes-selected)))
-      :tags-to-delete
-      (if all-selected?
-        (into [] (map str (map name (keys (db :cloud-can-select)))))
-        (map
-         str
-         (into
-          []
-          (flatten
-           (for [item (db :nodes)]
-             (if (contains? (db :nodes-selected) (item :file-path))
-               (:tags item)
-               nil))))))})))
+      :tags-to-add    (db :nodes-temp-tags-to-add)
+      :tags-to-delete (db :nodes-temp-tags-to-delete)})))
+
 ;; (reg-sub
 ;;  :total
 ;;  (fn [db _]

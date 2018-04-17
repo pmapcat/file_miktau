@@ -1,6 +1,7 @@
 (ns miktau.views.core
   (:require [miktau.views.utils :as views-utils]
             [re-frame.core :as refe]
+            [clojure.string :as clojure-string]
             [miktau.utils :as utils]
             [miktau.lorem :as lorem]))
 (defn e->content
@@ -173,17 +174,24 @@
       "Remove tags from selection"]
      [:input {:name "tags-to-delete"
               :placeholder "Remove"
-              :on-change #(refe/dispatch [:delete-tags-from-selection])
+              :on-change #(refe/dispatch [:delete-tags-from-selection (e->content %)])
               :value
-              (clojure.string/join "," (nodes-changing :tags-to-delete))}]
+              (clojure-string/join "," (nodes-changing :tags-to-delete))}]
      [:h2.header-font.light-gray.mik-cut-bottom.mik-flush-right
       (views-utils/icon "local_offer")
       "Add new tags" ]
-     [:input {:name "tags-to-add" :placeholder "Add" :value "new,tag"}]
+     [:input {:name "tags-to-add" :placeholder "Add"
+              :on-change #(refe/dispatch [:add-tags-to-selection (e->content %)])
+              :value (nodes-changing :tags-to-add)}]
      [:div.mik-flush-right {:style {:margin-top "2em"}}
-      [:a.pure-button {:href "#"}
+      [:a.pure-button {:href "#"
+                       :on-click #(refe/dispatch [:submit-tagging-now])}
        (views-utils/icon "save")
-       "Save changes!"]]]))
+       "Save changes!"]
+      [:a.pure-button {:href "#"
+                       :on-click #(refe/dispatch [:cancel-tagging-now])}
+       (views-utils/icon "cancel")
+       "Cancel changes!"]]]))
 
 (defn  tag-tree []
   [:div.pure-g.mik-flush-right
@@ -257,9 +265,16 @@
                :on-click #(refe/dispatch [:clicked-cloud-item (tag :key-name)])
                :class
                (str
-                (cond (:selected? tag) "selected"
-                      (:can-select? tag) "can-select"
-                      :else "disabled"))
+                (cond (:to-delete? tag) "diff-delete-overline"
+                      (:to-add?    tag) "diff-add"
+                      :else
+                      "")
+                " "
+                (cond
+                  (:selected? tag) "selected"
+                  (:can-select? tag) "can-select"
+                  :else "disabled"))
+               
                :style {:font-weight "300"}}  (:name tag) " "])
            
            [:a.unstyled-link

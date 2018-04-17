@@ -9,7 +9,6 @@
 
 (defn init []
   (refe/dispatch [:get-app-data])
-  
   (reagent/render-component [views_core/main]
                             (.getElementById js/document "container"))
   )

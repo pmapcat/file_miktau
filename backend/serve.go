@@ -26,8 +26,10 @@ func (s *serve_) GetAppData(w rest.ResponseWriter, r *rest.Request) {
 		w.WriteJson(newErrorCoreAppDataResponse(err))
 		return
 	}
-	// response app data results
 	w.WriteJson(CNIS.GetAppData(enq))
+
+	// response app data results
+
 }
 
 func (s *serve_) UpdateRecords(w rest.ResponseWriter, r *rest.Request) {

@@ -17,7 +17,7 @@ func (n *CoreNodeItem) TagRoot(thesaurus map[string]int) string {
 	max := 0
 	max_tag := ""
 	for _, tag := range n.Tags {
-		if thesaurus[tag] >= max {
+		if thesaurus[tag] > max {
 			max_tag = tag
 			max = thesaurus[tag]
 		}
@@ -110,14 +110,15 @@ func newCoreNodeItemStorage(core_dir string) CoreNodeItemStorage {
 }
 
 func (c *CoreNodeItemStorage) RebirthWithNewData(new_data []*CoreNodeItem) {
-	c.nodes = new_data
-
+	c.nodes = []*CoreNodeItem{}
+	c.MutableAddMany(new_data)
 }
 
 func (c *CoreNodeItemStorage) MutableAddMany(data []*CoreNodeItem) {
 	for _, item := range data {
 		c.MutableAddNode(item.Tags, item.FilePath, item.Name, item.Modified.Day, item.Modified.Month, item.Modified.Year)
 	}
+
 }
 func sort_slice(inverse bool, slice interface{}, less func(i, j int) bool) {
 	if inverse {
@@ -208,6 +209,7 @@ func (n *CoreNodeItemStorage) GetThesaurus() map[string]int {
 	}
 	return thesaurus
 }
+
 func (n *CoreNodeItemStorage) MutableAddNode(tags []string, fpath, fname string, day, month, year int) {
 	// empty tags set has the tendency to look like this [""]
 	if len(tags) == 1 && tags[0] == "" {
@@ -286,6 +288,9 @@ func (n *CoreNodeItemStorage) GetInBulk(query CoreQuery, cb func(*CoreNodeItem))
 		}
 	}
 }
+func (n *CoreNodeItem) IsTagged() bool {
+	return len(n.Tags) > 0
+}
 
 func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 
@@ -304,13 +309,15 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	// Gathering and processing
 	for _, node := range n.GetNodesSorted(query.Sorted) {
 		// getting MPT
-		tagroot := node.TagRoot(tag_thesaurus)
-		_, ok := cloud[tagroot]
-		if !ok {
-			cloud[tagroot] = map[string]int{}
-		}
-		for _, tag := range node.Tags {
-			cloud[tagroot][tag] += 1
+		if node.IsTagged() {
+			tagroot := node.TagRoot(tag_thesaurus)
+			_, ok := cloud[tagroot]
+			if !ok {
+				cloud[tagroot] = map[string]int{}
+			}
+			for _, tag := range node.Tags {
+				cloud[tagroot][tag] += 1
+			}
 		}
 
 		// getting calendar

@@ -18,6 +18,8 @@
     :nodes [{:id 0, :name "blab.mp4" :file-path "/home/mik/this_must_be_it/" :tags []
              :modified {:year 2016 :month 7 :day 21}}]
     :nodes-selected #{"*"}
+    :nodes-temp-tags-to-delete #{}
+    :nodes-temp-tags-to-add    #{}
     
     :cloud-selected #{:blab}
     :cloud  {:VolutPatem {:blab 43 :blip 27 :blop 12}}
@@ -30,6 +32,26 @@
     :calendar-can-select {:year {:2018 2}
                           :month {:11 3}
                           :day   {:9 3}}}))
+
+(refe/reg-event-db
+ :set-nodes-temp-tags-to-delete
+ (fn [db _]
+   (assoc
+    db
+    :nodes-temp-tags-to-delete
+    (let [all-selected? (=  (first (db :nodes-selected)) "*")]
+      (if all-selected?
+        (into #{} (map str (map name (keys (db :cloud-can-select)))))
+        (into #{}
+              (map
+               str
+               (into
+                []
+                (flatten
+                 (for [item (db :nodes)]
+                   (if (contains? (db :nodes-selected) (item :file-path))
+                     (:tags item)
+                     nil)))))))))))
 
 (refe/reg-event-fx
  :http-error
@@ -52,13 +74,19 @@
 (refe/reg-event-db
  :got-app-data
  (fn [{:keys [db]} [_ response]]
-   (assoc
-    (merge
-     db
-     response)
-    db :loading? false)))
+   (do
+     (println "========= RESPONSE ==========")
+     (println (str response))
+     (println "========= END RESPONSE =======")
+     (assoc
+      (merge
+       db
+       response)
+      :loading? false))))
+
 
 (comment
+  (println (str dodo))
   (refe/dispatch [:get-app-data])
   (println (first (:nodes  heho)))
   (:nodes-sorted heho)
@@ -81,7 +109,7 @@
 (refe/reg-event-db
  :clear
  (fn [db _]
-   (.log js/console "registered clearing event on: " data)))
+   (.log js/console "registered clearing event" )))
 
 (refe/reg-event-db
  :click-on-calendar-item
@@ -99,7 +127,6 @@
  :clicked-many-cloud-items
  (fn [db [_ items]]
    (.log js/console "Clicked many clou  items: " (str items))))
-
 
 (refe/reg-event-db
  :select-all-nodes
@@ -120,226 +147,31 @@
 (refe/reg-event-db
  :select-node
  (fn [db [_ file-path]]
-   (.log js/console "Selected node by filepath: " filepath)))
+   (.log js/console "Selected node by filepath: " file-path)))
 
 (refe/reg-event-db
  :file-operation
  (fn [db [_ operation-name]]
    (.log js/console "Operating on selected files: " (str (name operation-name)))))
 
+(refe/reg-event-db
+ :delete-tags-from-selection
+ (fn [db [_ tag-list]]
+   (.log js/console "Tags that must be deleted: " tag-list)))
 
+(refe/reg-event-db
+ :add-tags-to-selection
+ (fn [db [_ tag-list]]
+   (.log js/console "Tags that must be added to selection: " tag-list)))
+(refe/reg-event-db
+ :submit-tagging-now
+ (fn [db _]
+   (.log js/console "Tagging now is submitted")
+   (.log js/console "Must send to server to submit :nodes-temp-tags-to-delete and :nodes-temp-tags-to-add")
+   (.log js/console "Must, also, probably, clear :nodes-selected")))
 
-
-
-
-
-
-
-
-
-;; (refe/reg-event-db
-;;  :on-initialized
-;;  (fn [_ [_ new-db-state]]
-;;    (assoc new-db-state :status :ready
-;;           :csrf-token (aget js/window "csrftoken"))))
-
-;; (refe/reg-event-fx                           
-;;   :login
-;;   (fn [{:keys [db]} [_ user pass]]
-;;     {:db   (assoc db :status :loading
-;;                      :username user)
-;;      :http-xhrio {:method          :post
-;;                   :uri             "/tabel/users/check_credentials/"
-;;                   :response-format (ajax/json-response-format {:keywords? true})
-;;                   :format          (ajax/json-request-format)
-;;                   :params          {:username user :password pass}
-;;                   :headers         {"X-CSRFToken" (db :csrf-token)}
-;;                   :timeout         8000
-;;                   :on-success      [:on-login]
-;;                   :on-failure      [:http-error]}}))
-
-;; (refe/reg-event-fx
-;;  :set-user-meta
-;;  (fn [{:keys [db]} [_ key val on-after]]
-;;    (let [us-meta (get-in db [:user :Meta])]
-;;      {:db (assoc db :status :loading)
-;;       :http-xhrio
-;;       {:method          :post
-;;        :uri             (str "/tabel/users/" (:userid db)  "/store-user-meta/")
-;;        :response-format (ajax/json-response-format {:keywords? true})
-;;        :format          (ajax/json-request-format)
-;;        :params          {:meta (data->str (assoc us-meta key val))}
-;;        :headers         {"X-CSRFToken" (db :csrf-token)}
-;;        :timeout         8000
-;;        :on-success      [on-after]
-;;        :on-failure      [:http-error]}})))
-
-;; (refe/reg-event-fx
-;;  :do-break
-;;  (fn [{:keys [db]} _]
-;;    {:db (assoc db :status :loading)
-;;     :fx-redirect  [:set-user-meta :break-type? "BREAK" :not.view.do-out]}))
-
-;; (refe/reg-event-fx
-;;  :do-out
-;;  (fn [{:keys [db]} _]
-;;    {:db (assoc db :status :loading)
-;;     :fx-redirect  [:set-user-meta :break-type? "OUT" :not.view.do-out]}))
-
-;; (reg-event-fx
-;;  :where?.office
-;;  (fn [{:keys [db]} _]
-;;    {:db (assoc db :status :loading)
-;;     :fx-redirect [:set-user-meta :where? "ОФИС" :get-app-data-from-server]}))
-
-;; (reg-event-fx
-;;  :where?.transit
-;;  (fn [{:keys [db]} _]
-;;    {:db (assoc db :status :loading)
-;;     :fx-redirect [:set-user-meta :where? "ПОЕЗДКА" :get-app-data-from-server]}))
-
-;; (reg-event-fx
-;;  :where?.home
-;;  (fn [{:keys [db]} _]
-;;    {:db (assoc db :status :loading)
-;;     :fx-redirect [:set-user-meta :where? "ДОМ" :get-app-data-from-server]}))
-
-;; (reg-event-fx
-;;  :where?.storage
-;;  (fn [{:keys [db]} _]
-;;    {:db (assoc db :status :loading)
-;;     :fx-redirect [:set-user-meta :where? "СКЛАД" :get-app-data-from-server]}))
-
-;; (reg-event-fx
-;;  :get-app-data-from-server
-;;  (fn [{:keys [db]} _]
-;;    {:db (assoc db :status :loading)
-;;     :http-xhrio {:method          :get
-;;                  :uri             "/tabel/users/get_app_state/"
-;;                  :response-format (ajax/json-response-format {:keywords? true})
-;;                  :params          {:username (db :username)}
-;;                  :headers         {"X-CSRFToken" (db  :csrf-token)}
-;;                  :timeout         8000
-;;                  :on-success      [:on-got-data-from-server]
-;;                  :on-failure      [:http-error]}}))
-
-
-;; (reg-event-fx
-;;  :on-got-data-from-server
-;;  (fn [{:keys [db]} [_ bulk]]
-;;    (let [now       (events-utils/now)
-;;          user      (events-utils/prep-user (:user bulk))
-;;          sessions  (events-utils/prep-sessions (:working_sessions bulk))
-;;          group     (map events-utils/prep-user (:user_group bulk))
-;;          db-finite
-;;          (assoc
-;;           db
-;;           :user user
-;;           :status :ready
-;;           :userid (:Id user)
-;;           :cur-session
-;;           (or  (first  (filter #(= (:Id %) (user :LastSessid)) sessions)) nil)
-;;           :total
-;;           (reduce + (map :MinutesWorked sessions))
-;;           :sessions
-;;           sessions
-;;           :group group)]
-;;      {:notify! (clojure.string/join "\n" (events-utils/ins-and-outs (:group db) group))
-;;       :store!  (assoc db-finite :modal nil)
-;;       :db db-finite})))
-
-;; (reg-event-fx
-;;  :logout
-;;  (fn [{:keys [db]} _]
-;;    {:db (assoc db :auth? false)
-;;     :store! (assoc db :auth? false :modal nil)
-;;     :notify! "Logged out"}))
-
-;; (reg-event-fx
-;;  :on-login
-;;  (fn [{:keys [db]} [_ body]]
-;;    (let [valid-user? (:valid_user body)]
-;;      (if valid-user?
-;;        {:db (assoc db :status :loading :auth? true)
-;;         :http-xhrio {:method          :get
-;;                      :uri             "/tabel/users/get_app_state/"
-;;                      :response-format (ajax/json-response-format {:keywords? true})
-;;                      :params          {:username (db :username)}
-;;                      :headers         {"X-CSRFToken" (db  :csrf-token)}
-;;                      :timeout         8000
-;;                      :on-success      [:on-got-data-from-server]
-;;                      :on-failure      [:http-error]}}
-;;        {:db (assoc db :status :ready :auth? false)}))))
-
-
-;; ;;       ============================= MUTABLE CHANGES =========================
-;; (reg-event-fx
-;;  :do-in
-;;  (fn [{:keys [db]} [_ transit?]]
-;;    {:db (assoc db :status :loading)
-;;     :http-xhrio {:method          :post
-;;                  :uri             (str "/tabel/users/" (:userid db) "/do-in/")
-;;                  :format          (ajax/json-request-format)                                  
-;;                  :response-format (ajax/json-response-format {:keywords? true})
-;;                  :params          {:user (db  :username) :project "n/a" :is_transit transit? }
-;;                  :headers         {"X-CSRFToken" (db  :csrf-token)}
-;;                  :timeout         8000
-;;                  :on-success      (if transit? [:where?.transit]
-;;                                       [:get-app-data-from-server])
-;;                  :on-failure      [:http-error]}}))
-
-;; (reg-event-fx
-;;  :not.view.do-out
-;;  (fn [{:keys [db]} _]
-;;    {:db (assoc db :status :loading)
-;;     :http-xhrio {:method          :post
-;;                  :uri             (str "/tabel/users/" (:userid db) "/do-out/")
-;;                  :response-format (ajax/json-response-format {:keywords? true})
-;;                  :format          (ajax/json-request-format)                 
-;;                  :params          {:username (db  :username) :password (db :pass)}
-;;                  :headers         {"X-CSRFToken" (db  :csrf-token)}
-;;                  :timeout         8000
-;;                  :on-success      [:get-app-data-from-server]
-;;                  :on-failure      [:http-error]}}))
-
-;; (reg-event-fx
-;;  :delete-session
-;;  (fn [{:keys [db]} [_ sessid]]
-;;    {:db (assoc db :status :loading)
-;;     :http-xhrio {:method          :delete
-;;                  :uri             (str  "/tabel/workingsessions/" sessid "/")
-;;                  :response-format (ajax/json-response-format {:keywords? true})
-;;                  :format          (ajax/json-request-format)
-;;                  :params          {:username (db  :username) :password (db :pass)}
-;;                  :headers         {"X-CSRFToken" (db  :csrf-token)}
-;;                  :timeout         8000
-;;                  :on-success      [:get-app-data-from-server]
-;;                  :on-failure      [:http-error]}}))
-
-;; (reg-event-fx
-;;  :change-session
-;;  (fn [{:keys [db]} [_ sessid started ended project is-transit]]
-;;    {:db (assoc db :status :loading)
-;;     :http-xhrio {:method          :put
-;;                  :uri             (str "/tabel/workingsessions/" sessid "/")
-;;                  :response-format (ajax/json-response-format {:keywords? true})
-;;                  :format          (ajax/json-request-format)
-;;                  :params          {:started (ct/to-string (local-time->utc started))
-;;                                    :ended   (ct/to-string (local-time->utc ended))
-;;                                    :project (or project "n/a")
-;;                                    :minutes_worked 0 
-;;                                    :is_transit is-transit}
-;;                  :headers         {"X-CSRFToken" (db  :csrf-token)}
-;;                  :timeout         8000
-;;                  :on-success      [:get-app-data-from-server]
-;;                  :on-failure      [:http-error]}}))
-
-;; (reg-event-db
-;;  :modal
-;;  (fn [db [_ modal]]
-;;    (assoc db :modal modal)))
-
-;; (reg-event-db
-;;  :dismiss-modal
-;;  (fn [db _]
-;;    (assoc db :modal nil)))
+(refe/reg-event-db
+ :cancel-tagging-now
+ (fn [db _]
+   (.log js/console "Cancelling tagging now")
+   (.log js/console "Must clear :nodes-selected and :nodes-temp-tags-to-delete and :nodes-temp-tags-to-add")))

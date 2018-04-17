@@ -73,13 +73,57 @@ func TestApplyFilter(t *testing.T) {
 	assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithDate(2016, 7, 20)), false)
 
 }
+func TestAllNodesShouldHaveDifferentId(t *testing.T) {
+	cnis := newCoreNodeItemStorage("testing")
+	cnis.MutableAddMany(buildDemoDataset())
+	assert.Equal(t, cnis.GetNodesSorted("name")[0].Id, 2)
+	assert.Equal(t, cnis.GetNodesSorted("name")[1].Id, 0)
+	assert.Equal(t, cnis.GetNodesSorted("name")[2].Id, 21)
+	assert.Equal(t, cnis.GetNodesSorted("name")[3].Id, 4)
+}
+func TestAllNodesShouldHaveDifferentIdInSearchResponse(t *testing.T) {
+	cnis := newCoreNodeItemStorage("testing")
+	cnis.MutableAddMany(buildDemoDataset())
+	nodes := cnis.GetAppData(*newCoreQuery()).Nodes
+	assert.Equal(t, nodes[0].Id, 0)
+	assert.Equal(t, nodes[1].Id, 1)
+	assert.Equal(t, nodes[2].Id, 2)
+	assert.Equal(t, nodes[3].Id, 3)
+}
+
+func TestCloudShouldntHaveEmptyTags(t *testing.T) {
+	cnis := newCoreNodeItemStorage("testing")
+	cnis.MutableAddMany(buildDemoDataset())
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).Cloud, map[string]map[string]int{
+		"work": map[string]int{"work": 20, "bibliostore": 8, "translator": 2, "natan": 13, "wiki": 1, "everybook": 1, "amazon": 2, "согласовать": 1, "moscow_market": 9, "sforim": 2, "скачка_источников": 1, "биржа": 2, "магазины": 2, "UI": 1, "personal": 4, "blog": 1, "devops": 1, "zeldin": 2, "usecases": 2},
+		"работа_сделана": map[string]int{"работа_сделана": 1}})
+
+	for group_name, item := range cnis.GetAppData(*newCoreQuery()).Cloud {
+		assert.NotEqual(t, group_name, "")
+		assert.NotEqual(t, strings.TrimSpace(group_name), "")
+		for tag_name, _ := range item {
+			assert.NotEqual(t, tag_name, "")
+			assert.NotEqual(t, strings.TrimSpace(tag_name), "")
+		}
+	}
+}
+
+func TestCloudCouldSelectShouldntHaveEmptyTags(t *testing.T) {
+	cnis := newCoreNodeItemStorage("testing")
+	cnis.MutableAddMany(buildDemoDataset())
+	for tag_name, _ := range cnis.GetAppData(*newCoreQuery()).CloudCanSelect {
+		assert.NotEqual(t, tag_name, "")
+		assert.NotEqual(t, strings.TrimSpace(tag_name), "")
+	}
+}
+
 func TestGettingStationaryAppData(t *testing.T) {
 	cnis := newCoreNodeItemStorage("testing")
 	cnis.MutableAddMany(buildDemoDataset())
 	// test getting cloud
 	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).Cloud,
-		map[string]map[string]int{"": map[string]int{},
-			"work": map[string]int{"natan": 13, "bibliostore": 8, "blog": 1, "moscow_market": 9, "devops": 1, "wiki": 1, "zeldin": 2, "translator": 2, "amazon": 2, "sforim": 2, "UI": 1, "usecases": 2, "work": 20, "согласовать": 1, "скачка_источников": 1, "биржа": 2, "магазины": 2, "personal": 4, "everybook": 1},
+		map[string]map[string]int{
+			"work": map[string]int{"translator": 2, "магазины": 2, "personal": 4, "blog": 1, "usecases": 2, "amazon": 2, "биржа": 2, "moscow_market": 9, "devops": 1, "wiki": 1, "согласовать": 1, "UI": 1, "zeldin": 2, "natan": 13, "work": 20, "bibliostore": 8, "sforim": 2, "скачка_источников": 1, "everybook": 1},
 			"работа_сделана": map[string]int{"работа_сделана": 1}})
 
 	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).Calendar, CoreDateFacet{
@@ -115,7 +159,20 @@ func TestMutableWorkage(t *testing.T) {
 	cnis := newCoreNodeItemStorage("testing")
 	cnis.MutableAddMany(buildDemoDataset())
 	cnis.MutableAddRemoveTagsToSelection(*newCoreQuery().WithTags("work"), []string{"bolo"}, []string{"work"})
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).Cloud, map[string]map[string]int{"": map[string]int{}, "bolo": map[string]int{"магазины": 2, "personal": 4, "amazon": 2, "wiki": 1, "sforim": 2, "биржа": 2, "blog": 1, "zeldin": 2, "everybook": 1, "bibliostore": 8, "translator": 2, "devops": 1, "согласовать": 1, "скачка_источников": 1, "UI": 1, "usecases": 2, "natan": 13, "moscow_market": 9, "bolo": 20}, "работа_сделана": map[string]int{"работа_сделана": 1}})
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).Cloud,
+		map[string]map[string]int{
+			"bolo": map[string]int{"devops": 1, "translator": 2, "wiki": 1, "sforim": 2, "согласовать": 1, "personal": 4, "blog": 1, "zeldin": 2, "everybook": 1, "natan": 13, "bolo": 20, "скачка_источников": 1, "биржа": 2, "UI": 1, "usecases": 2, "moscow_market": 9, "amazon": 2, "магазины": 2, "bibliostore": 8},
+			"работа_сделана": map[string]int{"работа_сделана": 1}})
+
+}
+
+// trying to replicate *exact* error conditions
+func TestFixingEmptyFieldsForDataSet(t *testing.T) {
+	storage := newCoreNodeItemStorage("empty")
+	demo_data, _ := fs_backend.BuildAppStateOnAFolder("/home/mik/some.demo.project/")
+	storage.RebirthWithNewData(demo_data)
+	assert.Equal(t, storage.GetAppData(*newCoreQuery()).Cloud, map[string]map[string]int{"work": map[string]int{"devops": 1, "wiki": 1, "zeldin": 2, "work": 20, "sforim": 2, "скачка_источников": 1, "биржа": 2, "UI": 1, "personal": 4, "bibliostore": 8, "amazon": 2, "blog": 1, "usecases": 2, "natan": 13, "moscow_market": 9, "translator": 2, "согласовать": 1, "магазины": 2, "everybook": 1}, "работа_сделана": map[string]int{"работа_сделана": 1}})
+
 }
 func TestGetAppData(t *testing.T) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
