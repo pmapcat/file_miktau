@@ -1,10 +1,148 @@
 (ns miktau.subs-test
   (:require-macros [cljs.test :refer [deftest testing is]])
   (:require [cljs.test :as t]
-            [miktau.subs :as miktau-subs]))
+            [miktau.subs :as miktau-subs]
+            [miktau.utils :as utils]
+            [miktau.demo-data-test :as demo-data]))
+
+(deftest testing-cloud []
+  
+  ;; testing grouping ability
+  (is (= (for [i (miktau-subs/cloud  demo-data/initial-db-after-load-from-server nil)]
+           (assoc i :group (count (:group i))))
+         (list {:group-name "work", :max-size 20, :group 19}
+               {:group-name "работа_сделана", :max-size 1, :group 1})))
+
+  ;; testing how group can work
+  (is (= (first (:group (first (miktau-subs/cloud  demo-data/initial-db-after-load-from-server nil))))
+         {:name "moscow_market",
+          :compare-name #{"w" "s" "e" "a" "_" "t" "k" "r" "m" "o" "c"},
+          :key-name :moscow_market,
+          :size 9,
+          :group :work,
+          :wieghted-size 0.45,
+          :selected? false,
+          :can-select? true}))
+  ;; [TODO] test on  <filtering>
+  ;; [TODO] test on  <selection>
+  )
+
+(deftest testing-selection-cloud []
+  ;; [TODO] test on selection
+  (is (= (miktau-subs/selection-cloud
+          demo-data/initial-db-after-load-from-server nil)
+         [])))
+(deftest testing-is-this-datepoint-selected? []
+  (let [exec-fn #(utils/is-this-datepoint-selected?
+                  demo-data/initial-db-after-load-from-server %)]
+    
+    (is (= (exec-fn {:year 2018                   }) true))
+    (is (= (exec-fn {:year 2018 :day 23           }) true))
+    (is (= (exec-fn {:year 2018 :day 23 :month 11 }) true))
+    
+    (is (= (exec-fn {:year 2019                   }) false))
+    (is (= (exec-fn {:year 2019 :day 23           }) false))
+    (is (= (exec-fn {:year 2019 :day 23 :month 11 }) false))))
+
+(deftest testing-node-items []
+  ;; [TODO] test on selection
+  (let [with-node-items-count (update  (miktau-subs/node-items demo-data/initial-db-after-load-from-server nil) :nodes count)
+        only-node-items  (:nodes (miktau-subs/node-items demo-data/initial-db-after-load-from-server nil))]
+    (is (= with-node-items-count
+           {:ordered-by {:inverse? false, :field :name}, :total-nodes 22, :nodes 22 :ommitted-nodes 0, :all-selected? true} ))
+    (is (= (take 2 only-node-items)
+           (list {:selected? true, :modified {:year 2016, :month 7, :day 21}, :name "blab.mp4", :all-tags (list), :file-path "/home/mik/this_must_be_it/", :tags (list)}
+                 {:selected? true, :modified {:year 2017, :month 7, :day 20}, :name "hello.mp4", :all-tags (list :natan :work :bibliostore :moscow_market), :file-path "/home/mik/this_must_be_it/",
+                  :tags (list {:name "natan", :key-name :natan, :to-add? false, :to-delete? false, :selected? false, :can-select? true}
+                              {:name "work",  :key-name :work,  :to-add? false, :to-delete? false, :selected? false, :can-select? true}
+                              {:name "bibliostore", :key-name :bibliostore, :to-add? false, :to-delete? false, :selected? false, :can-select? true}
+                              {:name "moscow_market", :key-name :moscow_market, :to-add? false, :to-delete? false, :selected? false, :can-select? true})})))))
+
+(deftest testing-nodes-changing
+  []
+  (is
+   (=
+    (miktau-subs/nodes-changing demo-data/initial-db-after-load-from-server nil)
+    {:display? true, :all-selected? true, :total-amount 22, :tags-to-add #{}, :tags-to-delete #{}}))
+  
+  ;; test "not showing" of the data
+  (is
+   (=
+    (miktau-subs/nodes-changing (assoc demo-data/initial-db-after-load-from-server :nodes-selected #{}) nil)
+    {:display? false, :all-selected? false, :total-amount 0, :tags-to-add #{}, :tags-to-delete #{}})))
+
+(deftest testing-is-it-today?
+  []
+  ;; TESTING date adherence
+  (let [valid-point
+        (assoc
+         demo-data/initial-db-after-load-from-server
+         :date-now
+         {:year 2018  :month 4
+          :day 1})
+        invalid-point
+        (assoc
+         demo-data/initial-db-after-load-from-server
+         :date-now
+         {:year 2019  :month 13
+          :day 43})]
+    (is (= (utils/is-it-today?   valid-point [:year]) true))
+    (is (= (utils/is-it-today?   valid-point [:year :month]) true))
+    (is (= (utils/is-it-today?   valid-point [:day :year :month]) true))
+    (is (= (utils/is-it-today? invalid-point [:year]) false))
+    (is (= (utils/is-it-today? invalid-point [:year :month]) false))
+    (is (= (utils/is-it-today? invalid-point [:day :year :month]) false))))
+
+(deftest testing-fast-access-calendar []
+  (is
+   (=
+    (miktau-subs/fast-access-calendar demo-data/initial-db-after-load-from-server nil)
+    [{:name "Today",      :group "FastAccess", :can-select? true, :key-name {:year 2018, :month 4, :day 17}, :selected? false}
+     {:name "This month", :group "FastAccess", :can-select? true, :key-name {:year 2018, :month 4}, :selected? false}
+     {:name "This year",  :group "FastAccess", :can-select? true, :key-name {:year 2018}, :selected? false}])))
 
 
-(deftest test-cloud []
-  (is (= (miktau-subs/cloud ))
-      "Something foul is a float."))
+(deftest testing-calendar []
+  ;; [TODO] test calendar on <selection>
+  (is (= (:year (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))
+         {:group-name "year", :max-size 14,
+          :group (list
+                  {:name "2018", :key-name :2018, :size 2, :group :year,  :weighted-size 0.14285714285714285, :selected? false, :can-select? true}
+                  {:name "2017", :key-name :2017, :size 6, :group :year,  :weighted-size 0.42857142857142855, :selected? false, :can-select? true}
+                  {:name "2016", :key-name :2016, :size 14, :group :year, :weighted-size 1,                   :selected? false, :can-select? true})}))
+  
+  (is (= (:month (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))
+         {:group-name "month", :max-size 8,
+          :group (list {:name "1", :key-name :1, :size 1, :group :month, :weighted-size 0.125, :selected? false, :can-select? true}
+                       {:name "2", :key-name :2, :size 8, :group :month, :weighted-size 1, :selected? false, :can-select? true}
+                       {:name "3", :key-name :3, :size 1, :group :month, :weighted-size 0.125, :selected? false, :can-select? true}
+                       {:name "4", :key-name :4, :size 4, :group :month, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "5", :key-name :5, :size 4, :group :month, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "7", :key-name :7, :size 4, :group :month, :weighted-size 0.5, :selected? false, :can-select? true})}))
+  (is (= (:day (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))
+         {:group-name "day", :max-size 2,
+          :group (list {:name "1", :key-name :1, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "2", :key-name :2, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "3", :key-name :3, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "4", :key-name :4, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "5", :key-name :5, :size 2, :group :day, :weighted-size 1, :selected? false, :can-select? true}
+                       {:name "7", :key-name :7, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "8", :key-name :8, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "9", :key-name :9, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "10", :key-name :10, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "11", :key-name :11, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "12", :key-name :12, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "13", :key-name :13, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "14", :key-name :14, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "15", :key-name :15, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "16", :key-name :16, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "17", :key-name :17, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "18", :key-name :18, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "19", :key-name :19, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "20", :key-name :20, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "21", :key-name :21, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
+                       {:name "24", :key-name :24, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true})})))
+
+
+
 

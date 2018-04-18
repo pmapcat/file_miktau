@@ -5,10 +5,8 @@
    [clojure.string :as clojure-string]
    [re-frame.core :as refe]))
 
-(refe/reg-event-db
- :init-db
- (fn [_ _]
-   {:loading? true
+(def demo-db
+  {:loading? true
     :filtering ""
     
     :nodes-sorted "-name"
@@ -31,7 +29,11 @@
                  :day   {:1 3 :2 3 :3 4}}
     :calendar-can-select {:year {:2018 2}
                           :month {:11 3}
-                          :day   {:9 3}}}))
+                          :day   {:9 3}}})
+(refe/reg-event-db
+ :init-db
+ (fn [_ _]
+   demo-db))
 
 (refe/reg-event-db
  :set-nodes-temp-tags-to-delete
@@ -70,20 +72,17 @@
        :params  {}
        :on-success [:got-app-data]
        :on-failure [:http-error]})}))
+(defn got-app-data
+  [{:keys [db]} [_ response]]
+  (assoc
+    (merge
+     db
+     response)
+    :loading? false))
 
 (refe/reg-event-db
  :got-app-data
- (fn [{:keys [db]} [_ response]]
-   (do
-     (println "========= RESPONSE ==========")
-     (println (str response))
-     (println "========= END RESPONSE =======")
-     (assoc
-      (merge
-       db
-       response)
-      :loading? false))))
-
+ got-app-data)
 
 (comment
   (println (str dodo))

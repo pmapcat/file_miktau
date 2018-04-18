@@ -32,15 +32,15 @@
    [:div.dropdown-content
     (for [[item pos] (zipmap items (range))]
       [:a.pure-button.mik-flush-left {:key pos :href "#" :style {:text-align "left"}} item])]])
-
 (defn table-menu
   [first-item items]
   [:div.dropdown
    first-item
-   [:div.dropdown-content {:style {:font-size "0.8em"}}
+   (concat
+    [:div.dropdown-content {:style {:font-size "0.8em"}}]
     ;; it is highly unlikely that this menu is going to be
     ;; dynamic. Thus, simple counter as a key suffice
-    items]])
+    items)])
 
 (defn group-open []
   [:div
@@ -48,9 +48,9 @@
     [:span  (views-utils/icon "folder_open") "Open them"]
     [[:a.pure-button {:key "open in a single folder" :href "#" :on-click #(refe/dispatch [:file-operation :in-folder])}
       (views-utils/icon "folder_open") "In a single folder"]
-     [:a.pure-button  {:key "each individually" :on-click #(refe/dispatch [:file-operation :individually])}
+     [:a.pure-button  {:key "each individually" :href "#" :on-click #(refe/dispatch [:file-operation :individually])}
       (views-utils/icon "list") "Each individually"]
-     [:a.pure-button  {:key "individually" :on-click #(refe/dispatch [:file-operation :default-program])}
+     [:a.pure-button  {:key "individually" :href "#"  :on-click #(refe/dispatch [:file-operation :default-program])}
       (views-utils/icon "filter") "Each in default program"]])])
 
 (defn selection-cloud []
@@ -119,7 +119,7 @@
 
 
 (defn  facet-group-select-time []
-  (let [calendar @(refe/subscribe :calendar)]
+  (let [calendar @(refe/subscribe [:calendar])]
     [:div.pure-g
      ;; fast selection
      (facet-group-select-time-subwidget
@@ -231,16 +231,16 @@
       
       [:div.pure-u-6-24 
        (table-menu "Name"
-                   [[:a {:key "order-a-z" :on-click #(refe/dispatch [:sort "name"])}
+                   [[:a {:href "#" :key "order-a-z" :on-click #(refe/dispatch [:sort "name"])}
                      (views-utils/icon-rotated 180 "sort") " Order A-Z"]
-                    [:a {:key "order-z-a" :on-click #(refe/dispatch [:sort "-name"])}
+                    [:a {:href "#" :key "order-z-a" :on-click #(refe/dispatch [:sort "-name"])}
                      (views-utils/icon "sort")     " Order Z-A"]])]
       
       [:div.pure-u-10-24]
       [:div.pure-u-6-24.mik-flush-right
        (table-menu "Modified"
-                   [[:a {:key "recent" :on-click #(refe/dispatch [:sort "modified"])} "Recent"]
-                    [:a {:key "older" :on-click #(refe/dispatch [:sort "-modified"])} "Older"]])]]
+                   [[:a {:href "#" :key "recent" :on-click #(refe/dispatch [:sort "modified"])} "Recent"]
+                    [:a {:href "#" :key "older" :on-click #(refe/dispatch [:sort "-modified"])} "Older"]])]]
      [:div
       (for [node (:nodes node-items)]
         [:div.pure-g.table-hover

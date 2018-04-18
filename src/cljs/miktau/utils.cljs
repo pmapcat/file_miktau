@@ -9,14 +9,19 @@
     :format          (ajax/json-request-format)
     :timeout         8000}
    params))
+(defn mik-parse-int [input]
+  (js/parseInt (str input)))
 
 (defn parse-sorting-field
   [input]
-  (let [input    (str input)
+  (let [input    (clojure.string/trim (str input))
         inverse? (cljs-string/starts-with? input "-")
         field    (if inverse? (apply str (rest input)) input)]
-    {:inverse? inverse?
-     :field   (keyword field)}))
+    (if (empty? input)
+      {:inverse? false
+       :field    :name}
+      {:inverse? inverse?
+       :field   (keyword field)})))
 (defn jaccard
   [set-a set-b]
   (/
@@ -27,13 +32,24 @@
   [month-number]
   (get ["January" "February" "March"  "April"  "May"  "June" "July" "August" "September" "October" "November" "December"] (dec month-number)))
 
-(defn whether-this-date-adheres-to-now-date?
+(defn is-it-today?
+  "TESTED"
   [db items]
   (every?
    identity
    (for [i items]
-     (contains?  (:calendar-can-select db)
-                 (i (db :date-now))))))
+     (contains?  (i (:calendar-can-select db))
+                 (keyword (str (i (db :date-now))))))))
+
+(defn is-this-datepoint-selected?
+  "TESTED"
+  [db date-point]
+  (every?
+   identity
+   (let [sel (:calendar-selected db)]
+     (for [[key val] date-point]
+       (=  (key sel) val)))))
+
 
 
 (defn register-server-roundtrip
