@@ -4,6 +4,10 @@
             [clojure.string :as clojure-string]
             [miktau.utils :as utils]
             [miktau.lorem :as lorem]))
+(defn log-item [item]
+  (do
+    (.log js/console (str item))
+    item))
 (defn e->content
   [e]
   (str
@@ -32,21 +36,25 @@
    [:div.dropdown-content
     (for [[item pos] (zipmap items (range))]
       [:a.pure-button.mik-flush-left {:key pos :href "#" :style {:text-align "left"}} item])]])
+
 (defn table-menu
   [first-item items]
   [:div.dropdown
    first-item
-   (concat
-    [:div.dropdown-content {:style {:font-size "0.8em"}}]
-    ;; it is highly unlikely that this menu is going to be
-    ;; dynamic. Thus, simple counter as a key suffice
-    items)])
+   (into
+    []
+    (concat
+     [:div.dropdown-content {:style {:font-size "0.8em"}}]
+     ;; it is highly unlikely that this menu is going to be
+     ;; dynamic. Thus, simple counter as a key suffice
+     items))])
 
 (defn group-open []
   [:div
    (table-menu 
     [:span  (views-utils/icon "folder_open") "Open them"]
-    [[:a.pure-button {:key "open in a single folder" :href "#" :on-click #(refe/dispatch [:file-operation :in-folder])}
+    [
+     [:a.pure-button {:key "open in a single folder" :href "#" :on-click #(refe/dispatch [:file-operation :in-folder])}
       (views-utils/icon "folder_open") "In a single folder"]
      [:a.pure-button  {:key "each individually" :href "#" :on-click #(refe/dispatch [:file-operation :individually])}
       (views-utils/icon "list") "Each individually"]
@@ -57,7 +65,7 @@
   [:div 
    (for [i  @(refe/subscribe [:selection-cloud])]
      [:a.tag.padded-as-button
-      {:key (i :key-name)
+      {:key (log-item (i :key-name))
        :href "#"
        :on-click #(refe/dispatch [:clicked-cloud-item (i :key-name)])
        :class
@@ -70,19 +78,17 @@
         :text-decoration "none"
         :font-size (str  (+ 0.6 (* 2.4  (i :weighted-size))) "em")}}
       i " "])])
-
 (defn general-cloud []
   [:div
    (for [item @(refe/subscribe [:cloud])]
-     [:div {:key (:grou-name item)}
-      
+     [:div {:key (:group-name item)}
       [:div.mik-flush-right
        [:h2.padded-as-button.mik-cut-bottom.mik-cut-top.header-font.light-gray
         {:style {:padding-bottom "0px" :padding-top "0px"}}
         (:group-name item)]]
       (for [tag  (:group item)]
-        [:a.tag.padded-as-button
-         {:key (:key-name tag)
+        [:a.tag.padded-as-button.unstyled-link
+         {:key  (:key-name tag)
           :href "#"
           :on-click #(refe/dispatch [:clicked-cloud-item (tag :key-name)])
           :class
@@ -105,7 +111,7 @@
     (views-utils/icon icon-name) group-name]
    [:div.pure-u-1
     (for [item items]
-      [:a.pure-button {:key (item :key-name)
+      [:a.pure-button {:key   (str (item :key-name))
                        :href "#"
                        :style {:text-align "left"}
                        :on-click #(refe/dispatch [:click-on-calendar-item (:group item) (item :key-name)])
@@ -143,7 +149,9 @@
       "date_range"
       (:group-name (:day calendar))
       " pure-u-1-5 tag"
-      (:group (:day calendar)))]))
+      (:group (:day calendar)))
+     
+     ]))
 
 (defn found-group
   []
@@ -215,12 +223,15 @@
   (let [id (str (random-uuid))]
     [:label.pure-checkbox
      {:for id :style {:position "relative"}}
-     [:input {:id id :value selected? :style {} :type "checkbox" :on-change on-change }]
+     [:input
+      (if selected?
+        {:id id  :style {} :checked true :type "checkbox" :on-change on-change}
+        {:id id  :style {}               :type "checkbox" :on-change on-change})]
      [:span {:style {:padding-bottom "5px"}}
       text]]))
 
 (defn file-table []
-  (let [node-items @(refe/subscribe [:node-items])]
+  (let [node-items  @(refe/subscribe [:node-items])]
     [:div.padded-as-button.background-1 
      [:div.pure-g {:style {:padding-bottom "1em"}}
       ;; select all nodes button
@@ -231,20 +242,21 @@
       
       [:div.pure-u-6-24 
        (table-menu "Name"
-                   [[:a {:href "#" :key "order-a-z" :on-click #(refe/dispatch [:sort "name"])}
+                   [[:a.pure-button {:href "#" :key "order-a-z" :on-click #(refe/dispatch [:sort "name"])}
                      (views-utils/icon-rotated 180 "sort") " Order A-Z"]
-                    [:a {:href "#" :key "order-z-a" :on-click #(refe/dispatch [:sort "-name"])}
+                    [:a.pure-button {:href "#" :key "order-z-a" :on-click #(refe/dispatch [:sort "-name"])}
                      (views-utils/icon "sort")     " Order Z-A"]])]
       
       [:div.pure-u-10-24]
       [:div.pure-u-6-24.mik-flush-right
        (table-menu "Modified"
-                   [[:a {:href "#" :key "recent" :on-click #(refe/dispatch [:sort "modified"])} "Recent"]
-                    [:a {:href "#" :key "older" :on-click #(refe/dispatch [:sort "-modified"])} "Older"]])]]
+                   [
+                    [:a.pure-button {:href "#" :key "recent" :on-click #(refe/dispatch [:sort "modified"])} "Recent"]
+                    [:a.pure-button {:href "#" :key "older" :on-click #(refe/dispatch [:sort "-modified"])} "Older"]])]]
      [:div
       (for [node (:nodes node-items)]
         [:div.pure-g.table-hover
-         {:key (node :file-path)
+         {:key (str  (node :id))
           :style {:padding-bottom "10px"
                   :padding-top "10px"
                   :border-bottom "solid 1px #e3e3e3"
@@ -252,7 +264,7 @@
          [:div.pure-u-2-24.mik-flush-left
           (views-utils/position-absolute
            {:top "4px"}
-           (radio-button "" #(refe/dispatch [:select-node (node :file-path)]) (:selected? node)))]
+           (radio-button "" #(refe/dispatch [:select-node (node :file-path) (node :name)]) (:selected? node)))]
          [:div.pure-u-6-24
           [:a.unstyled-link
            {:href "#" :style {:font-weight "300"}} (:name node)]]
@@ -338,16 +350,19 @@
      ;; time facet
      [:div.pure-u-1-3.background-0
       [:div.padded-as-button
-       (facet-group-select-time)]]
+       (facet-group-select-time)
+       ]]
      
      ;; cloud facet
      [:div.pure-u-2-3
       [:div.background-1
        [:div {:style {:font-size "0.7em", :padding-bottom "2em"}}
-        (selection-cloud)]]
+        (selection-cloud)
+        ]]
       [:div.background-2
        [:div 
-        (general-cloud)]]]]
+        (general-cloud)
+        ]]]]
     
     ;; found, files, and tag anew group
     [:div.pure-u-1-2.background-3
@@ -357,7 +372,8 @@
     ;; will be able to see it only when selected
     [:div {:style {:position "fixed", :bottom "0px", :right "0px", :width "100%"}}
      [:div.pure-u-1
-      (tagging-now-group)]]]])
+      ;; (tagging-now-group)
+      ]]]])
 
 (defn choose-root
   []

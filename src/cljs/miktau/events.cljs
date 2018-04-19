@@ -30,10 +30,18 @@
     :calendar-can-select {:year {:2018 2}
                           :month {:11 3}
                           :day   {:9 3}}})
-(refe/reg-event-db
- :init-db
+
+(refe/reg-event-fx
+ :init
  (fn [_ _]
-   demo-db))
+   {:db (assoc demo-db :loading? true) 
+    :http-xhrio
+    (utils/with-http-xhrio
+      {:method :post
+       :uri    "/api/get-app-data"
+       :params  {}
+       :on-success [:got-app-data]
+       :on-failure [:http-error]})}))
 
 (refe/reg-event-db
  :set-nodes-temp-tags-to-delete
@@ -72,13 +80,15 @@
        :params  {}
        :on-success [:got-app-data]
        :on-failure [:http-error]})}))
+
 (defn got-app-data
   [{:keys [db]} [_ response]]
   (assoc
-    (merge
-     db
-     response)
-    :loading? false))
+   (merge
+    db
+    response)
+   :loading? false))
+
 
 (refe/reg-event-db
  :got-app-data

@@ -3,8 +3,15 @@
             [clojure.string :as cljs-string]
             [miktau.utils :as utils]))
 (defn filtering [db _]
-  (or (db :filtering) ""))
+  (or (:filtering db) ""))
 (refe/reg-sub :filtering filtering)
+
+(refe/reg-sub
+ :get-db-for-test-purposes
+ (fn [db _]
+   db))
+
+
 
 (defn cloud
   "TESTED"
@@ -28,7 +35,7 @@
              :key-name tag
              :size     tag-size
              :group    group-name
-             :wieghted-size (/ tag-size max-size)
+             :weighted-size (/ tag-size max-size)
              :selected?      (contains? (db :selected) tag)
              :can-select?    (contains? (:cloud-can-select db) tag)})))})))
 (refe/reg-sub :cloud cloud)
@@ -61,17 +68,16 @@
               :size     tag-size
               :group   group-name
               :weighted-size (/ tag-size max-size)
-              :selected?      (= ((:calendar-selected db) group-name) tag)
-              :can-select?    (contains? ((db :calendar-can-select) group-name) tag)})))})])))
-
+              :selected?      (= (get (:calendar-selected db) group-name) tag)
+              :can-select?    (contains? (get (db :calendar-can-select) group-name) tag)})))})])))
 (refe/reg-sub :calendar calendar)
 
 (defn selection-cloud
   "TESTED"
   [db _]
-  (if (empty? (db :cloud-can-selected))
+  (if (empty? (:cloud-can-selected db))
     []
-    (for [[tag _] (db :cloud-can-select)]
+    (for [[tag _] (:cloud-can-select db )]
       {:name    (str (name tag))
        :key-name tag
        :weighted-size 1
@@ -81,65 +87,71 @@
 (defn fast-access-calendar
   "TESTED"
   [db _]
-  [{:name "Today"
-    :group "FastAccess"
-    :can-select? (utils/is-it-today? db [:day :month :year])
-    :key-name      (:date-now db)
-    :selected? false}
-   {:name "This month"
-    :group "FastAccess"
-    :can-select? (utils/is-it-today? db [:month :year])
-    :key-name      (dissoc (:date-now db) :day)
-    :selected? false}
-   {:name "This year"
-    :group "FastAccess"
-    :can-select? (utils/is-it-today? db [:year])
-    :key-name      {:year (:year (:date-now db))}
-    :selected? false}])
+  (if (:date-now db)
+    [{:name "Today"
+      :group "FastAccess"
+      :can-select? (utils/is-it-today? db [:day :month :year])
+      :key-name      (:date-now db)
+      :selected? false}
+     {:name "This month"
+      :group "FastAccess"
+      :can-select? (utils/is-it-today? db [:month :year])
+      :key-name      (dissoc (:date-now db) :day)
+      :selected? false}
+     {:name "This year"
+      :group "FastAccess"
+      :can-select? (utils/is-it-today? db [:year])
+      :key-name      {:year (:year (:date-now db))}
+      :selected? false}]
+    []))
 (refe/reg-sub :fast-access-calendar fast-access-calendar)
 
 (defn node-items
   "TESTED"
   [db _]
-  (let [all-selected? (=  (first (db :nodes-selected)) "*")]
+  (let [all-selected? (=  (first (:nodes-selected db)) "*")]
     {:ordered-by
      (utils/parse-sorting-field (:nodes-sorted db))
      :total-nodes (:total-nodes db)
-     :ommitted-nodes (-  (:total-nodes db) (count (db :nodes)))
+     :ommitted-nodes (-  (:total-nodes db) (count (:nodes db)))
      :all-selected? all-selected?
      :nodes
-     (for [i (db :nodes)]
+     (for [i (:nodes db )]
        {:selected?
         (if all-selected?
           true
-          (contains? (db :nodes-sorted)
+          (contains? (:nodes-sorted db )
                      (:file-path i)))
         :modified
         (i :modified)
+        :id (i :id)
         :name (:name i)
         :all-tags (map keyword (i :tags))
         :file-path (i :file-path)
         :tags
-        (for [tag (into #{} (concat  (i :tags) (db :nodes-temp-tags-to-add)))]
+        (for [tag (into #{} (concat  (i :tags) (:nodes-temp-tags-to-add db)))]
           {:name    (str (name tag))
            :key-name (keyword (str tag))
-           :to-add?        (contains? (db :nodes-temp-tags-to-add) tag)
-           :to-delete?     (contains? (db :nodes-temp-tags-to-delete) tag)
-           :selected?      (contains? (db :selected) (keyword tag))
+           :to-add?        (contains? (:nodes-temp-tags-to-add db) tag)
+           :to-delete?     (contains? (:nodes-temp-tags-to-delete db) tag)
+           :selected?      (contains? (:selected db) (keyword tag))
            :can-select?    true})})}))
-
 (refe/reg-sub :node-items node-items)
 
 (defn nodes-changing
   "TESTED"
   [db _]
   (let [all-selected? (=  (first (db :nodes-selected)) "*")]
-     {:display? (not (empty? (db :nodes-selected)))
+     {:display?  (not (empty? (db :nodes-selected)))
       :all-selected? all-selected?
       :total-amount
       (if all-selected? (db :total-nodes)
           (count (db :nodes-selected)))
       :tags-to-add    (db :nodes-temp-tags-to-add)
       :tags-to-delete (db :nodes-temp-tags-to-delete)}))
+
 (refe/reg-sub :nodes-changing nodes-changing)
+(comment
+  ;; @(refe/subscribe [:cloud])
+  )
 
