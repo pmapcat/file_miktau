@@ -74,10 +74,44 @@
       {:year 2018 :month 3}))
     (is
      (= 
+      (:calendar-selected
+       (miktau-events/click-on-calendar-item db [nil "FastAccess" nil]))
+      {}))
+    (is
+     (= 
+      (:calendar-selected
+       (miktau-events/click-on-calendar-item db [nil nil nil]))
+      {}))
+    (is
+     (= 
+      (:calendar-selected
+       (miktau-events/click-on-calendar-item db [nil "FastAccess" {}]))
+      {}))
+    
+    (is
+     (= 
+      (:calendar-selected
+       (miktau-events/click-on-calendar-item (assoc  db :calendar-selected {:year 2018 :month 3}) [nil "FastAccess" {:year 2018 :month 3}]))
+      {}))
+    (is
+     (= 
       (:calendar-selected (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20 :month 3}) [nil "FastAccess" {:year 2018}]))
       {:year 2018}))))
 
+(deftest test-click-on-cloud-item []
+  (let [db (assoc demo-data/initial-db-after-load-from-server :cloud-selected #{})]
+    (is (=  (:cloud-selected  (miktau-events/click-on-cloud db [nil :work])) #{:work}))
+    (is (=  (:cloud-selected  (miktau-events/click-on-cloud (assoc db :cloud-selected #{:zanoza}) [nil :work])) #{:zanoza :work}))
+    (is (=  (:cloud-selected  (miktau-events/click-on-cloud (assoc db :cloud-selected #{:work}) [nil :work])) #{}))
+    (is (=  (:cloud-selected  (miktau-events/click-on-cloud db [nil nil]))     #{}))
+    (is (=  (:cloud-selected  (miktau-events/click-on-cloud db [nil 123]))     #{}))
+    (is (=  (:cloud-selected  (miktau-events/click-on-cloud db [nil "graws"])) #{}))))
 
 
-
-
+(deftest test-clicked-many-cloud-items []
+  (let [db (assoc demo-data/initial-db-after-load-from-server :cloud-selected #{})]
+    (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items db [nil [:hello :world]])) #{:hello :world}))
+    (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items db [nil [nil nil]])) #{}))
+    (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil [:za :zo]])) #{:za :zo}))
+    (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil (into '() [:za :zo])])) #{:za :zo}))
+    (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil nil])) #{:ha :ho}))))

@@ -9,6 +9,7 @@
     :format          (ajax/json-request-format)
     :timeout         8000}
    params))
+
 (defn mik-parse-int [input or]
   (if (re-matches #"-?[0-9]+" (str input))
     (js/parseInt (str input))
@@ -18,6 +19,16 @@
   (if (re-matches #"-?[0-9]+" (str input))
     (js/parseInt (str input))
     (throw  (js/Error. "Opps"))))
+
+(defn seq-of-predicate?
+  "TESTED"
+  [items predicate]
+  (cond
+    (empty? items) false
+    :else
+    (=
+     (count (filter predicate items))
+     (count items))))
 
 (defn parse-sorting-field
   [input]

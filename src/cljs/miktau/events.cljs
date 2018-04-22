@@ -43,25 +43,6 @@
        :on-success [:got-app-data]
        :on-failure [:http-error]})}))
 
-(refe/reg-event-db
- :set-nodes-temp-tags-to-delete
- (fn [db _]
-   (assoc
-    db
-    :nodes-temp-tags-to-delete
-    (let [all-selected? (=  (first (db :nodes-selected)) "*")]
-      (if all-selected?
-        (into #{} (map str (map name (keys (db :cloud-can-select)))))
-        (into #{}
-              (map
-               str
-               (into
-                []
-                (flatten
-                 (for [item (db :nodes)]
-                   (if (contains? (db :nodes-selected) (item :file-path))
-                     (:tags item)
-                     nil)))))))))))
 
 (refe/reg-event-fx
  :http-error
@@ -82,6 +63,7 @@
        :on-failure [:http-error]})}))
 
 (defn got-app-data
+  "TESTED"
   [{:keys [db]} [_ response]]
   (assoc
    (merge
@@ -89,21 +71,9 @@
     response)
    :loading? false))
 
-
 (refe/reg-event-db
  :got-app-data
  got-app-data)
-
-(comment
-  (println (str dodo))
-  (refe/dispatch [:get-app-data])
-  (println (first (:nodes  heho)))
-  (:nodes-sorted heho)
-  (:cloud heho)
-  (:calendar heho)
-  (:calendar-can-select heho)
-  (:core-directory heho)
-  (keys heho))
 
 (refe/reg-event-db
  :back
@@ -122,27 +92,55 @@
   [db _]
   (assoc db :filtering ""))
 (refe/reg-event-db :clear clear)
+(defn click-on-fast-access-item
+  "TESTED"
+  [db group item]
+  (let [already-selected (:calendar-selected db)]
+    (cond
+      (nil? item) db
+      (= already-selected item)
+      (assoc db :calendar-selected {})
+      :else
+      (assoc db :calendar-selected item))))
+
 (defn click-on-calendar-item
   "TESTED"
   [db [_ group key-name]]
   (if (=  group "FastAccess")
-    (assoc db :calendar-selected key-name)
-    (let [item (utils/mik-parse-int (name key-name) nil)]
-      (if (and  item (> item 0))
-        (assoc-in db [:calendar-selected group] item)
+    (click-on-fast-access-item db group key-name)
+    (try
+      (let [item (utils/mik-parse-int (name key-name) nil)
+            already-has-item (get-in db [:calendar-selected group])]
+        (cond
+          (and  item (> item 0) (= already-has-item item))
+          (assoc-in db [:calendar-selected group] nil)
+          (and  item (> item 0))
+          (assoc-in db [:calendar-selected group] item)
+          :else
+          db))
+      (catch :default e
         db))))
 (refe/reg-event-db :click-on-calendar-item click-on-calendar-item )
-(refe/reg-event-db
- :clicked-cloud-item
- (fn [db [_ item]]
-   (.log js/console "Clicked cloud item: " (str item))
-   db))
 
-(refe/reg-event-db
- :clicked-many-cloud-items
- (fn [db [_ items]]
-   (.log js/console "Clicked many clou  items: " (str items))
-   db))
+(defn click-on-cloud
+  "TESTED"
+  [db [_ item]]
+  (cond
+    (and  (keyword? item) (contains? (db :cloud-selected) item))
+    (update db :cloud-selected disj item)
+    (keyword? item)
+    (update db :cloud-selected conj item)
+    :else
+    db))
+(refe/reg-event-db :clicked-cloud-item click-on-cloud)
+
+(defn clicked-many-cloud-items
+  "TESTED"
+  [db [_ items]]
+  (if-not (utils/seq-of-predicate? items keyword?)
+    db
+    (assoc db :cloud-selected (into #{} items))))
+(refe/reg-event-db :clicked-many-cloud-items clicked-many-cloud-items)
 
 (refe/reg-event-db
  :select-all-nodes
@@ -200,3 +198,24 @@
    (.log js/console "Cancelling tagging now")
    (.log js/console "Must clear :nodes-selected and :nodes-temp-tags-to-delete and :nodes-temp-tags-to-add")
    db))
+
+(refe/reg-event-db
+ :set-nodes-temp-tags-to-delete
+ (fn [db _]
+   (assoc
+    db
+    :nodes-temp-tags-to-delete
+    (let [all-selected? (=  (first (db :nodes-selected)) "*")]
+      (if all-selected?
+        (into #{} (map str (map name (keys (db :cloud-can-select)))))
+        (into #{}
+              (map
+               str
+               (into
+                []
+                (flatten
+                 (for [item (db :nodes)]
+                   (if (contains? (db :nodes-selected) (item :file-path))
+                     (:tags item)
+                     nil)))))))))))
+

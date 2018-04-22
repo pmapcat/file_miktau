@@ -11,11 +11,16 @@
   (is (= (utils/mik-parse-int {} -1) -1))
   (is (= (utils/mik-parse-int "gradomysle" -1) -1))
   (is (= (utils/mik-parse-int "grado222mysle" -1) -1))
+  (is (= (utils/mik-parse-int "--222" -1) -1))
   (is (= (utils/mik-parse-int "xzkjxzkcjzxkcj" -1) -1))
   (is (= (utils/mik-parse-int "-00001234" -1) -1234))
   (is (= (utils/mik-parse-int NaN -1) -1))
   (is (= (utils/mik-parse-int Infinity -1) -1))
   (is (= (utils/mik-parse-int -Infinity -1) -1)))
 
-
+(deftest testing-seq-of-predicate? []
+  (is (= (utils/seq-of-predicate? nil keyword?) false))
+  (is (= (utils/seq-of-predicate? [] keyword?) false))
+  (is (= (utils/seq-of-predicate? [:asd "asd"] keyword?) false))
+  (is (= (utils/seq-of-predicate? [:asd :bsd :csd] keyword?) true)))
 
