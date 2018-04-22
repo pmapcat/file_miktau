@@ -36,7 +36,6 @@
 
 ;; ============================  >  TYPE  <  ===========================
 
-(def type-link "https://fonts.googleapis.com/css?family=Signika|Cardo|Source+Sans+Pro")
 (def fonts
   {:header     "\"Signika\", sans-serif !important"
    :body        "\"Source Sans Pro\", sans-serif !important"

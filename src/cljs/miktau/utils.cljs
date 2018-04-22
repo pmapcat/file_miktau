@@ -9,8 +9,15 @@
     :format          (ajax/json-request-format)
     :timeout         8000}
    params))
-(defn mik-parse-int [input]
-  (js/parseInt (str input)))
+(defn mik-parse-int [input or]
+  (if (re-matches #"-?[0-9]+" (str input))
+    (js/parseInt (str input))
+    or))
+
+(defn mik-parse-int-then-throw-error [input]
+  (if (re-matches #"-?[0-9]+" (str input))
+    (js/parseInt (str input))
+    (throw  (js/Error. "Opps"))))
 
 (defn parse-sorting-field
   [input]
@@ -22,6 +29,7 @@
        :field    :name}
       {:inverse? inverse?
        :field   (keyword field)})))
+
 (defn jaccard
   [set-a set-b]
   (/

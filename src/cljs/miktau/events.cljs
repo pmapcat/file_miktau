@@ -108,79 +108,95 @@
 (refe/reg-event-db
  :back
  (fn [db _]
-   (.log js/console "registered <back> event")))
+   (.log js/console "registered <back> event")
+   db))
 
-(refe/reg-event-db
- :filtering
- (fn [_ [_ data]]
-   (.log js/console "registered filtering event on: " data)))
+(defn filtering
+  "TESTED"
+  [db [_ data]]
+  (assoc db :filtering (str data)))
+(refe/reg-event-db :filtering filtering)
 
-(refe/reg-event-db
- :clear
- (fn [db _]
-   (.log js/console "registered clearing event" )))
-
-(refe/reg-event-db
- :click-on-calendar-item
- (fn [db [_ group key-name]]
-   (if (=  group "FastAccess")
-     (.log js/console "registered point clicking event on: " (str key-name))
-     (.log js/console "registered clicking event on calendar: " (str group) " " (str key-name)))))
-
+(defn clear
+  "TESTED"
+  [db _]
+  (assoc db :filtering ""))
+(refe/reg-event-db :clear clear)
+(defn click-on-calendar-item
+  "TESTED"
+  [db [_ group key-name]]
+  (if (=  group "FastAccess")
+    (assoc db :calendar-selected key-name)
+    (let [item (utils/mik-parse-int (name key-name) nil)]
+      (if (and  item (> item 0))
+        (assoc-in db [:calendar-selected group] item)
+        db))))
+(refe/reg-event-db :click-on-calendar-item click-on-calendar-item )
 (refe/reg-event-db
  :clicked-cloud-item
  (fn [db [_ item]]
-   (.log js/console "Clicked cloud item: " (str item))))
+   (.log js/console "Clicked cloud item: " (str item))
+   db))
 
 (refe/reg-event-db
  :clicked-many-cloud-items
  (fn [db [_ items]]
-   (.log js/console "Clicked many clou  items: " (str items))))
+   (.log js/console "Clicked many clou  items: " (str items))
+   db))
 
 (refe/reg-event-db
  :select-all-nodes
  (fn [db i]
-   (.log js/console "Clicked on <select all nodes> button")))
+   (.log js/console "Clicked on <select all nodes> button")
+   db))
 
 (refe/reg-event-db
  :unselect-all-nodes
  (fn [db i]
-   (.log js/console "Clicked on <unselect all nodes> button")))
+   (.log js/console "Clicked on <unselect all nodes> button")
+   db))
 
 
 (refe/reg-event-db
  :sort
  (fn [db [_ sort-order]]
-   (.log js/console "Sorting in order: " sort-order)))
+   (.log js/console "Sorting in order: " sort-order)
+   db))
 
 (refe/reg-event-db
  :select-node
  (fn [db [_ file-path]]
-   (.log js/console "Selected node by filepath: " file-path)))
+   (.log js/console "Selected node by filepath: " file-path)
+   db))
 
 (refe/reg-event-db
  :file-operation
  (fn [db [_ operation-name]]
-   (.log js/console "Operating on selected files: " (str (name operation-name)))))
+   (.log js/console "Operating on selected files: " (str (name operation-name)))
+   db))
 
 (refe/reg-event-db
  :delete-tags-from-selection
  (fn [db [_ tag-list]]
-   (.log js/console "Tags that must be deleted: " tag-list)))
+   (.log js/console "Tags that must be deleted: " tag-list)
+   db))
 
 (refe/reg-event-db
  :add-tags-to-selection
  (fn [db [_ tag-list]]
-   (.log js/console "Tags that must be added to selection: " tag-list)))
+   (.log js/console "Tags that must be added to selection: " tag-list)
+   db))
 (refe/reg-event-db
  :submit-tagging-now
  (fn [db _]
    (.log js/console "Tagging now is submitted")
    (.log js/console "Must send to server to submit :nodes-temp-tags-to-delete and :nodes-temp-tags-to-add")
-   (.log js/console "Must, also, probably, clear :nodes-selected")))
+   (.log js/console "Must, also, probably, clear :nodes-selected")
+   db))
 
 (refe/reg-event-db
  :cancel-tagging-now
  (fn [db _]
    (.log js/console "Cancelling tagging now")
-   (.log js/console "Must clear :nodes-selected and :nodes-temp-tags-to-delete and :nodes-temp-tags-to-add")))
+   (.log js/console "Must clear :nodes-selected and :nodes-temp-tags-to-delete and :nodes-temp-tags-to-add")
+   db))

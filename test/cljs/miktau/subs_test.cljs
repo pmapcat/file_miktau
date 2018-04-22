@@ -5,7 +5,29 @@
             [miktau.utils :as utils]
             [miktau.events :as miktau-events]
             [miktau.demo-data-test :as demo-data]))
+(deftest testing-can-use? []
+  (is (= (miktau-subs/can-use?  demo-data/initial-db-after-load-from-server) true))
+  (is (= (miktau-subs/can-use?  (assoc demo-data/initial-db-after-load-from-server :loading? true)) false))
 
+  (is (= (miktau-subs/can-use?  nil) false)))
+
+(deftest testing-cloud-filtering-should-display?
+  (let [filter-fn       (miktau-subs/cloud-filtering-should-display? {:filtering "he"})
+        empty-filter-fn (miktau-subs/cloud-filtering-should-display? {:filtering ""})
+        ds [{:compare-name "yadda"}
+            {:compare-name "yodda"}
+            {:compare-name "hoddea"}
+            {:compare-name "hea"}
+            {:compare-name "uihe"}
+            {:compare-name nil}
+            {:compare-name 0}
+            {:compare-name "ui he he he"}]]
+    (is (= (filter filter-fn ds)
+           [{:compare-name "hea"}
+            {:compare-name "uihe"}
+            {:compare-name "ui he he he"}]))
+    (is (= (filter
+            empty-filter-fn ds) ds))))
 
 (deftest testing-cloud []
   ;; testing grouping ability
@@ -13,12 +35,17 @@
            (assoc i :group (count (:group i))))
          (list {:group-name "work", :max-size 20, :group 19}
                {:group-name "работа_сделана", :max-size 1, :group 1})))
-
+  ;; testing is filtering work as expected
+  (is (= (mapv :compare-name (:group (first (miktau-subs/cloud (assoc demo-data/initial-db-after-load-from-server :filtering "wo") nil))))
+         ["work"]))
+  (is (= (mapv :compare-name (:group (first (miktau-subs/cloud (assoc demo-data/initial-db-after-load-from-server :filtering "w") nil))))
+          ["moscow_market" "wiki" "work"]))
+  
   ;; testing how group can work
   (is (= (first (:group (first (miktau-subs/cloud  demo-data/initial-db-after-load-from-server nil))))
          {:name "moscow_market",
-          :compare-name #{"w" "s" "e" "a" "_" "t" "k" "r" "m" "o" "c"},
           :key-name :moscow_market,
+          :compare-name "moscow_market"
           :size 9,
           :group :work,
           :weighted-size 0.45,
@@ -132,8 +159,10 @@
                   {:name "2016", :key-name :2016, :size 14, :group :year, :weighted-size 1,                   :selected? false, :can-select? true})}))
 
   (is (=  (miktau-subs/calendar nil nil) {}))
+  
   (is (=  (miktau-subs/calendar
            {:calendar {:year {:2016 14, :2017 6, :2018 2}}
+            :loading? false
             :calendar-selected {}} nil)
           {:year {:group-name "year", :max-size 14, :group
                   (list {:name "2018", :key-name :2018, :size 2, :group :year, :weighted-size 0.14285714285714285, :selected? false, :can-select? false}
