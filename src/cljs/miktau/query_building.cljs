@@ -1,7 +1,4 @@
-(ns miktau.query-building
-  (:require
-   [miktau.utils :as utils]
-   [clojure.string :as clojure-string]))
+(ns miktau.query-building)
 
 (defn build-core-query-for-retrieval
   "TESTED"
@@ -25,13 +22,51 @@
          :tags []}
         :else item-or))
 
-(defn build-bulk-operate-on-files
-  [db action]
-  {:url "/api/bulk-operate-on-files"
-   :params {}})
+(defn build-get-app-data
+  "TESTED"
+  [db]
+  {:url "/api/get-app-data"
+   :params (build-core-query-for-retrieval db)})
 
-(defn build-switch-projects [db]
-  {:url "/api/switch-projects"
+
+(defn build-bulk-operate-on-files
+  "TESTED"
+  [db action or-else]
+  (let [request (build-core-query-for-action db nil)]
+    (if (and (contains?  #{:symlinks :default :filebrowser} action) (not (nil? request)))
+      {:url "/api/bulk-operate-on-files"
+       :params {:action (str (name action)) :request request}}
+      or-else)))
+
+(defn build-switch-projects
+  "TESTED"
+  [db or-else]
+  (if (string? (:core-directory db))
+    {:url "/api/switch-projects"
+     :params {:file-path (:core-directory db)}}
+    or-else))
+
+(defn build-update-records
+  "TESTED"
+  [db or-else]
+  (let [request (build-core-query-for-action db nil)
+        tags-to-add    (into [] (sort (map (comp str name) (:nodes-temp-tags-to-add db))))
+        tags-to-delete (into [] (sort (map (comp str name) (:nodes-temp-tags-to-delete db))))]
+    (cond
+      (nil? request)
+      or-else
+      (and (empty? tags-to-add) (empty? tags-to-delete))
+      or-else
+      :else
+      {:url "/api/update-records"
+       :params {:tags-to-add       tags-to-add
+                :tags-to-delete    tags-to-delete
+                :request request}})))
+
+(defn build-check-is-live
+  "TESTED"
+  []
+  {:url  "/api"
    :params {}})
 
 ;; 
