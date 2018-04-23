@@ -10,10 +10,14 @@
        [nil  demo-data/demo-response])
       demo-data/initial-db-after-load-from-server)))
 
-(deftest test-filtering-and-clear []
+(deftest test-filtering []
   (let [db demo-data/initial-db-after-load-from-server]
     (is (= (:filtering (miktau-events/filtering db [nil "h"])) "h"))
     (is (= (:filtering (miktau-events/filtering db [nil ""])) ""))
+    (is (= (:filtering (miktau-events/filtering db [nil "****"])) ""))
+    (is (= (:filtering (miktau-events/filtering db [nil "bibilo@@@"])) ""))
+    (is (= (:filtering (miktau-events/filtering db [nil ""])) ""))
+    
     (is (= (:filtering (miktau-events/filtering db [nil "hello"])) "hello"))
     (is (= (:filtering (miktau-events/filtering db [nil nil])) ""))
     (is (=
@@ -98,7 +102,7 @@
       (:calendar-selected (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20 :month 3}) [nil "FastAccess" {:year 2018}]))
       {:year 2018}))))
 
-(deftest test-click-on-cloud-item []
+(deftest test-click-on-cloud []
   (let [db (assoc demo-data/initial-db-after-load-from-server :cloud-selected #{})]
     (is (=  (:cloud-selected  (miktau-events/click-on-cloud db [nil :work])) #{:work}))
     (is (=  (:cloud-selected  (miktau-events/click-on-cloud (assoc db :cloud-selected #{:zanoza}) [nil :work])) #{:zanoza :work}))
@@ -115,3 +119,51 @@
     (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil [:za :zo]])) #{:za :zo}))
     (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil (into '() [:za :zo])])) #{:za :zo}))
     (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil nil])) #{:ha :ho}))))
+
+(deftest test-select-all-nodes []
+  (let [db (assoc demo-data/initial-db-after-load-from-server :nodes-selected #{})]
+    ;; if nothing selected
+    (is (=  (:nodes-selected  (miktau-events/select-all-nodes db [nil nil])) #{"*"}))
+    ;; if aleready something selected
+    (is (=  (:nodes-selected  (miktau-events/select-all-nodes (assoc  db :nodes-selected #{"blab" "blip"}) [nil nil])) #{"*"}))
+    ;; if already all selected
+    (is (=  (:nodes-selected  (miktau-events/select-all-nodes (assoc  db :nodes-selected #{"*"}) [nil nil])) #{}))
+    ;; if already all selected, but some are not
+    (is (=  (:nodes-selected  (miktau-events/select-all-nodes (assoc  db :nodes-selected #{"diro" "doro" "*"}) [nil nil])) #{}))))
+
+(deftest test-sort-nodes []
+  (let [db  demo-data/initial-db-after-load-from-server]
+    ;; if nothing selected
+    (is (=  (:nodes-sorted  (miktau-events/sort-nodes db [nil "-name"])) "-name"))
+    (is (=  (:nodes-sorted  (miktau-events/sort-nodes db [nil nil])) "name"))
+    (is (=  (:nodes-sorted  (miktau-events/sort-nodes db [nil :kliqo])) "name"))
+    (is (=  (:nodes-sorted  (miktau-events/sort-nodes db [nil "modified"])) "modified"))
+    (is (=  (:nodes-sorted  (miktau-events/sort-nodes db [nil "-modified"])) "-modified"))
+    (is (=  (:nodes-sorted  (miktau-events/sort-nodes db [nil "name"])) "name"))))
+
+(deftest test-select-node []
+  (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{})]
+    ;; if nothing selected
+    (is (=  (:nodes-selected  (miktau-events/select-node db [nil nil])) #{}))
+    (is (=  (:nodes-selected  (miktau-events/select-node db [nil "hello"])) #{"hello"}))
+    (is (=  (:nodes-selected  (miktau-events/select-node db [nil nil])) #{}))
+    (is (=  (:nodes-selected  (miktau-events/select-node (assoc  db :nodes-selected #{"hello"}) [nil "hello"])) #{}))
+    (is (=  (:nodes-selected  (miktau-events/select-node (assoc  db :nodes-selected #{"hello"}) [nil "world"])) #{"hello" "world"}))
+    (is (=  (:nodes-selected  (miktau-events/select-node (assoc  db :nodes-selected #{"*"}) [nil "world"])) #{"world"}))
+    (is (=  (:nodes-selected  (miktau-events/select-node (assoc  db :nodes-selected #{"*" "zizo"}) [nil "world"])) #{"world"}))
+    (is (=  (:nodes-selected  (miktau-events/select-node (assoc  db :nodes-selected #{"zizo"}) [nil "zizo"])) #{}))
+    (is (=  (:nodes-selected  (miktau-events/select-node (assoc  db :nodes-selected #{"zizo"}) [nil "blab"])) #{"zizo" "blab"}))))
+
+;; (deftest test-file-opreration []
+;;   (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{})]
+;;     ;; if nothing selected
+;;     (is (=  (:nodes-selected  (miktau-events/file-operation db [nil nil])) #{}))
+;;     (is (=  (:nodes-selected  (miktau-events/select-node db [nil "hello"])) #{"hello"}))
+;;     (is (=  (:nodes-selected  (miktau-events/select-node db [nil nil])) #{}))
+;;     (is (=  (:nodes-selected  (miktau-events/select-node (assoc  db :nodes-selected #{"hello"}) [nil "hello"])) #{}))
+;;     (is (=  (:nodes-selected  (miktau-events/select-node (assoc  db :nodes-selected #{"hello"}) [nil "world"])) #{"hello" "world"}))
+;;     (is (=  (:nodes-selected  (miktau-events/select-node (assoc  db :nodes-selected #{"*"}) [nil "world"])) #{"world"}))
+;;     (is (=  (:nodes-selected  (miktau-events/select-node (assoc  db :nodes-selected #{"*" "zizo"}) [nil "world"])) #{"world"}))
+;;     (is (=  (:nodes-selected  (miktau-events/select-node (assoc  db :nodes-selected #{"zizo"}) [nil "zizo"])) #{}))
+;;     (is (=  (:nodes-selected  (miktau-events/select-node (assoc  db :nodes-selected #{"zizo"}) [nil "blab"])) #{"zizo" "blab"}))))
+

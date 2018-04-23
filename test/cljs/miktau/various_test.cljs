@@ -24,3 +24,17 @@
   (is (= (utils/seq-of-predicate? [:asd "asd"] keyword?) false))
   (is (= (utils/seq-of-predicate? [:asd :bsd :csd] keyword?) true)))
 
+(deftest testing-is-this-tag-allowed? []
+  (is (= (utils/allowed-tag-or? nil "**") "**"))
+  (is (= (utils/allowed-tag-or? "" "**") "**"))
+  (is (= (utils/allowed-tag-or? "-123" "**") "**"))
+  (is (= (utils/allowed-tag-or? (apply str (take 100 (repeat "zanzibar"))) "**") "**"))
+  (is (= (utils/allowed-tag-or? "Привет Мир" "**") "**"))
+  (is (= (utils/allowed-tag-or? "Привет_Мир" "**") "Привет_Мир"))
+  (is (= (utils/allowed-tag-or? "anachronizm222" "**") "anachronizm222"))
+  (is (= (utils/allowed-tag-or? "heronimo-" "**") "**"))
+  (is (= (utils/allowed-tag-or? "momavali_dro" "**") "momavali_dro"))
+  (is (= (utils/allowed-tag-or-include-empty? "" "**") "")))
+
+
+

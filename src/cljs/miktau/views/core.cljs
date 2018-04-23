@@ -4,6 +4,7 @@
             [clojure.string :as clojure-string]
             [miktau.utils :as utils]
             [miktau.lorem :as lorem]))
+
 (defn log-item [item]
   (do
     (.log js/console (str item))
@@ -225,8 +226,8 @@
      {:for id :style {:position "relative"}}
      [:input
       (if selected?
-        {:id id  :style {} :checked true :type "checkbox" :on-change on-change}
-        {:id id  :style {}               :type "checkbox" :on-change on-change})]
+        {:id id  :style {:width "25px" :height "25px" :cursor "pointer"} :checked true :type "checkbox" :on-change on-change}
+        {:id id  :style {:width "25px" :height "25px" :cursor "pointer"}               :type "checkbox" :on-change on-change})]
      [:span {:style {:padding-bottom "5px"}}
       text]]))
 
@@ -237,9 +238,8 @@
       ;; select all nodes button
       [:div.pure-u-2-24
        (views-utils/position-absolute
-        {:top "4px"}
+        {:top "0px"}
         (radio-button "" #(refe/dispatch [:select-all-nodes]) (:all-selected? node-items)))]
-      
       [:div.pure-u-6-24 
        (table-menu "Name"
                    [[:a.pure-button {:href "#" :key "order-a-z" :on-click #(refe/dispatch [:sort "name"])}
@@ -263,7 +263,7 @@
                   :cursor "pointer"}}
          [:div.pure-u-2-24.mik-flush-left
           (views-utils/position-absolute
-           {:top "4px"}
+           {:top ""}
            (radio-button "" #(refe/dispatch [:select-node (node :file-path) (node :name)]) (:selected? node)))]
          [:div.pure-u-6-24
           [:a.unstyled-link
@@ -299,7 +299,7 @@
                              :style
                              {:font-weight "300"}}
            (str
-            (:year  (node :modified)) "."
+            (:year   (node :modified)) "."
             (:month  (node :modified)) "."
             (:day  (node :modified)))]]])]
      [:div.mik-flush-right.gray
@@ -321,12 +321,13 @@
       {:type "text" :placeholder "Filter"
        :value @filtering
        :on-change #(refe/dispatch [:filtering (e->content %)])
-       :style {:width "100%" :height "2em" :background "white !important"}}]
-     [:div {:style {:position "absolute" :right "30px" :top "20px"}}
+       :style {:width "97%" :height "2em" :padding-left "20px" :background "white !important"}}]
+     [:div {:style {:position "absolute" :right "30px" :top "23px"}}
       [:a.unstyled-link {:href "#" :on-click #(refe/dispatch [:clear])} 
        "Clear"]]
-     [:div {:style {:position "absolute" :right "75px" :top "23px"}}
+     [:div {:style {:position "absolute" :right "90px" :top "23px"}}
       (views-utils/icon "search")]]))
+
 
 (defn drill
   []

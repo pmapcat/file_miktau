@@ -10,7 +10,24 @@
     :timeout         8000}
    params))
 
-(defn mik-parse-int [input or]
+(defn allowed-tag-or?
+  "TESTED"
+  [input or]
+  (if (and  (re-matches #"^[0-9А-Яа-яA-Za-z_]+$" (str input)) (<  (count (str input)) 20))
+    input
+    or))
+(defn allowed-tag-or-include-empty?
+  "TESTED"
+  [input or]
+  (if (empty? (str input)) input
+      (allowed-tag-or? input or)))
+
+
+;; (re-matches #"^[0-9А-Яа-яA-Za-z_]+$" (count "momavali_dro"))
+
+(defn mik-parse-int
+  "TESTED"
+  [input or]
   (if (re-matches #"-?[0-9]+" (str input))
     (js/parseInt (str input))
     or))

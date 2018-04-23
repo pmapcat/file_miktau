@@ -3,6 +3,7 @@
    [miktau.events]
    [miktau.effects]
    [miktau.subs]
+   [miktau.query-building]
    [re-frame.core :as refe]
    [reagent.core :as reagent]
    [miktau.views.core :as views_core]))

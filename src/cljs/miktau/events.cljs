@@ -1,6 +1,5 @@
 (ns miktau.events
   (:require
-   [day8.re-frame.http-fx]
    [miktau.utils :as utils]
    [clojure.string :as clojure-string]
    [re-frame.core :as refe]))
@@ -84,7 +83,9 @@
 (defn filtering
   "TESTED"
   [db [_ data]]
-  (assoc db :filtering (str data)))
+  (assoc db :filtering
+         (utils/allowed-tag-or-include-empty? (str data) (db :filtering))
+         (str data)))
 (refe/reg-event-db :filtering filtering)
 
 (defn clear
@@ -141,31 +142,36 @@
     db
     (assoc db :cloud-selected (into #{} items))))
 (refe/reg-event-db :clicked-many-cloud-items clicked-many-cloud-items)
+(defn select-all-nodes
+  "TESTED"
+  [db _]
+  (cond
+    (contains? (:nodes-selected  db) "*")
+    (assoc db :nodes-selected  #{})
+    :else
+    (assoc db :nodes-selected #{"*"})))
+(refe/reg-event-db :select-all-nodes select-all-nodes)
+(refe/reg-event-db :unselect-all-nodes select-all-nodes)
+(defn sort-nodes
+  "TESTED"
+  [db [_ sort-order]]
+  (if (contains? #{"name" "-name" "modified" "-modified"} (str sort-order))
+    (assoc db :nodes-sorted (str sort-order))
+    (assoc  db :nodes-sorted "name")))
+(refe/reg-event-db :sort sort-nodes)
 
-(refe/reg-event-db
- :select-all-nodes
- (fn [db i]
-   (.log js/console "Clicked on <select all nodes> button")
-   db))
-
-(refe/reg-event-db
- :unselect-all-nodes
- (fn [db i]
-   (.log js/console "Clicked on <unselect all nodes> button")
-   db))
-
-
-(refe/reg-event-db
- :sort
- (fn [db [_ sort-order]]
-   (.log js/console "Sorting in order: " sort-order)
-   db))
-
-(refe/reg-event-db
- :select-node
- (fn [db [_ file-path]]
-   (.log js/console "Selected node by filepath: " file-path)
-   db))
+(defn select-node
+  "TESTED"
+  [db [_ file-path]]
+  (cond
+    (not  (string? file-path)) db
+    (contains? (:nodes-selected db) "*")
+    (assoc db :nodes-selected #{file-path})
+    (contains? (:nodes-selected db) file-path)
+    (update db :nodes-selected disj file-path)
+    :else
+    (update db :nodes-selected conj file-path)))
+(refe/reg-event-db :select-node select-node)
 
 (refe/reg-event-db
  :file-operation
