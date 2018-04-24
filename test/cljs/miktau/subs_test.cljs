@@ -91,11 +91,20 @@
 (deftest testing-node-items []
   ;; [TODO] test on selection
   (let [with-node-items-count (update  (miktau-subs/node-items demo-data/initial-db-after-load-from-server nil) :nodes count)
-        only-node-items  (:nodes (miktau-subs/node-items demo-data/initial-db-after-load-from-server nil))]
+        only-node-items  (:nodes (miktau-subs/node-items demo-data/initial-db-after-load-from-server nil))
+        db (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{"/home/mik/figuratively/dar.mp4"
+                                                                                 "/home/mik/figuratively/gir.mp4"
+                                                                                 "/home/mik/figuratively/grar.mp4"})]
     (is (= with-node-items-count
            {:ordered-by {:inverse? false, :field :name}, :total-nodes 22, :nodes 22 :ommitted-nodes 0, :all-selected? true} ))
     (is (=  (mapv :selected? only-node-items)
             [true true true true true true true true true true true true true true true true true true true true true true]))
+    (is
+     (= 
+      (mapv :name (filter :selected? (:nodes (miktau-subs/node-items db nil))))
+      ["dar.mp4" "gir.mp4" "grar.mp4"]))
+
+    
     
     (is (= (take 2 only-node-items)
            (list {:id 0 :selected? true, :modified {:year 2016, :month 7, :day 21},
