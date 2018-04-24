@@ -13,6 +13,9 @@
         true false
         false true
         false)))
+(defn selection-mode? [db _]
+  (not (empty? (:nodes-selected db))))
+(refe/reg-sub :selection-mode? selection-mode?)
 
 (defn cloud-filtering-should-display?
   [db]
@@ -41,12 +44,12 @@
             filterer (cloud-filtering-should-display? db) 
             should-display?
             (fn [group]
-              (filter filterer group))
-            sorting #(reverse (sort :key-name %))]
+              (filter filterer group))]
         {:group-name (str (name group-name))
          :max-size   max-size
          :group
-         (sorting
+         (sort-by
+          :compare-name
           (should-display?
            (for [[tag tag-size] group]
              {:name    (str (name tag))

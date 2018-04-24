@@ -1,8 +1,8 @@
 (ns miktau.events
   (:require
    [miktau.utils :as utils]
-   [clojure.string :as clojure-string]
-   [re-frame.core :as refe]))
+   [re-frame.core :as refe]
+   [miktau.query-building :as query-building]))
 
 (def demo-db
   {:loading? true
@@ -80,6 +80,16 @@
    (.log js/console "registered <back> event")
    db))
 
+(defn on-modify-selection
+  [db]
+  (assoc db :nodes-temp-tags-to-add #{}
+         :nodes-temp-tags-to-delete #{}))
+
+(defn clear-selection
+  [db]
+  (assoc (on-modify-selection db)  :nodes-selected #{}))
+
+
 (defn filtering
   "TESTED"
   [db [_ data]]
@@ -121,7 +131,7 @@
           db))
       (catch :default e
         db))))
-(refe/reg-event-db :click-on-calendar-item click-on-calendar-item )
+(refe/reg-event-db :click-on-calendar-item click-on-calendar-item)
 
 (defn click-on-cloud
   "TESTED"
@@ -173,37 +183,54 @@
     (update db :nodes-selected conj file-path)))
 (refe/reg-event-db :select-node select-node)
 
-(refe/reg-event-db
- :file-operation
- (fn [db [_ operation-name]]
-   (.log js/console "Operating on selected files: " (str (name operation-name)))
-   db))
+(defn file-operation-fx
+  "TESTED"
+  [{:keys [db]} [_ operation-name]]
+  (if-let [api-call (query-building/build-bulk-operate-on-files db operation-name nil)]
+    {:api-call api-call
+     :db db}
+    {:db db}))
+(refe/reg-event-fx :file-operation file-operation-fx)
 
-(refe/reg-event-db
- :delete-tags-from-selection
- (fn [db [_ tag-list]]
-   (.log js/console "Tags that must be deleted: " tag-list)
-   db))
+(defn delete-tag-from-selection
+  "TESTED"
+  [db [_ tag-item]]
+  (if (keyword? tag-item)
+     (update db :nodes-temp-tags-to-delete conj tag-item)
+     db))
+(refe/reg-event-db :delete-tag-from-selection delete-tag-from-selection)
 
-(refe/reg-event-db
- :add-tags-to-selection
- (fn [db [_ tag-list]]
-   (.log js/console "Tags that must be added to selection: " tag-list)
-   db))
-(refe/reg-event-db
- :submit-tagging-now
- (fn [db _]
-   (.log js/console "Tagging now is submitted")
-   (.log js/console "Must send to server to submit :nodes-temp-tags-to-delete and :nodes-temp-tags-to-add")
-   (.log js/console "Must, also, probably, clear :nodes-selected")
-   db))
+(defn add-tag-to-selection
+  "TESTED"
+  [db [_ tag-item]]
+  (if (keyword? tag-item)
+     (update db :nodes-temp-tags-to-add conj tag-item)
+     db))
+(refe/reg-event-db :add-tag-to-selection add-tag-to-selection)
 
-(refe/reg-event-db
- :cancel-tagging-now
- (fn [db _]
-   (.log js/console "Cancelling tagging now")
-   (.log js/console "Must clear :nodes-selected and :nodes-temp-tags-to-delete and :nodes-temp-tags-to-add")
-   db))
+(defn submit-tagging-fx
+  "TESTED"
+  [{:keys [db]} _]
+  (if-let [api-call (query-building/build-update-records db nil)]
+    {:db (assoc
+          db
+          :nodes-temp-tags-to-add #{}
+          :nodes-temp-tags-to-delete #{}
+          :nodes-selected #{})
+     
+     :api-call api-call}
+    {:db db}))
+(refe/reg-event-db :submit-tagging submit-tagging-fx)
+
+(defn cancel-tagging
+  "TESTED"
+  [db _]
+  (assoc
+   db
+   :nodes-temp-tags-to-add #{}
+   :nodes-temp-tags-to-delete #{}
+   :nodes-selected #{}))
+(refe/reg-event-db :cancel-tagging cancel-tagging)
 
 (refe/reg-event-db
  :set-nodes-temp-tags-to-delete

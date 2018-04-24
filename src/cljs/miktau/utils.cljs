@@ -9,6 +9,8 @@
     :format          (ajax/json-request-format)
     :timeout         8000}
    params))
+(defn pad [item pad-width pad-symbol]
+  ((aget js/window "pad") (str item) pad-width (str pad-symbol)))
 
 (defn allowed-tag-or?
   "TESTED"

@@ -150,9 +150,7 @@
       "date_range"
       (:group-name (:day calendar))
       " pure-u-1-5 tag"
-      (:group (:day calendar)))
-     
-     ]))
+      (:group (:day calendar)))]))
 
 (defn found-group
   []
@@ -288,10 +286,12 @@
                   :else "disabled"))
                
                :style {:font-weight "300"}}  (:name tag) " "])
-           
-           [:a.unstyled-link
-            {:href "#"
-             :on-click #(refe/dispatch [:clicked-many-cloud-items (:all-tags node)])} "all"]]]
+           (if-not (empty? (:all-tags node))
+             [:a.unstyled-link
+              {:href "#"
+               :on-click #(refe/dispatch [:clicked-many-cloud-items (:all-tags node)])}
+              "all"]
+             [:span])]]
          [:div.pure-u-6-24.mik-flush-right
           [:a.unstyled-link {:href "#"
                              :on-click
@@ -299,9 +299,9 @@
                              :style
                              {:font-weight "300"}}
            (str
-            (:year   (node :modified)) "."
-            (:month  (node :modified)) "."
-            (:day  (node :modified)))]]])]
+            (utils/pad (:year   (node :modified)) 4 "0") "."
+            (utils/pad (:month  (node :modified)) 2 "0") "."
+            (utils/pad (:day  (node :modified))   2 "0"))]]])]
      [:div.mik-flush-right.gray
       "Truncated: "
       [:b  (:omitted-nodes node-items)]]]))
@@ -321,6 +321,7 @@
       {:type "text" :placeholder "Filter"
        :value @filtering
        :on-change #(refe/dispatch [:filtering (e->content %)])
+       :on-blur  #(refe/dispatch [:filtering ""])
        :style {:width "97%" :height "2em" :padding-left "20px" :background "white !important"}}]
      [:div {:style {:position "absolute" :right "30px" :top "23px"}}
       [:a.unstyled-link {:href "#" :on-click #(refe/dispatch [:clear])} 
