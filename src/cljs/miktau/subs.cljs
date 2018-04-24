@@ -151,8 +151,8 @@
          {:selected?
           (if all-selected?
             true
-            (contains? (:nodes-sorted db )
-                       (:file-path i)))
+            (contains? (:nodes-selected db )
+                       (str (:file-path i) (:name i))))
           :modified
           (i :modified)
           :id (i :id)
@@ -165,9 +165,32 @@
              :key-name (keyword (str tag))
              :to-add?        (contains? (:nodes-temp-tags-to-add db) tag)
              :to-delete?     (contains? (:nodes-temp-tags-to-delete db) tag)
-             :selected?      (contains? (:selected db) (keyword tag))
+             :selected?      (contains? (:cloud-selected db) (keyword tag))
              :can-select?    true})})})))
 (refe/reg-sub :node-items node-items)
+
+(defn generate-tags-on-selection
+  "TESTED"
+  [db]
+  (cond
+    (contains? (:nodes-selected db) "*")
+    (into #{} (keys (:cloud-can-select db)))
+    (empty? (:nodes-selected db))
+    #{}
+    :else
+    (let [selected-nodes (:nodes-selected db)]
+      (into
+       #{}
+       (map
+        keyword
+        (into
+         #{}
+         (flatten
+          (map
+           :tags
+           (filter
+            #(contains? selected-nodes (:file-path  %))
+            (:nodes db))))))))))
 
 (defn nodes-changing
   "TESTED"
@@ -182,7 +205,6 @@
            (count (db :nodes-selected)))
        :tags-to-add    (db :nodes-temp-tags-to-add)
        :tags-to-delete (db :nodes-temp-tags-to-delete)})))
-
 (refe/reg-sub :nodes-changing nodes-changing)
 (comment
   ;; @(refe/subscribe [:cloud])

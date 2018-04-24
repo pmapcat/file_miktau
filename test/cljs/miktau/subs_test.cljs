@@ -75,6 +75,7 @@
   (is (= (miktau-subs/selection-cloud
           demo-data/initial-db-after-load-from-server nil)
          [])))
+
 (deftest testing-is-this-datepoint-selected? []
   (let [exec-fn #(utils/is-this-datepoint-selected?
                   demo-data/initial-db-after-load-from-server %)]
@@ -105,18 +106,57 @@
                               {:name "work",  :key-name :work,  :to-add? false, :to-delete? false, :selected? false, :can-select? true}
                               {:name "bibliostore", :key-name :bibliostore, :to-add? false, :to-delete? false, :selected? false, :can-select? true}
                               {:name "moscow_market", :key-name :moscow_market, :to-add? false, :to-delete? false, :selected? false, :can-select? true})})))))
+
+(deftest test-generate-tags-on-selection []
+  (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{"/home/mik/figuratively/dar.mp4"
+                                                                                  "/home/mik/figuratively/gir.mp4"
+                                                                                  "/home/mik/figuratively/grar.mp4"})]
+    (is (=  (miktau-subs/generate-tags-on-selection db)
+            #{:work :personal :blog :usecases}))
+    (is (=  (miktau-subs/generate-tags-on-selection (assoc db :nodes-selected #{}))
+            #{}))
+
+    (is (=  (miktau-subs/generate-tags-on-selection (assoc db :nodes-selected #{"*"}))
+            (into #{} (map keyword ["amazon" "bibliostore" "blog" "devops" "everybook" "moscow_market" "natan" "personal" "sforim" "translator" "UI" "usecases" "wiki" "work" "zeldin" "биржа" "магазины" "скачка_источников" "согласовать" "работа_сделана"]))))
+    (is (=  (miktau-subs/generate-tags-on-selection nil)
+            #{}))))
+
   
 (deftest testing-nodes-changing
   []
-  (is
-   (= (miktau-subs/nodes-changing demo-data/initial-db-after-load-from-server nil)
-      {:display? true, :all-selected? true, :total-amount 22, :tags-to-add #{}, :tags-to-delete #{}}))
+  
+  ;; (is (= (dissoc (miktau-subs/nodes-changing demo-data/initial-db-after-load-from-server nil) :tags-to-delete)
+  ;;        {:display? true, :all-selected? true, :total-amount 22, :tags-to-add #{}}))
+  ;; (is (= (first (:tags-to-delete (miktau-subs/nodes-changing demo-data/initial-db-after-load-from-server nil)))
+  ;;        {:name "amazon"
+  ;;         :compare-name "amazon",
+  ;;         :key-name :amazon,
+  ;;         :size 2,
+  ;;         :weighted-size 0.1,
+  ;;         :selected? false,
+  ;;         :can-select? true}))
+  ;; (is (= (first (:tags-to-delete (miktau-subs/nodes-changing (assoc demo-data/initial-db-after-load-from-server :nodes-temp-tags-to-delete #{:amazon}) nil)))
+  ;;        {:name "amazon"
+  ;;         :compare-name "amazon",
+  ;;         :key-name :amazon,
+  ;;         :size 2,
+  ;;         :weighted-size 0.1,
+  ;;         :selected? true
+  ;;         :can-select? true}))
+  ;; (is (= (:tags-to-delete (miktau-subs/nodes-changing (assoc demo-data/initial-db-after-load-from-server :nodes-temp-tags-to-delete #{:работа_сделана}
+  ;;                                                            :nodes-selected #{"/home/mik/figuratively/blab.mp4"}) nil))
+  ;;        {:name "работа_сделана"
+  ;;         :compare-name "работа_сделана",
+  ;;         :key-name :работа_сделана,
+  ;;         :size 2,
+  ;;         :weighted-size 0.1,
+  ;;         :selected? true
+  ;;         :can-select? true}))
+  
   ;; test "not showing" of the data
   (is
-   (= (miktau-subs/nodes-changing (assoc demo-data/initial-db-after-load-from-server :nodes-selected #{}) nil)
-      {:display? false, :all-selected? false, :total-amount 0, :tags-to-add #{}, :tags-to-delete #{}}))
-  
-  )
+   (= (dissoc (miktau-subs/nodes-changing (assoc demo-data/initial-db-after-load-from-server :nodes-selected #{}) nil) :tags-to-delete)
+      {:display? false, :all-selected? false, :total-amount 0, :tags-to-add #{}})))
 
 (deftest testing-is-it-today?
   []
