@@ -3,26 +3,41 @@
                [clojure.string :as cljs-string]
                [clojure.set :as clojure-set]
                [re-frame.core :as refe]))
-(defn with-http-xhrio [params]
-  (merge
-   {:response-format (ajax/json-response-format {:keywords? true})
-    :format          (ajax/json-request-format)
-    :timeout         8000}
-   params))
+(defn server-call [api-call on-success on-error]
+  {:method :post
+   :uri    (:url api-call)
+   :response-format (ajax/json-response-format {:keywords? true})
+   :format          (ajax/json-request-format)
+   :timeout         8000
+   :params  (:params api-call)
+   :on-success [on-success]
+   :on-failure [on-error]})
+(defn clean-server-call-for-tests [server-call]
+  (dissoc
+   server-call
+   :format
+   :response-format))
+
 (defn pad [item pad-width pad-symbol]
   ((aget js/window "pad") (str item) pad-width (str pad-symbol)))
+(defn find-all-tags-in-string
+  [string]
+  (if (string? string)
+    (into [] (filter #(<  (count (str %)) 20)  (re-seq #"[0-9А-Яа-яA-Za-z_]+" string)))
+    []))
 
 (defn allowed-tag-or?
   "TESTED"
-  [input or]
+  [input or-else]
   (if (and  (re-matches #"^[0-9А-Яа-яA-Za-z_]+$" (str input)) (<  (count (str input)) 20))
     input
-    or))
+    or-else))
 (defn allowed-tag-or-include-empty?
   "TESTED"
-  [input or]
+  [input or-else]
   (if (empty? (str input)) input
-      (allowed-tag-or? input or)))
+      (allowed-tag-or? input or-else)))
+
 
 
 ;; (re-matches #"^[0-9А-Яа-яA-Za-z_]+$" (count "momavali_dro"))

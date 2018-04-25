@@ -2,6 +2,7 @@
   (:require
    [miktau.utils :as utils]
    [re-frame.core :as refe]
+   [clojure.set :as clojure-set]
    [miktau.query-building :as query-building]))
 
 (def demo-db
@@ -16,7 +17,7 @@
              :modified {:year 2016 :month 7 :day 21}}]
     :nodes-selected #{"*"}
     :nodes-temp-tags-to-delete #{}
-    :nodes-temp-tags-to-add    #{}
+    :nodes-temp-tags-to-add    ""
     
     :cloud-selected #{:blab}
     :cloud  {:VolutPatem {:blab 43 :blip 27 :blop 12}}
@@ -33,15 +34,18 @@
 (refe/reg-event-fx
  :init
  (fn [_ _]
-   {:db (assoc demo-db :loading? true) 
-    :http-xhrio
-    (utils/with-http-xhrio
-      {:method :post
-       :uri    "/api/get-app-data"
-       :params  {}
-       :on-success [:got-app-data]
-       :on-failure [:http-error]})}))
+   {:db (assoc {} :loading? true)
+    :fx-redirect [:get-app-data]}))
 
+(refe/reg-event-fx
+ :mutable-server-operation
+ (fn [{:keys [db]} [_ response]]
+   (if-not (nil? (:error response))
+     {:db (assoc db :loading? false)
+      :fx-redirect [:get-app-data]
+      :log!  (str response)}
+     {:db (assoc db :loading? false)
+      :fx-redirect [:get-app-data]})))
 
 (refe/reg-event-fx
  :http-error
@@ -49,46 +53,35 @@
    {:db (assoc db :loading? false)
     :log!  (str response)}))
 
-(refe/reg-event-fx
- :get-app-data
- (fn [{:keys [db]} _]
-   {:db (assoc  db :loading? true) 
-    :http-xhrio
-    (utils/with-http-xhrio
-      {:method :post
-       :uri    "/api/get-app-data"
-       :params  {}
-       :on-success [:got-app-data]
-       :on-failure [:http-error]})}))
+(defn get-app-data
+  [{:keys [db]} _]
+  {:db (assoc db :loading? true)
+   :http-xhrio (utils/server-call  (query-building/build-get-app-data db) :got-app-data :http-error)})
+(refe/reg-event-fx :get-app-data get-app-data)
 
 (defn got-app-data
   "TESTED"
-  [{:keys [db]} [_ response]]
+  [db [_ response]]
   (assoc
-   (merge
-    db
-    response)
-   :loading? false))
+   db
+   :loading?                false
+   :core-directory          (:core-directory response)
+   :calendar-can-select     (:calendar-can-select response)
+   :total-nodes             (:total-nodes response)
+   :date-now                (:date-now response)
+   :nodes                   (:nodes response)
+   :calendar                (:calendar response)
+   :cloud                   (:cloud response)
+   :cloud-can-select        (:cloud-can-select response)
+   :nodes-sorted            (:nodes-sorted response)))
 
-(refe/reg-event-db
- :got-app-data
- got-app-data)
+(refe/reg-event-db :got-app-data got-app-data)
 
 (refe/reg-event-db
  :back
  (fn [db _]
    (.log js/console "registered <back> event")
    db))
-
-(defn on-modify-selection
-  [db]
-  (assoc db :nodes-temp-tags-to-add #{}
-         :nodes-temp-tags-to-delete #{}))
-
-(defn clear-selection
-  [db]
-  (assoc (on-modify-selection db)  :nodes-selected #{}))
-
 
 (defn filtering
   "TESTED"
@@ -103,6 +96,7 @@
   [db _]
   (assoc db :filtering ""))
 (refe/reg-event-db :clear clear)
+
 (defn click-on-fast-access-item
   "TESTED"
   [db group item]
@@ -117,41 +111,49 @@
 (defn click-on-calendar-item
   "TESTED"
   [db [_ group key-name]]
-  (if (=  group "FastAccess")
-    (click-on-fast-access-item db group key-name)
-    (try
-      (let [item (utils/mik-parse-int (name key-name) nil)
-            already-has-item (get-in db [:calendar-selected group])]
-        (cond
-          (and  item (> item 0) (= already-has-item item))
-          (assoc-in db [:calendar-selected group] nil)
-          (and  item (> item 0))
-          (assoc-in db [:calendar-selected group] item)
-          :else
-          db))
-      (catch :default e
-        db))))
-(refe/reg-event-db :click-on-calendar-item click-on-calendar-item)
+  {:db
+   (if (=  group "FastAccess")
+     (click-on-fast-access-item db group key-name)
+     (try
+       (let [item (utils/mik-parse-int (name key-name) nil)
+             already-has-item (get-in db [:calendar-selected group])]
+         (cond
+           (and  item (> item 0) (= already-has-item item))
+           (assoc-in db [:calendar-selected group] nil)
+           (and  item (> item 0))
+           (assoc-in db [:calendar-selected group] item)
+           :else
+           db))
+       (catch :default e
+         db)))
+   :fx-redirect [:get-app-data]})
+(refe/reg-event-fx :click-on-calendar-item  click-on-calendar-item)
 
 (defn click-on-cloud
   "TESTED"
   [db [_ item]]
-  (cond
-    (and  (keyword? item) (contains? (db :cloud-selected) item))
-    (update db :cloud-selected disj item)
-    (keyword? item)
-    (update db :cloud-selected conj item)
-    :else
-    db))
-(refe/reg-event-db :clicked-cloud-item click-on-cloud)
+  {:db
+   (cond
+     (and  (keyword? item) (contains? (db :cloud-selected) item))
+     (update db :cloud-selected disj item)
+     (keyword? item)
+     (update db :cloud-selected conj item)
+     :else
+     db)
+   :fx-redirect [:get-app-data]})
+(refe/reg-event-fx :clicked-cloud-item  click-on-cloud)
 
 (defn clicked-many-cloud-items
   "TESTED"
   [db [_ items]]
-  (if-not (utils/seq-of-predicate? items keyword?)
-    db
-    (assoc db :cloud-selected (into #{} items))))
-(refe/reg-event-db :clicked-many-cloud-items clicked-many-cloud-items)
+  {:db
+   (if-not (utils/seq-of-predicate? items keyword?)
+     db
+     (assoc db :cloud-selected (into #{} items)))
+   :fx-redirect [:get-app-data]
+   })
+(refe/reg-event-fx :clicked-many-cloud-items  clicked-many-cloud-items)
+
 (defn select-all-nodes
   "TESTED"
   [db _]
@@ -162,13 +164,16 @@
     (assoc db :nodes-selected #{"*"})))
 (refe/reg-event-db :select-all-nodes select-all-nodes)
 (refe/reg-event-db :unselect-all-nodes select-all-nodes)
+
 (defn sort-nodes
   "TESTED"
   [db [_ sort-order]]
-  (if (contains? #{"name" "-name" "modified" "-modified"} (str sort-order))
-    (assoc db :nodes-sorted (str sort-order))
-    (assoc  db :nodes-sorted "name")))
-(refe/reg-event-db :sort sort-nodes)
+  {:db
+   (if (contains? #{"name" "-name" "modified" "-modified"} (str sort-order))
+     (assoc db :nodes-sorted (str sort-order))
+     (assoc  db :nodes-sorted "name"))
+   :fx-redirect [:get-app-data]})
+(refe/reg-event-fx :sort  sort-nodes)
 
 (defn select-node
   "TESTED"
@@ -187,7 +192,7 @@
   "TESTED"
   [{:keys [db]} [_ operation-name]]
   (if-let [api-call (query-building/build-bulk-operate-on-files db operation-name nil)]
-    {:api-call api-call
+    {:http-xhrio (utils/server-call api-call :mutable-server-operation :http-error)
      :db db}
     {:db db}))
 (refe/reg-event-fx :file-operation file-operation-fx)
@@ -203,10 +208,22 @@
 (defn add-tag-to-selection
   "TESTED"
   [db [_ tag-item]]
-  (if (keyword? tag-item)
-     (update db :nodes-temp-tags-to-add conj tag-item)
-     db))
+  (if (string? tag-item)
+    (assoc db :nodes-temp-tags-to-add tag-item)
+    db))
 (refe/reg-event-db :add-tag-to-selection add-tag-to-selection)
+
+(defn build-drill
+  "TESTED"
+  [db]
+  (->>
+   (clojure-set/difference
+    (:cloud-selected db)
+    (:nodes-temp-tags-to-delete db))
+   (clojure-set/union
+    (into #{} (map keyword (utils/find-all-tags-in-string (:nodes-temp-tags-to-add db)))))
+   (assoc db :cloud-selected)))
+;; (clojure-set/difference #{:hello :hom} #{:hom :didiom} )
 
 (defn submit-tagging-fx
   "TESTED"
@@ -214,41 +231,20 @@
   (if-let [api-call (query-building/build-update-records db nil)]
     {:db (assoc
           db
-          :nodes-temp-tags-to-add #{}
+          :nodes-temp-tags-to-add ""
           :nodes-temp-tags-to-delete #{}
+          :cloud-selected  (:cloud-selected (build-drill db))
           :nodes-selected #{})
-     
-     :api-call api-call}
+     :http-xhrio (utils/server-call api-call :mutable-server-operation :http-error)}
     {:db db}))
-(refe/reg-event-db :submit-tagging submit-tagging-fx)
+(refe/reg-event-fx :submit-tagging submit-tagging-fx)
 
 (defn cancel-tagging
   "TESTED"
   [db _]
   (assoc
    db
-   :nodes-temp-tags-to-add #{}
+   :nodes-temp-tags-to-add ""
    :nodes-temp-tags-to-delete #{}
    :nodes-selected #{}))
 (refe/reg-event-db :cancel-tagging cancel-tagging)
-
-(refe/reg-event-db
- :set-nodes-temp-tags-to-delete
- (fn [db _]
-   (assoc
-    db
-    :nodes-temp-tags-to-delete
-    (let [all-selected? (=  (first (db :nodes-selected)) "*")]
-      (if all-selected?
-        (into #{} (map str (map name (keys (db :cloud-can-select)))))
-        (into #{}
-              (map
-               str
-               (into
-                []
-                (flatten
-                 (for [item (db :nodes)]
-                   (if (contains? (db :nodes-selected) (item :file-path))
-                     (:tags item)
-                     nil)))))))))))
-

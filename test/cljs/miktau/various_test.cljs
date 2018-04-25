@@ -36,5 +36,13 @@
   (is (= (utils/allowed-tag-or? "momavali_dro" "**") "momavali_dro"))
   (is (= (utils/allowed-tag-or-include-empty? "" "**") "")))
 
+(deftest testing-find-all-tags-in-string? []
+  (is (= (utils/find-all-tags-in-string  "ядлчосядчлосядлчосдляочсдлоялдочдсолчсоялосдляослдядчосдялчос
+    Hello,blab, and$world и Яуза_Такая река$$$") ["Hello" "blab" "and" "world" "и" "Яуза_Такая" "река"]))
+  (is (= (utils/find-all-tags-in-string  "" ) []))
+  (is (= (utils/find-all-tags-in-string  "$$" ) []))
+  (is (= (utils/find-all-tags-in-string  nil ) []))
+  (is (= (utils/find-all-tags-in-string  47 ) [])))
+
 
 

@@ -6,14 +6,14 @@
    :cloud-can-select {:moscow_market true, :devops true, :personal true, :usecases true, :биржа true, :amazon true, :магазины true, :wiki true, :work true, :sforim true, :согласовать true, :natan true, :работа_сделана true, :bibliostore true, :translator true, :скачка_источников true, :everybook true, :UI true, :blog true, :zeldin true},
    :loading? false,
    :cloud {:work {:moscow_market 9, :devops 1, :personal 4, :usecases 2, :биржа 2, :amazon 2, :магазины 2, :wiki 1, :work 20, :sforim 2, :согласовать 1, :natan 13, :bibliostore 8, :translator 2, :скачка_источников 1, :everybook 1, :UI 1, :blog 1, :zeldin 2}, :работа_сделана {:работа_сделана 1}},
-   :nodes-temp-tags-to-add #{},
+   :nodes-temp-tags-to-add "",
    :nodes-temp-tags-to-delete #{},
    :filtering "",
    :cloud-selected #{:blab},
    :calendar {:year {:2016 14, :2017 6, :2018 2},
               :month {:1 1, :2 8, :3 1, :4 4, :5 4, :7 4}, :day {:14 1, :18 1, :12 1, :11 1, :24 1, :10 1, :21 1, :13 1, :4 1, :16 1, :7 1, :1 1, :8 1, :9 1, :20 1, :17 1, :19 1, :2 1, :5 2, :15 1, :3 1}},
    :nodes [{:id 0, :name "blab.mp4", :file-path "/home/mik/this_must_be_it/", :tags [], :modified {:year 2016, :month 7, :day 21}}
-           {:id 1, :name "hello.mp4", :file-path "/home/mik/this_must_be_it/", :tags ["natan" "work" "bibliostore" "moscow_market"], :modified {:year 2017, :month 7, :day 20}}
+           {:id 1, :name "hello.mp4",:file-path "/home/mik/this_must_be_it/", :tags ["natan" "work" "bibliostore" "moscow_market"], :modified {:year 2017, :month 7, :day 20}}
            {:id 2, :name "blab.mp4", :file-path "/home/mik/this_must_be_it/", :tags ["natan" "work" "bibliostore" "moscow_market"], :modified {:year 2018, :month 7, :day 19}}
            {:id 3, :name "glib.mp4", :file-path "/home/mik/this_must_be_it/", :tags ["natan" "work" "bibliostore" "moscow_market"], :modified {:year 2016, :month 7, :day 18}}
            {:id 4, :name "blob.mp4", :file-path "/home/mik/chosen_one/", :tags ["natan" "work" "bibliostore" "translator"], :modified {:year 2017, :month 2, :day 17}}
@@ -35,7 +35,6 @@
            {:id 20, :name "dramo.mp4", :file-path "/home/mik/figuratively/literally", :tags ["work" "everybook"], :modified {:year 2016, :month 3, :day 1}}
            {:id 21, :name "blab.mp4", :file-path "/home/mik/figuratively/", :tags ["работа_сделана"], :modified {:year 2017, :month 1, :day 24}}],
    :date-now {:year 2018, :month 4, :day 17},
-   :error "",
    :total-nodes 22,
    :calendar-selected   {:year 2018, :day 23, :month 11},
    :calendar-can-select {:year  {:2016 14, :2017 6, :2018 2},

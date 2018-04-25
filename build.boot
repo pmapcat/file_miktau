@@ -8,6 +8,7 @@
                  [com.cemerick/piggieback   "0.2.1"      :scope "test"]
                  [org.clojure/tools.nrepl   "0.2.13"     :scope "test"]
                  [weasel                    "0.7.0"      :scope "test"]
+                 [pjstadig/humane-test-output "0.8.3"    :scope "test"]
                  [org.clojure/clojurescript "1.9.562"]
                  [crisptrutski/boot-cljs-test "0.3.0" :scope "test"]
                  [reagent "0.6.0"]
@@ -15,14 +16,14 @@
                  [day8.re-frame/http-fx "0.1.6"]
                  [cljs-ajax "0.7.3"]
                  [org.martinklepsch/boot-garden "1.3.2-0" :scope "test"]])
-
 (require
  '[adzerk.boot-cljs      :refer [cljs]]
  '[adzerk.boot-cljs-repl :refer [cljs-repl start-repl]]
  '[adzerk.boot-reload    :refer [reload]]
  '[pandeiro.boot-http    :refer [serve]]
  '[crisptrutski.boot-cljs-test :refer [test-cljs]]
- '[org.martinklepsch.boot-garden :refer [garden]])
+ '[org.martinklepsch.boot-garden :refer [garden]]
+ '[pjstadig.humane-test-output :refer [activate!]])
 
 (deftask build
   "This task contains all the necessary steps to produce a build
@@ -69,6 +70,7 @@
 ;;; This prevents a name collision WARNING between the test task and
 ;;; clojure.core/test, a function that nobody really uses or cares
 ;;; about.
+(activate!)
 (ns-unmap 'boot.user 'test)
 
 (deftask test []

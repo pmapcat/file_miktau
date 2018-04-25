@@ -8,6 +8,12 @@
  (fn [data]
    (.log js/console (str data))))
 
+(refe/reg-fx
+ :fx-redirect
+ (fn [data]
+   (refe/dispatch data)))
+
+
 ;; (reg-fx
 ;;  :store!
 ;;  (fn [data]

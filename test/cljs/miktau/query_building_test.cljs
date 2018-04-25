@@ -60,7 +60,7 @@
 
 (deftest test-build-update-records []
   (let [db  (assoc demo-data/initial-db-after-load-from-server
-                   :nodes-temp-tags-to-add #{:a :b :c}
+                   :nodes-temp-tags-to-add "a b c"
                    :nodes-temp-tags-to-delete #{:ho :no :so})]
     (is (= (query-building/build-update-records nil nil) nil))
     (is (= (query-building/build-update-records db nil)

@@ -140,7 +140,9 @@
   [db _]
   (if-not (can-use? db)
     {}
-    (let [all-selected? (=  (first (:nodes-selected db)) "*")]
+    (let [all-selected? (=  (first (:nodes-selected db)) "*")
+          tags-to-delete  (:nodes-temp-tags-to-delete db)
+          newly-added-tags (utils/find-all-tags-in-string (:nodes-temp-tags-to-add db))]
       {:ordered-by
        (utils/parse-sorting-field (:nodes-sorted db))
        :total-nodes (:total-nodes db)
@@ -153,20 +155,34 @@
             true
             (contains? (:nodes-selected db )
                        (str (:file-path i) (:name i))))
-          :modified
-          (i :modified)
+          :modified (i :modified)
           :id (i :id)
           :name (:name i)
           :all-tags (map keyword (i :tags))
           :file-path (i :file-path)
           :tags
-          (for [tag (into #{} (concat  (i :tags) (:nodes-temp-tags-to-add db)))]
-            {:name    (str (name tag))
-             :key-name (keyword (str tag))
-             :to-add?        (contains? (:nodes-temp-tags-to-add db) tag)
-             :to-delete?     (contains? (:nodes-temp-tags-to-delete db) tag)
-             :selected?      (contains? (:cloud-selected db) (keyword tag))
-             :can-select?    true})})})))
+          (map
+           #(dissoc % :compare-name)
+           (sort-by
+            :compare-name
+            (concat
+             (for [tag  (i :tags)]
+               {:name           (str (name tag))
+                :key-name       (keyword (str tag))
+                :compare-name   (cljs-string/lower-case (str (name tag)))
+                :to-add?        false
+                :to-delete?     (contains? tags-to-delete  (keyword (str tag)))
+                :selected?      (contains? (:cloud-selected db) (keyword (str tag)))
+                :can-select?    true})
+             (for [tag  newly-added-tags]
+               {:name           (str (name tag))
+                :key-name       (keyword (str tag))
+                :to-add?        true
+                :compare-name   (cljs-string/lower-case (str (name tag)))
+                :to-delete?     false
+                :selected?      false
+                :can-select?    false}))))})})))
+
 (refe/reg-sub :node-items node-items)
 
 (defn generate-tags-on-selection
@@ -179,34 +195,33 @@
     #{}
     :else
     (let [selected-nodes (:nodes-selected db)]
-      (into
-       #{}
-       (map
-        keyword
-        (into
-         #{}
-         (flatten
-          (map
-           :tags
-           (filter
-            #(contains? selected-nodes (:file-path  %))
-            (:nodes db))))))))))
+      (->>
+       (filter #(contains? selected-nodes (str (:file-path  %) (:name %))) (:nodes db))
+       (map :tags)
+       (flatten)
+       (map keyword)
+       (into #{})))))
 
 (defn nodes-changing
   "TESTED"
   [db _]
   (if-not (can-use? db)
     {}
-    (let [all-selected? (=  (first (db :nodes-selected)) "*")]
+    (let [all-selected? (=  (first (db :nodes-selected)) "*")
+          temp-tags-to-delete (:nodes-temp-tags-to-delete db)]
       {:display?  (not (empty? (db :nodes-selected)))
        :all-selected? all-selected?
        :total-amount
-       (if all-selected? (db :total-nodes)
-           (count (db :nodes-selected)))
+       (if all-selected? (db :total-nodes) (count (db :nodes-selected)))
        :tags-to-add    (db :nodes-temp-tags-to-add)
-       :tags-to-delete (db :nodes-temp-tags-to-delete)})))
+       :tags-to-delete
+       (sort-by
+        :compare-name
+        (for [tag  (generate-tags-on-selection db)]
+          {:name  (str (name tag))
+           :compare-name (cljs-string/lower-case (str (name  tag)))
+           :key-name tag
+           :selected? (contains? temp-tags-to-delete tag)
+           :can-select? true}))})))
 (refe/reg-sub :nodes-changing nodes-changing)
-(comment
-  ;; @(refe/subscribe [:cloud])
-  )
 

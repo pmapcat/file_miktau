@@ -1,14 +1,18 @@
 (ns miktau.events-test
   (:require-macros [cljs.test :refer [deftest testing is]])
   (:require [miktau.events :as miktau-events]
+            [miktau.utils  :as utils]
+            [clojure.data :as clojure-data]
             [miktau.demo-data-test :as demo-data]))
+(defn with-diff
+  [a b]
+  (is (= a b)
+      (str (butlast (clojure-data/diff a b)))))
 
 (deftest test-getting-default-app-data []
-  (is
-   (= (miktau-events/got-app-data
-       {:db miktau.events/demo-db}
-       [nil  demo-data/demo-response])
-      demo-data/initial-db-after-load-from-server)))
+  (with-diff
+    (miktau-events/got-app-data miktau.events/demo-db [nil  demo-data/demo-response])
+    demo-data/initial-db-after-load-from-server))
 
 (deftest test-filtering []
   (let [db demo-data/initial-db-after-load-from-server]
@@ -34,39 +38,39 @@
     (is
      (= 
       (:calendar-selected
-       (miktau-events/click-on-calendar-item db [nil :year :2010]))
+       (:db (miktau-events/click-on-calendar-item db [nil :year :2010])))
       {:year 2010}))
     (is
      (= 
       (:calendar-selected
-       (miktau-events/click-on-calendar-item db [nil :drozd nil]))
+       (:db (miktau-events/click-on-calendar-item db [nil :drozd nil])))
       {}))
     
     (is
      (= 
       (:calendar-selected
-       (miktau-events/click-on-calendar-item db [nil :drozd -23]))
+       (:db (miktau-events/click-on-calendar-item db [nil :drozd -23])))
       {}))
     
     (is
      (= 
-      (:calendar-selected (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010}) [nil :year :2010]))
+      (:calendar-selected (:db (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010}) [nil :year :2010])))
       {:year nil}))
     (is
      (= 
-      (:calendar-selected (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 19}) [nil :day :19]))
+      (:calendar-selected (:db (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 19}) [nil :day :19])))
       {:year 2010 :day nil}))
     (is
      (= 
-      (:calendar-selected (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20}) [nil :day :19]))
+      (:calendar-selected (:db (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20}) [nil :day :19])))
       {:year 2010 :day 19}))
     (is
      (= 
-      (:calendar-selected (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20}) [nil :month :3]))
+      (:calendar-selected (:db (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20}) [nil :month :3])))
       {:year 2010 :day 20 :month 3}))
     (is
      (= 
-      (:calendar-selected (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20 :month 3}) [nil :month :3]))
+      (:calendar-selected (:db (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20 :month 3}) [nil :month :3])))
       {:year 2010 :day 20 :month nil}))))
 
 (deftest test-click-on-fast-access-item []
@@ -74,32 +78,32 @@
     (is
      (= 
       (:calendar-selected
-       (miktau-events/click-on-calendar-item db [nil "FastAccess" {:year 2018 :month 3}]))
+       (:db (miktau-events/click-on-calendar-item db [nil "FastAccess" {:year 2018 :month 3}])))
       {:year 2018 :month 3}))
     (is
      (= 
       (:calendar-selected
-       (miktau-events/click-on-calendar-item db [nil "FastAccess" nil]))
+       (:db (miktau-events/click-on-calendar-item db [nil "FastAccess" nil])))
       {}))
     (is
      (= 
       (:calendar-selected
-       (miktau-events/click-on-calendar-item db [nil nil nil]))
+       (:db (miktau-events/click-on-calendar-item db [nil nil nil])))
       {}))
     (is
      (= 
       (:calendar-selected
-       (miktau-events/click-on-calendar-item db [nil "FastAccess" {}]))
+       (:db (miktau-events/click-on-calendar-item db [nil "FastAccess" {}])))
       {}))
     
     (is
      (= 
       (:calendar-selected
-       (miktau-events/click-on-calendar-item (assoc  db :calendar-selected {:year 2018 :month 3}) [nil "FastAccess" {:year 2018 :month 3}]))
+       (:db (miktau-events/click-on-calendar-item (assoc  db :calendar-selected {:year 2018 :month 3}) [nil "FastAccess" {:year 2018 :month 3}])))
       {}))
     (is
      (= 
-      (:calendar-selected (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20 :month 3}) [nil "FastAccess" {:year 2018}]))
+      (:calendar-selected (:db (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20 :month 3}) [nil "FastAccess" {:year 2018}])))
       {:year 2018}))))
 
 (deftest test-click-on-cloud []
@@ -108,21 +112,21 @@
     ;; clear caching should happen also
     
     
-    (is (=  (:cloud-selected  (miktau-events/click-on-cloud db [nil :work])) #{:work}))
-    (is (=  (:cloud-selected  (miktau-events/click-on-cloud (assoc db :cloud-selected #{:zanoza}) [nil :work])) #{:zanoza :work}))
-    (is (=  (:cloud-selected  (miktau-events/click-on-cloud (assoc db :cloud-selected #{:work}) [nil :work])) #{}))
-    (is (=  (:cloud-selected  (miktau-events/click-on-cloud db [nil nil]))     #{}))
-    (is (=  (:cloud-selected  (miktau-events/click-on-cloud db [nil 123]))     #{}))
-    (is (=  (:cloud-selected  (miktau-events/click-on-cloud db [nil "graws"])) #{}))))
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud db [nil :work]))) #{:work}))
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud (assoc db :cloud-selected #{:zanoza}) [nil :work]))) #{:zanoza :work}))
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud (assoc db :cloud-selected #{:work}) [nil :work]))) #{}))
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud db [nil nil])))     #{}))
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud db [nil 123])))     #{}))
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud db [nil "graws"]))) #{}))))
 
 
 (deftest test-clicked-many-cloud-items []
   (let [db (assoc demo-data/initial-db-after-load-from-server :cloud-selected #{})]
-    (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items db [nil [:hello :world]])) #{:hello :world}))
-    (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items db [nil [nil nil]])) #{}))
-    (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil [:za :zo]])) #{:za :zo}))
-    (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil (into '() [:za :zo])])) #{:za :zo}))
-    (is (=  (:cloud-selected  (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil nil])) #{:ha :ho}))))
+    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items db [nil [:hello :world]]))) #{:hello :world}))
+    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items db [nil [nil nil]]))) #{}))
+    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil [:za :zo]]))) #{:za :zo}))
+    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil (into '() [:za :zo])]))) #{:za :zo}))
+    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil nil]))) #{:ha :ho}))))
 
 (deftest test-select-all-nodes []
   (let [db (assoc demo-data/initial-db-after-load-from-server :nodes-selected #{})]
@@ -140,12 +144,12 @@
   (let [db  demo-data/initial-db-after-load-from-server]
     
     ;; if nothing selected
-    (is (=  (:nodes-sorted  (miktau-events/sort-nodes db [nil "-name"])) "-name"))
-    (is (=  (:nodes-sorted  (miktau-events/sort-nodes db [nil nil])) "name"))
-    (is (=  (:nodes-sorted  (miktau-events/sort-nodes db [nil :kliqo])) "name"))
-    (is (=  (:nodes-sorted  (miktau-events/sort-nodes db [nil "modified"])) "modified"))
-    (is (=  (:nodes-sorted  (miktau-events/sort-nodes db [nil "-modified"])) "-modified"))
-    (is (=  (:nodes-sorted  (miktau-events/sort-nodes db [nil "name"])) "name"))))
+    (is (=  (:nodes-sorted  (:db (miktau-events/sort-nodes db [nil "-name"]))) "-name"))
+    (is (=  (:nodes-sorted  (:db (miktau-events/sort-nodes db [nil nil]))) "name"))
+    (is (=  (:nodes-sorted  (:db (miktau-events/sort-nodes db [nil :kliqo]))) "name"))
+    (is (=  (:nodes-sorted  (:db (miktau-events/sort-nodes db [nil "modified"]))) "modified"))
+    (is (=  (:nodes-sorted  (:db (miktau-events/sort-nodes db [nil "-modified"]))) "-modified"))
+    (is (=  (:nodes-sorted  (:db (miktau-events/sort-nodes db [nil "name"]))) "name"))))
 
 (deftest test-select-node []
   (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{})]
@@ -164,9 +168,14 @@
   (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{"*"})]
     ;; if nothing selected
     (is (=  (miktau-events/file-operation-fx {:db db} [nil nil]) {:db db}))
-    (is (=  (:api-call (miktau-events/file-operation-fx {:db db} [nil :default]))
-            {:url "/api/bulk-operate-on-files",
-             :params {:action "default", :request {:modified {:year 2018, :day 23, :month 11}, :sorted "", :file-paths [], :tags ["blab"]}}}))))
+    (is (=   (utils/clean-server-call-for-tests (:http-xhrio (miktau-events/file-operation-fx {:db db} [nil :default])))
+             {:method :post, :uri "/api/bulk-operate-on-files",
+              :timeout 8000,
+              :params {:action "default",
+                       :request {:modified {:year 2018, :day 23, :month 11}, :sorted "", :file-paths [], :tags ["blab"]}},
+              :on-success [:mutable-server-operation],
+              :on-failure [:http-error]}))))
+
 
 (deftest test-delete-tag-from-selection []
   (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{"*"})]
@@ -178,30 +187,54 @@
 (deftest test-add-tag-to-selection []
   (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{"*"})]
     ;; if nothing selected
-    (is (=  (:nodes-temp-tags-to-add (miktau-events/add-tag-to-selection (assoc db :nodes-temp-tags-to-add #{:blab}) [nil :hello])) #{:hello :blab}))
-    (is (=  (:nodes-temp-tags-to-add (miktau-events/add-tag-to-selection db [nil :hello])) #{:hello}))
-    (is (=  (:nodes-temp-tags-to-add (miktau-events/add-tag-to-selection db [nil nil])) #{}))))
+    (is (=  (:nodes-temp-tags-to-add (miktau-events/add-tag-to-selection (assoc db :nodes-temp-tags-to-add "zero vasya galibob") [nil "zab"])) "zab"))
+    (is (=  (:nodes-temp-tags-to-add (miktau-events/add-tag-to-selection db [nil "blob"])) "blob"))
+    (is (=  (:nodes-temp-tags-to-add (miktau-events/add-tag-to-selection db [nil nil])) ""))))
+(deftest test-build-drill []
+  (let [db {:nodes-temp-tags-to-add "blop glop" :nodes-temp-tags-to-delete #{:hom} :cloud-selected #{:hello :hom}}]
+    (is (= (:cloud-selected (miktau-events/build-drill db))
+           #{:blop :glop :hello})))
+  (let [db {:nodes-temp-tags-to-add "" :nodes-temp-tags-to-delete #{:hom :hello :dello} :cloud-selected #{:hello :hom}}]
+    (is (= (:cloud-selected (miktau-events/build-drill db))
+           #{})))
+  (let [db {:nodes-temp-tags-to-add "hello world" :nodes-temp-tags-to-delete #{:hello :world} :cloud-selected #{:hello :world}}]
+    (is (= (:cloud-selected (miktau-events/build-drill db))
+           #{:hello :world})))
+  (let [db {:nodes-temp-tags-to-add "hello" :nodes-temp-tags-to-delete #{:hello :world} :cloud-selected #{:hello :world}}]
+    (is (= (:cloud-selected (miktau-events/build-drill db))
+           #{:hello})))
+  (let [db nil]
+    (is (= (:cloud-selected (miktau-events/build-drill db))
+           #{})))
+  
+  (let [db {:nodes-temp-tags-to-add "" :nodes-temp-tags-to-delete #{:hello :world} :cloud-selected #{:hello :world}}]
+    (is (= (:cloud-selected (miktau-events/build-drill db))
+           #{}))))
 
 (deftest test-submit-tagging-fx []
-  (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{"*"}
-                    :nodes-temp-tags-to-add #{:blop}
+  (let [db  (assoc  demo-data/initial-db-after-load-from-server
+                    :nodes-selected #{"*"}
+                    :cloud-selected #{:hello :hom}
+                    :nodes-temp-tags-to-add "blop glop"
                     :nodes-temp-tags-to-delete #{:hom})]
-    (is (= (:nodes-temp-tags-to-add    (:db (miktau-events/submit-tagging-fx {:db db} nil))) #{}))
+    (is (= (:nodes-temp-tags-to-add    (:db (miktau-events/submit-tagging-fx {:db db} nil))) ""))
     (is (= (:nodes-temp-tags-to-delete (:db (miktau-events/submit-tagging-fx {:db db} nil))) #{}))
     (is (= (:nodes-selected            (:db (miktau-events/submit-tagging-fx {:db db} nil))) #{}))
+    (is (= (:cloud-selected            (:db (miktau-events/submit-tagging-fx {:db db} nil))) #{:blop :glop :hello}))
     
-    (is (= (:api-call (miktau-events/submit-tagging-fx {:db db} nil))
-           {:url "/api/update-records"
-            :params {:tags-to-add       ["blop"]
-                     :tags-to-delete    ["hom"]
-                     :request
-                      {:modified {:year 2018, :day 23, :month 11}, :sorted "", :file-paths [], :tags ["blab"]}}}))))
+    (is (= (utils/clean-server-call-for-tests (:http-xhrio (miktau-events/submit-tagging-fx {:db db} nil)))
+           {:method :post,
+            :uri "/api/update-records",
+            :timeout 8000,
+            :params {:tags-to-add ["blop" "glop"], :tags-to-delete ["hom"], :request {:modified {:year 2018, :day 23, :month 11}, :sorted "", :file-paths [], :tags ["hello" "hom"]}},
+            :on-success [:mutable-server-operation],
+            :on-failure [:http-error]}))))
 
 (deftest test-cancel-tagging []
   (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{"*"}
                     :nodes-temp-tags-to-add #{:blop}
                     :nodes-temp-tags-to-delete #{:hom})]
-    (is (= (:nodes-temp-tags-to-add     (miktau-events/cancel-tagging  db nil)) #{}))
+    (is (= (:nodes-temp-tags-to-add     (miktau-events/cancel-tagging  db nil)) ""))
     (is (= (:nodes-temp-tags-to-delete  (miktau-events/cancel-tagging  db nil)) #{}))
     (is (= (:nodes-selected             (miktau-events/cancel-tagging  db nil)) #{}))
     (is (= (:nodes-selected             (miktau-events/cancel-tagging  nil nil)) #{}))))

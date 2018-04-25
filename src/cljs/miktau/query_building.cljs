@@ -1,4 +1,5 @@
-(ns miktau.query-building)
+(ns miktau.query-building
+  (:require [miktau.utils :as utils]))
 
 (defn build-core-query-for-retrieval
   "TESTED"
@@ -50,7 +51,7 @@
   "TESTED"
   [db or-else]
   (let [request (build-core-query-for-action db nil)
-        tags-to-add    (into [] (sort (map (comp str name) (:nodes-temp-tags-to-add db))))
+        tags-to-add    (into [] (sort (utils/find-all-tags-in-string (:nodes-temp-tags-to-add db))))
         tags-to-delete (into [] (sort (map (comp str name) (:nodes-temp-tags-to-delete db))))]
     (cond
       (nil? request)
