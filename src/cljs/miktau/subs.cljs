@@ -2,6 +2,7 @@
   (:require [re-frame.core :as refe]
             [clojure.string :as cljs-string]
             [clojure.set :as clojure-set]
+
             [miktau.utils :as utils]))
 (defn filtering [db _]
   (or (:filtering db) ""))
@@ -32,13 +33,13 @@
  :get-db-for-test-purposes
  (fn [db _]
    db))
-
+(comment
+  (keys  @(refe/subscribe [:get-db-for-test-purposes])))
 
 (defn cloud
   "TESTED"
   [db _]
-  (if-not (can-use? db)
-    []
+  (try
     (for [[group-name group] (:cloud db)]
       (let [max-size (apply max (vals group))
             filterer (cloud-filtering-should-display? db) 
@@ -58,15 +59,17 @@
               :size     tag-size
               :group    group-name
               :weighted-size (/ tag-size max-size)
-              :selected?      (contains? (db :selected) tag)
-              :can-select?    (contains? (:cloud-can-select db) tag)})))}))))
+              :disabled?      (not (contains? (:cloud-can-select db) tag))
+              :selected?      (contains? (db :cloud-selected) tag)
+              :can-select?    (contains? (:cloud-can-select db) tag)})))}))
+    (catch :default e [])))
+
 (refe/reg-sub :cloud cloud)
 
 (defn calendar
   "TESTED"
   [db _]
-  (if-not (can-use? db)
-    {}
+  (try
     (into
      {}
      (for [[group-name group] (:calendar db)]
@@ -84,38 +87,49 @@
             #(dissoc % :sort-name)
             (sorter-applicator
              (for [[tag tag-size] group]
-               {:name    (if (=  group :month)
-                           (utils/month-name tag)
-                           (str (name tag))) 
-                :key-name tag
-                :sort-name (utils/mik-parse-int  (str (name tag)) 0)
-                :size     tag-size
-                :group   group-name
-                :weighted-size (/ tag-size max-size)
-                :selected?      (= (get (:calendar-selected db) group-name) tag)
-                :can-select?    (contains? (get (db :calendar-can-select) group-name) tag)})))})]))))
-(refe/reg-sub :calendar calendar)
+               (let [parsed-name (utils/mik-parse-int  (str (name tag)) 0)
+                     can-select? (contains? (get (:calendar-can-select db) group-name) tag)]
+                 {:name   (utils/pad (str (name tag)) 2 "0") 
+                  :key-name tag
+                  :sort-name parsed-name
+                  :size     tag-size
+                  :group   group-name
+                  :weighted-size (/ tag-size max-size)
+                  :disabled?      (not can-select?)
+                  :selected?      (= (get (:calendar-selected db) group-name) parsed-name)
+                  :can-select?    can-select?}))))})]))
+    (catch :default e [])))
 
+(refe/reg-sub :calendar calendar)
 
 (defn selection-cloud
   "TESTED"
   [db _]
-  (if-not (can-use? db)
-    []
-    (if (empty? (:cloud-can-selected db))
-      []
-      (for [[tag _] (:cloud-can-select db )]
-        {:name    (str (name tag))
-         :key-name tag
-         :weighted-size 1
-         :selected?      (contains? (db :selected) tag)
-         :can-select?    true}))))
+  (cond
+    (empty? (:cloud-can-select db)) []
+    (empty? (:cloud-selected  db))  []
+    :else
+    (sort-by
+     :compare-name
+     (let [filterer (cloud-filtering-should-display? db) 
+           should-display?
+           (fn [group]
+             (filter filterer group))]
+       (should-display?
+        (for [[tag _] (:cloud-can-select db )]
+          {:name    (str (name tag))
+           :compare-name (cljs-string/lower-case (str (name tag)))
+           :key-name tag
+           :weighted-size  1
+           :size           1
+           :selected?      (contains? (db :cloud-selected) tag)
+           :can-select?    true}))))))
+
 (refe/reg-sub :selection-cloud selection-cloud)
 (defn fast-access-calendar
   "TESTED"
   [db _]
-  (if-not (can-use? db)
-    []
+  (try
     (if (:date-now db)
       [{:name "Today"
         :group "FastAccess"
@@ -132,14 +146,14 @@
         :can-select? (utils/is-it-today? db [:year])
         :key-name      {:year (:year (:date-now db))}
         :selected? false}]
-      [])))
+      [])
+    (catch :default e [])))
 (refe/reg-sub :fast-access-calendar fast-access-calendar)
 
 (defn node-items
   "TESTED"
   [db _]
-  (if-not (can-use? db)
-    {}
+  (try
     (let [all-selected? (=  (first (:nodes-selected db)) "*")
           tags-to-delete  (:nodes-temp-tags-to-delete db)
           newly-added-tags (utils/find-all-tags-in-string (:nodes-temp-tags-to-add db))]
@@ -181,7 +195,8 @@
                 :compare-name   (cljs-string/lower-case (str (name tag)))
                 :to-delete?     false
                 :selected?      false
-                :can-select?    false}))))})})))
+                :can-select?    false}))))})})
+    (catch :default e {})))
 
 (refe/reg-sub :node-items node-items)
 
@@ -205,8 +220,7 @@
 (defn nodes-changing
   "TESTED"
   [db _]
-  (if-not (can-use? db)
-    {}
+  (try
     (let [all-selected? (=  (first (db :nodes-selected)) "*")
           temp-tags-to-delete (:nodes-temp-tags-to-delete db)]
       {:display?  (not (empty? (db :nodes-selected)))
@@ -222,6 +236,7 @@
            :compare-name (cljs-string/lower-case (str (name  tag)))
            :key-name tag
            :selected? (contains? temp-tags-to-delete tag)
-           :can-select? true}))})))
+           :can-select? true}))})
+    (catch :default e {})))
 (refe/reg-sub :nodes-changing nodes-changing)
 

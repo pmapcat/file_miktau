@@ -1,4 +1,29 @@
 (ns miktau.demo-data-test)
+(def demo-db
+  {:loading? true
+    :filtering ""
+    
+    :nodes-sorted "-name"
+    :core-directory ":test:"
+    :date-now {:year 2016 :month 7 :day 21}
+    
+    :nodes [{:id 0, :name "blab.mp4" :file-path "/home/mik/this_must_be_it/" :tags []
+             :modified {:year 2016 :month 7 :day 21}}]
+    :nodes-selected #{"*"}
+    :nodes-temp-tags-to-delete #{}
+    :nodes-temp-tags-to-add    ""
+    
+    :cloud-selected #{:blab}
+    :cloud  {:VolutPatem {:blab 43 :blip 27 :blop 12}}
+    :cloud-can-select {:blip true :blop true}
+    
+    :calendar-selected {:year  2018  :day 23 :month 11}
+    :calendar   {:year {:2018 12 :2017 13 :2016 12}
+                 :month {:12 1 :13 1 :14 2}
+                 :day   {:1 3 :2 3 :3 4}}
+    :calendar-can-select {:year {:2018 2}
+                          :month {:11 3}
+                          :day   {:9 3}}})
 
 (def initial-db-after-load-from-server
   {:nodes-selected #{"*"},

@@ -99,9 +99,19 @@
    [:.gray   {:color "#ababab"}]
    [:.black  {:color "#000000"}]
    [:.orange {:color "#4d4d4d"}]
+   [:.selected {:background "red !important"}]
+   
+   [:.tag    {:font-family (:body fonts)}]
+   [:.tag:hover {:color "#4d4d4d"}]
+   [:.tag.disabled       {:color "HSL(123,1%,84%)" :cursor "default" }]
+   [:.tag.disabled:hover {:color "HSL(123,1%,84%) !important" :cursor "default"}]
+   [:.tag.can-select       {:color "black" :cursor "pointer" }]
+   [:.tag.can-select:hover {:color "gray" :cursor "pointer"}]
+   
+   
+   
    [:.light-gray  {:color "#dddddd"}]
    [:.header-font  {:font-family (:body fonts)}]
    [:.body-font {:font-family (:body fonts)}]
-   [:.tag    {:font-family (:body fonts)}]
-   [:.tag:hover {:color "#4d4d4d !important"} ]
+   
    (general-classes)])

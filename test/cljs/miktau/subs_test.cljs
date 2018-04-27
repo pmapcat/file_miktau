@@ -6,6 +6,10 @@
             [miktau.events :as miktau-events]
             [clojure.data :as clojure-data]
             [miktau.demo-data-test :as demo-data]))
+(defn with-diff
+  [a b]
+  (is (= a b)
+      (str (butlast (clojure-data/diff a b)))))
 
 
 (deftest testing-can-use? []
@@ -53,7 +57,7 @@
          ["amazon" "bibliostore" "blog" "devops" "everybook" "moscow_market" "natan" "personal" "sforim" "translator" "ui" "usecases" "wiki" "work" "zeldin" "биржа" "магазины" "скачка_источников" "согласовать"]))
   ;; testing how group can work
   (is (= (first (:group (first (miktau-subs/cloud  demo-data/initial-db-after-load-from-server nil))))
-         {:name "amazon", :compare-name "amazon", :key-name :amazon, :size 2, :group :work, :weighted-size 0.1, :selected? false, :can-select? true}))
+         {:name "amazon", :compare-name "amazon", :key-name :amazon, :size 2, :group :work, :weighted-size 0.1, :selected? false, :can-select? true :disabled? false}))
   (is
    (= (mapv :weighted-size (:group (first  (miktau-subs/cloud demo-data/initial-db-after-load-from-server nil))))
       [0.1 0.4 0.05 0.05 0.05 0.45 0.65 0.2 0.1 0.1 0.05 0.1 0.05 1 0.1 0.1 0.1 0.05 0.05]))
@@ -74,9 +78,21 @@
 
 (deftest testing-selection-cloud []
   ;; [TODO] test on selection
-  (is (= (miktau-subs/selection-cloud
-          demo-data/initial-db-after-load-from-server nil)
-         [])))
+  (let [db (assoc demo-data/initial-db-after-load-from-server
+                  :cloud-selected #{})]
+    (is (= (miktau-subs/selection-cloud db nil) []))
+    (with-diff
+      (first (miktau-subs/selection-cloud (assoc  db :cloud-selected #{:amazon}) nil))
+      {:name "amazon"
+       :compare-name "amazon"
+       :key-name :amazon
+       :size 1
+       :weighted-size 1
+       :selected? true
+       :can-select? true})
+    (is (= (miktau-subs/selection-cloud (assoc  db :cloud-selected #{}) nil) []))
+    (is (= (mapv :compare-name   (miktau-subs/selection-cloud (assoc db :filtering "w" :cloud-selected "amazon") nil))
+         ["moscow_market" "wiki" "work"]))))
 
 (deftest testing-is-this-datepoint-selected? []
   (let [exec-fn #(utils/is-this-datepoint-selected?
@@ -210,53 +226,39 @@
   (is (= (:year (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))
          {:group-name "year", :max-size 14,
           :group (list
-                  {:name "2018", :key-name :2018, :size 2, :group :year,  :weighted-size 0.14285714285714285, :selected? false, :can-select? true}
-                  {:name "2017", :key-name :2017, :size 6, :group :year,  :weighted-size 0.42857142857142855, :selected? false, :can-select? true}
-                  {:name "2016", :key-name :2016, :size 14, :group :year, :weighted-size 1,                   :selected? false, :can-select? true})}))
+                  {:name "2018", :key-name :2018, :size 2, :group :year,  :weighted-size 0.14285714285714285, :selected? true,  :disabled? false :can-select? true}
+                  {:name "2017", :key-name :2017, :size 6, :group :year,  :weighted-size 0.42857142857142855, :selected? false, :disabled? false :can-select? true}
+                  {:name "2016", :key-name :2016, :size 14, :group :year, :weighted-size 1,                   :selected? false, :disabled? false :can-select? true})}))
 
   (is (=  (miktau-subs/calendar nil nil) {}))
   
-  (is (=  (miktau-subs/calendar
-           {:calendar {:year {:2016 14, :2017 6, :2018 2}}
-            :loading? false
-            :calendar-selected {}} nil)
-          {:year {:group-name "year", :max-size 14, :group
-                  (list {:name "2018", :key-name :2018, :size 2, :group :year, :weighted-size 0.14285714285714285, :selected? false, :can-select? false}
-                        {:name "2017", :key-name :2017, :size 6, :group :year, :weighted-size 0.42857142857142855, :selected? false, :can-select? false}
-                        {:name "2016", :key-name :2016, :size 14, :group :year, :weighted-size 1, :selected? false, :can-select? false})}}))
+  (with-diff
+    (miktau-subs/calendar
+     {:calendar {:year {:2016 14, :2017 6, :2018 2}}
+      :loading? false
+      :calendar-selected {}} nil)
+    {:year {:group-name "year", :max-size 14, :group
+            (list {:name "2018", :key-name :2018, :size 2, :group :year, :weighted-size 0.14285714285714285, :selected? false, :disabled? true :can-select? false}
+                  {:name "2017", :key-name :2017, :size 6, :group :year, :weighted-size 0.42857142857142855, :selected? false, :disabled? true :can-select? false}
+                  {:name "2016", :key-name :2016, :size 14, :group :year, :weighted-size 1, :selected? false, :can-select? false :disabled? true})}})
   ;; (is (= (miktau-subs/calendar miktau.events/demo-db nil) ""))
   
   (is (= (:month (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))
          {:group-name "month", :max-size 8,
-          :group (list {:name "1", :key-name :1, :size 1, :group :month, :weighted-size 0.125, :selected? false, :can-select? true}
-                       {:name "2", :key-name :2, :size 8, :group :month, :weighted-size 1, :selected? false, :can-select? true}
-                       {:name "3", :key-name :3, :size 1, :group :month, :weighted-size 0.125, :selected? false, :can-select? true}
-                       {:name "4", :key-name :4, :size 4, :group :month, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "5", :key-name :5, :size 4, :group :month, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "7", :key-name :7, :size 4, :group :month, :weighted-size 0.5, :selected? false, :can-select? true})}))
-  (is (= (:day (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))
-         {:group-name "day", :max-size 2,
-          :group (list {:name "1", :key-name :1, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "2", :key-name :2, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "3", :key-name :3, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "4", :key-name :4, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "5", :key-name :5, :size 2, :group :day, :weighted-size 1, :selected? false, :can-select? true}
-                       {:name "7", :key-name :7, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "8", :key-name :8, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "9", :key-name :9, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "10", :key-name :10, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "11", :key-name :11, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "12", :key-name :12, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "13", :key-name :13, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "14", :key-name :14, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "15", :key-name :15, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "16", :key-name :16, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "17", :key-name :17, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "18", :key-name :18, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "19", :key-name :19, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "20", :key-name :20, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "21", :key-name :21, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true}
-                       {:name "24", :key-name :24, :size 1, :group :day, :weighted-size 0.5, :selected? false, :can-select? true})})))
+          :group (list {:name "1", :key-name :1, :size 1, :group :month, :weighted-size 0.125, :selected? false, :disabled? false :can-select? true}
+                       {:name "2", :key-name :2, :size 8, :group :month, :weighted-size 1, :selected? false,     :disabled? false :can-select? true}
+                       {:name "3", :key-name :3, :size 1, :group :month, :weighted-size 0.125, :selected? false, :disabled? false :can-select? true}
+                       {:name "4", :key-name :4, :size 4, :group :month, :weighted-size 0.5, :selected? false,   :disabled? false :can-select? true}
+                       {:name "5", :key-name :5, :size 4, :group :month, :weighted-size 0.5, :selected? false,   :disabled? false :can-select? true}
+                       {:name "7", :key-name :7, :size 4, :group :month, :weighted-size 0.5, :selected? false,   :disabled? false :can-select? true})}))
+  (is (= (mapv :name  (:group  (:day (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))))
+         ["1" "2" "3" "4" "5" "7" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20" "21" "24"]))
+  (is (= (mapv :key-name  (:group  (:day (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))))
+         [:1 :2 :3 :4 :5 :7 :8 :9 :10 :11 :12 :13 :14 :15 :16 :17 :18 :19 :20 :21 :24]))
+  (is (= (mapv :group  (:group  (:day (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))))
+         (into [] (take  21 (repeat :day)))))
+  (is (= (mapv :selected?  (:group  (:day (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))))
+         (into [] (take  21 (repeat false))))))
 
 
 

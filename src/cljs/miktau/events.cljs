@@ -4,37 +4,33 @@
    [re-frame.core :as refe]
    [clojure.set :as clojure-set]
    [miktau.query-building :as query-building]))
-
-(def demo-db
+(def init-db
   {:loading? true
-    :filtering ""
-    
-    :nodes-sorted "-name"
-    :core-directory ":test:"
-    :date-now {:year 2016 :month 7 :day 21}
-    
-    :nodes [{:id 0, :name "blab.mp4" :file-path "/home/mik/this_must_be_it/" :tags []
-             :modified {:year 2016 :month 7 :day 21}}]
-    :nodes-selected #{"*"}
-    :nodes-temp-tags-to-delete #{}
-    :nodes-temp-tags-to-add    ""
-    
-    :cloud-selected #{:blab}
-    :cloud  {:VolutPatem {:blab 43 :blip 27 :blop 12}}
-    :cloud-can-select {:blip true :blop true}
-    
-    :calendar-selected {:year  2018  :day 23 :month 11}
-    :calendar   {:year {:2018 12 :2017 13 :2016 12}
-                 :month {:12 1 :13 1 :14 2}
-                 :day   {:1 3 :2 3 :3 4}}
-    :calendar-can-select {:year {:2018 2}
-                          :month {:11 3}
-                          :day   {:9 3}}})
-
+   :filtering ""
+   :nodes-sorted ""
+   :core-directory ""
+   :date-now {}
+   
+   :nodes []
+   :nodes-selected #{}
+   :nodes-temp-tags-to-delete #{}
+   :nodes-temp-tags-to-add    ""
+   
+   :cloud-selected #{}
+   :cloud  {}
+   :cloud-can-select {}
+   
+   :calendar-selected {}
+   :calendar   {:year {}
+                :month {}
+                :day   {}}
+   :calendar-can-select {:year {}
+                         :month {}
+                         :day   {}}})
 (refe/reg-event-fx
  :init
  (fn [_ _]
-   {:db (assoc {} :loading? true)
+   {:db (assoc init-db :loading? true)
     :fx-redirect [:get-app-data]}))
 
 (refe/reg-event-fx
@@ -94,8 +90,12 @@
 (defn clear
   "TESTED"
   [db _]
-  (assoc db :filtering ""))
-(refe/reg-event-db :clear clear)
+  {:db 
+   (assoc db
+          :filtering ""
+          :cloud-selected #{})
+   :fx-redirect [:get-app-data]})
+(refe/reg-event-fx :clear clear)
 
 (defn click-on-fast-access-item
   "TESTED"
@@ -110,7 +110,7 @@
 
 (defn click-on-calendar-item
   "TESTED"
-  [db [_ group key-name]]
+  [{:keys [db]} [_ group key-name]]
   {:db
    (if (=  group "FastAccess")
      (click-on-fast-access-item db group key-name)
@@ -127,14 +127,20 @@
        (catch :default e
          db)))
    :fx-redirect [:get-app-data]})
+
 (refe/reg-event-fx :click-on-calendar-item  click-on-calendar-item)
+(defn discard-selection
+  [db]
+  (assoc db :cloud-selected #{}
+         :calendar-selected {}
+         :nodes-selected #{}))
 
 (defn click-on-cloud
   "TESTED"
-  [db [_ item]]
+  [{:keys [db]} [_ item]]
   {:db
    (cond
-     (and  (keyword? item) (contains? (db :cloud-selected) item))
+     (and  (keyword? item) (contains? (:cloud-selected db) item))
      (update db :cloud-selected disj item)
      (keyword? item)
      (update db :cloud-selected conj item)
@@ -142,16 +148,36 @@
      db)
    :fx-redirect [:get-app-data]})
 (refe/reg-event-fx :clicked-cloud-item  click-on-cloud)
+(defn click-on-disabled-cloud
+  "TESTED"
+  [{:keys [db]} [_ item]]
+  {:db
+   (if (keyword? item)
+     (assoc  (discard-selection db) :cloud-selected #{item})
+     db)
+   :fx-redirect [:get-app-data]})
+(refe/reg-event-fx :clicked-disabled-cloud-item  click-on-disabled-cloud)
+
+(defn click-on-disabled-calendar
+  "TESTED"
+  [{:keys [db]} [_ group item]]
+  {:db
+   (:db (click-on-calendar-item {:db (discard-selection db)} [nil group item]))
+   :fx-redirect [:get-app-data]})
+(refe/reg-event-fx :clicked-disabled-calendar-item  click-on-disabled-calendar)
+
 
 (defn clicked-many-cloud-items
   "TESTED"
-  [db [_ items]]
+  [{:keys [db]} [_ items]]
   {:db
-   (if-not (utils/seq-of-predicate? items keyword?)
-     db
+   (cond
+     (not (utils/seq-of-predicate? items keyword?)) db
+     (= (:cloud-selected db) (into #{} items))
+     (assoc  db :cloud-selected #{})
+     :else
      (assoc db :cloud-selected (into #{} items)))
-   :fx-redirect [:get-app-data]
-   })
+   :fx-redirect [:get-app-data]})
 (refe/reg-event-fx :clicked-many-cloud-items  clicked-many-cloud-items)
 
 (defn select-all-nodes
@@ -167,7 +193,7 @@
 
 (defn sort-nodes
   "TESTED"
-  [db [_ sort-order]]
+  [{:keys [db]} [_ sort-order]]
   {:db
    (if (contains? #{"name" "-name" "modified" "-modified"} (str sort-order))
      (assoc db :nodes-sorted (str sort-order))

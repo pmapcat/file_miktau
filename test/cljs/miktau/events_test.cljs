@@ -8,10 +8,22 @@
   [a b]
   (is (= a b)
       (str (butlast (clojure-data/diff a b)))))
+(deftest test-clicking-on-disabled-cloud-item []
+  (let [db (assoc demo-data/initial-db-after-load-from-server :cloud-selected #{:hem :in :dal})]
+    (is (=  (:nodes-selected (:db (miktau-events/click-on-disabled-cloud {:db  db} [nil :hello]))) #{}))
+    (is (=  (:cloud-selected (:db (miktau-events/click-on-disabled-cloud {:db  db} [nil :hello]))) #{:hello}))
+    (is (=  (:cloud-selected (:db (miktau-events/click-on-disabled-cloud {:db  db} [nil :hello]))) #{:hello}))
+    (is (=  (:calendar-selected (:db (miktau-events/click-on-disabled-cloud {:db  db} [nil :hello]))) {}))))
+
+(deftest test-clicking-on-disabled-calendar-item []
+  (let [db (assoc demo-data/initial-db-after-load-from-server :cloud-selected #{:hem :in :dal})]
+    (is (=  (:nodes-selected (:db (miktau-events/click-on-disabled-calendar {:db  db} [nil :year :2018]))) #{}))
+    (is (=  (:calendar-selected (:db (miktau-events/click-on-disabled-calendar {:db  db} [nil :year :2018]))) {:year 2018}))))
+
 
 (deftest test-getting-default-app-data []
   (with-diff
-    (miktau-events/got-app-data miktau.events/demo-db [nil  demo-data/demo-response])
+    (miktau-events/got-app-data miktau.demo-data-test/demo-db [nil  demo-data/demo-response])
     demo-data/initial-db-after-load-from-server))
 
 (deftest test-filtering []
@@ -30,103 +42,54 @@
               (miktau-events/filtering    [nil "blab"]))) "blab"))
     (is (=
          (:filtering
-          (-> (miktau-events/filtering db [nil "hello"])
-              (miktau-events/clear        [nil "blab"]))) ""))))
+          (:db
+           (-> (miktau-events/filtering db [nil "hello"])
+               (miktau-events/clear        [nil "blab"])))) ""))))
 
 (deftest test-click-on-calendar-item []
   (let [db (assoc demo-data/initial-db-after-load-from-server :calendar-selected {})]
-    (is
-     (= 
-      (:calendar-selected
-       (:db (miktau-events/click-on-calendar-item db [nil :year :2010])))
-      {:year 2010}))
-    (is
-     (= 
-      (:calendar-selected
-       (:db (miktau-events/click-on-calendar-item db [nil :drozd nil])))
-      {}))
-    
-    (is
-     (= 
-      (:calendar-selected
-       (:db (miktau-events/click-on-calendar-item db [nil :drozd -23])))
-      {}))
-    
-    (is
-     (= 
-      (:calendar-selected (:db (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010}) [nil :year :2010])))
-      {:year nil}))
-    (is
-     (= 
-      (:calendar-selected (:db (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 19}) [nil :day :19])))
-      {:year 2010 :day nil}))
-    (is
-     (= 
-      (:calendar-selected (:db (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20}) [nil :day :19])))
-      {:year 2010 :day 19}))
-    (is
-     (= 
-      (:calendar-selected (:db (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20}) [nil :month :3])))
-      {:year 2010 :day 20 :month 3}))
-    (is
-     (= 
-      (:calendar-selected (:db (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20 :month 3}) [nil :month :3])))
-      {:year 2010 :day 20 :month nil}))))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db db} [nil :year :2010]))) {:year 2010}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db db} [nil :drozd nil]))) {}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db db} [nil :drozd -23]))) {}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010})} [nil :year :2010]))) {:year nil}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 19})} [nil :day :19]))) {:year 2010 :day nil}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 20})} [nil :day :19]))) {:year 2010 :day 19}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 20})} [nil :month :3]))) {:year 2010 :day 20 :month 3}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 20 :month 3})} [nil :month :3]))) {:year 2010 :day 20 :month nil}))))
 
 (deftest test-click-on-fast-access-item []
   (let [db (assoc demo-data/initial-db-after-load-from-server :calendar-selected {})]
-    (is
-     (= 
-      (:calendar-selected
-       (:db (miktau-events/click-on-calendar-item db [nil "FastAccess" {:year 2018 :month 3}])))
-      {:year 2018 :month 3}))
-    (is
-     (= 
-      (:calendar-selected
-       (:db (miktau-events/click-on-calendar-item db [nil "FastAccess" nil])))
-      {}))
-    (is
-     (= 
-      (:calendar-selected
-       (:db (miktau-events/click-on-calendar-item db [nil nil nil])))
-      {}))
-    (is
-     (= 
-      (:calendar-selected
-       (:db (miktau-events/click-on-calendar-item db [nil "FastAccess" {}])))
-      {}))
-    
-    (is
-     (= 
-      (:calendar-selected
-       (:db (miktau-events/click-on-calendar-item (assoc  db :calendar-selected {:year 2018 :month 3}) [nil "FastAccess" {:year 2018 :month 3}])))
-      {}))
-    (is
-     (= 
-      (:calendar-selected (:db (miktau-events/click-on-calendar-item (assoc db :calendar-selected {:year 2010 :day 20 :month 3}) [nil "FastAccess" {:year 2018}])))
-      {:year 2018}))))
+    (is (=  (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db db} [nil "FastAccess" {:year 2018 :month 3}]))) {:year 2018 :month 3}))
+    (is (=  (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db db} [nil "FastAccess" nil]))) {}))
+    (is (=  (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db db} [nil nil nil]))) {}))
+    (is (=  (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db db} [nil "FastAccess" {}]))) {}))
+    (is (=  (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc  db :calendar-selected {:year 2018 :month 3})} [nil "FastAccess" {:year 2018 :month 3}]))) {}))
+    (is (=  (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 20 :month 3})} [nil "FastAccess" {:year 2018}]))) {:year 2018}))))
 
 (deftest test-click-on-cloud []
   (let [db (assoc demo-data/initial-db-after-load-from-server :cloud-selected #{})]
     ;; no selection is available when click happens
     ;; clear caching should happen also
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db db} [nil :work]))) #{:work}))
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db (assoc db :cloud-selected #{:zanoza})} [nil :work]))) #{:zanoza :work}))
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db (assoc db :cloud-selected #{:work})} [nil :work]))) #{}))
     
-    
-    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud db [nil :work]))) #{:work}))
-    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud (assoc db :cloud-selected #{:zanoza}) [nil :work]))) #{:zanoza :work}))
-    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud (assoc db :cloud-selected #{:work}) [nil :work]))) #{}))
-    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud db [nil nil])))     #{}))
-    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud db [nil 123])))     #{}))
-    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud db [nil "graws"]))) #{}))))
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db db} [nil nil])))     #{}))
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db db} [nil 123])))     #{}))
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db db} [nil "graws"]))) #{}))))
 
 
 (deftest test-clicked-many-cloud-items []
   (let [db (assoc demo-data/initial-db-after-load-from-server :cloud-selected #{})]
-    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items db [nil [:hello :world]]))) #{:hello :world}))
-    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items db [nil [nil nil]]))) #{}))
-    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil [:za :zo]]))) #{:za :zo}))
-    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil (into '() [:za :zo])]))) #{:za :zo}))
-    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items (assoc  db :cloud-selected #{:ha :ho}) [nil nil]))) #{:ha :ho}))))
+    
+    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items {:db (assoc db
+                                                                                       :cloud-selected #{:hello :world})} [nil [:hello :world]]))) #{}))
+    
+    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items {:db db} [nil [:hello :world]]))) #{:hello :world}))
+    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items {:db db} [nil [nil nil]]))) #{}))
+    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items {:db (assoc  db :cloud-selected #{:ha :ho})} [nil [:za :zo]]))) #{:za :zo}))
+    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items {:db (assoc  db :cloud-selected #{:ha :ho})} [nil (into '() [:za :zo])]))) #{:za :zo}))
+    (is (=  (:cloud-selected  (:db (miktau-events/clicked-many-cloud-items {:db (assoc  db :cloud-selected #{:ha :ho})} [nil nil]))) #{:ha :ho}))))
 
 (deftest test-select-all-nodes []
   (let [db (assoc demo-data/initial-db-after-load-from-server :nodes-selected #{})]

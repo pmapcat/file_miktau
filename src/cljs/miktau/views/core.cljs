@@ -64,21 +64,21 @@
 
 (defn selection-cloud []
   [:div 
-   (for [i  @(refe/subscribe [:selection-cloud])]
+   (for [tag  @(refe/subscribe [:selection-cloud])]
      [:a.tag.padded-as-button
-      {:key (log-item (i :key-name))
+      {:key (:key-name tag)
        :href "#"
-       :on-click #(refe/dispatch [:clicked-cloud-item (i :key-name)])
+       :on-click #(refe/dispatch [:clicked-cloud-item (:key-name tag)])
        :class
        (str
-        (cond (:selected? i) "selected"
-              (:can-select? i) "can-select"
+        (cond (:selected? tag) "selected"
+              (:can-select? tag) "can-select"
               :else "disabled"))
        :style
        {:font-weight "300"
-        :text-decoration "none"
-        :font-size (str  (+ 0.6 (* 2.4  (i :weighted-size))) "em")}}
-      i " "])])
+        :text-decoration "none"}}
+      (:name tag) " "])])
+
 (defn general-cloud []
   [:div
    (for [item @(refe/subscribe [:cloud])]
@@ -88,16 +88,18 @@
         {:style {:padding-bottom "0px" :padding-top "0px"}}
         (:group-name item)]]
       (for [tag  (:group item)]
-        [:a.tag.padded-as-button.unstyled-link
+        [:a.tag.padded-as-button
          {:key  (:key-name tag)
           :href "#"
-          :on-click #(refe/dispatch [:clicked-cloud-item (tag :key-name)])
+          :on-click
+          (if (:disabled? tag)
+            #(refe/dispatch [:clicked-disabled-cloud-item (tag :key-name)])
+            #(refe/dispatch [:clicked-cloud-item (tag :key-name)]))
           :class
           (str
            (cond (:selected? tag) "selected"
                  (:can-select? tag) "can-select"
-                 :else "disabled"))
-          
+                 (:disabled? tag) "disabled"))
           :style
           {:font-size
            (str  (+ 0.6 (* 2.4  (tag :weighted-size))) "em")
@@ -113,9 +115,11 @@
    [:div.pure-u-1
     (for [item items]
       [:a.pure-button {:key   (str (item :key-name))
-                       :href "#"
-                       :style {:text-align "left"}
-                       :on-click #(refe/dispatch [:click-on-calendar-item (:group item) (item :key-name)])
+                       :style {:text-align "left" :cursor "pointer"}
+                       :on-click
+                       (if (:disabled? item)
+                         #(refe/dispatch [:clicked-disabled-calendar-item (:group item) (item :key-name)])
+                         #(refe/dispatch [:click-on-calendar-item (:group item) (item :key-name)]))
                        :class
                        (str
                         (cond (:selected? item) "selected"
@@ -129,21 +133,21 @@
   (let [calendar @(refe/subscribe [:calendar])]
     [:div.pure-g
      ;; fast selection
-     (facet-group-select-time-subwidget
-      "timeline" "Filter on" ""
-      @(refe/subscribe [:fast-access-calendar]))
+     ;; (facet-group-select-time-subwidget
+     ;;  "timeline" "Filter on" ""
+     ;;  @(refe/subscribe [:fast-access-calendar]))
      
      ;; year      
      (facet-group-select-time-subwidget
       "line_style"
       (:group-name (:year calendar))
-      ""
+      " pure-u-1-5 tag "
       (:group (:year calendar)))
      ;; month
      (facet-group-select-time-subwidget
       "date_range"
       (:group-name (:month calendar))
-      ""
+      " pure-u-1-5 tag "
       (:group (:month calendar)))
      ;; day
      (facet-group-select-time-subwidget
@@ -199,23 +203,6 @@
                        :on-click #(refe/dispatch [:cancel-tagging-now])}
        (views-utils/icon "cancel")
        "Cancel changes!"]]]))
-
-(defn  tag-tree []
-  [:div.pure-g.mik-flush-right
-   (for [i (lorem/random-word 5)]
-     [:div.pure-u-1.pure-g {:role "group"}
-      [:a.tag.black.mik-cut-bottom {:href "#" :style {:text-decoration "none"}}
-       [:h2.mik-cut-bottom.mik-cut-top.padded-as-button.header-font.gray
-        {:style {:padding-bottom "0px" :word-wrap "break-word"}}
-        i "&middot;" i]]
-      [:div.padded-as-button {:style {:padding-top "0px"}}
-       (for [item (lorem/random-word (rand-int  20))]
-         [:a.tag.black.body-font
-          {:href "#"
-           :style {:text-align "left"
-                   :font-weight "600"
-                   :text-decoration "none"}}
-          item " " [:br]] )]])])
 
 (defn radio-button
   [text on-change selected?]
@@ -352,15 +339,14 @@
      ;; time facet
      [:div.pure-u-1-3.background-0
       [:div.padded-as-button
-       (facet-group-select-time)
-       ]]
+       (facet-group-select-time)]]
      
      ;; cloud facet
      [:div.pure-u-2-3
-      [:div.background-1
-       [:div {:style {:font-size "0.7em", :padding-bottom "2em"}}
-        (selection-cloud)
-        ]]
+      ;; [:div.background-1 {:style {:overflow "hidden" :height "70px"}}
+      ;;  [:div {:style {:font-size "0.7em", :padding-bottom "2em"}}
+      ;;   (selection-cloud)]]
+      
       [:div.background-2
        [:div 
         (general-cloud)
