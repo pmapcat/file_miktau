@@ -131,6 +131,17 @@
           {:name "personal", :key-name :personal, :to-add? false, :to-delete? true, :selected? false, :can-select? true}
           {:name "work", :key-name :work, :to-add? false, :to-delete? true, :selected? false, :can-select? true}
           {:name "zzz", :key-name :zzz, :to-add? true, :to-delete? false, :selected? false, :can-select? false})))
+    (let [predef-sub-db (:nodes (miktau-subs/node-items (assoc  db :nodes-temp-tags-to-add "aaa zzz"
+                                                                :nodes-temp-tags-to-delete #{:work :personal}) nil))]
+      
+      (is (= (mapv :name (:tags (second (filter (comp not :selected?) predef-sub-db))))
+             ["bibliostore" "moscow_market" "natan" "work"]))
+      (is (= (mapv :to-delete? (:tags (second (filter (comp not :selected?) predef-sub-db))))
+             [false false false false]))
+      (is (= (mapv :to-add? (:tags (second (filter (comp not :selected?) predef-sub-db))))
+             [false false false false])))
+
+    
     
     (is (= (take 2 only-node-items)
            (list {:id 0 :selected? true, :modified {:year 2016, :month 7, :day 21},
@@ -243,16 +254,19 @@
                   {:name "2016", :key-name :2016, :size 14, :group :year, :weighted-size 1, :selected? false, :can-select? false :disabled? true})}})
   ;; (is (= (miktau-subs/calendar miktau.events/demo-db nil) ""))
   
-  (is (= (:month (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))
-         {:group-name "month", :max-size 8,
-          :group (list {:name "1", :key-name :1, :size 1, :group :month, :weighted-size 0.125, :selected? false, :disabled? false :can-select? true}
-                       {:name "2", :key-name :2, :size 8, :group :month, :weighted-size 1, :selected? false,     :disabled? false :can-select? true}
-                       {:name "3", :key-name :3, :size 1, :group :month, :weighted-size 0.125, :selected? false, :disabled? false :can-select? true}
-                       {:name "4", :key-name :4, :size 4, :group :month, :weighted-size 0.5, :selected? false,   :disabled? false :can-select? true}
-                       {:name "5", :key-name :5, :size 4, :group :month, :weighted-size 0.5, :selected? false,   :disabled? false :can-select? true}
-                       {:name "7", :key-name :7, :size 4, :group :month, :weighted-size 0.5, :selected? false,   :disabled? false :can-select? true})}))
+  (with-diff
+    (:month (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))
+    {:group-name "month", :max-size 8,
+     :group (list {:name "01", :key-name :1, :size 1, :group :month, :weighted-size 0.125, :selected? false, :disabled? false :can-select? true}
+                  {:name "02", :key-name :2, :size 8, :group :month, :weighted-size 1, :selected? false,     :disabled? false :can-select? true}
+                  {:name "03", :key-name :3, :size 1, :group :month, :weighted-size 0.125, :selected? false, :disabled? false :can-select? true}
+                  {:name "04", :key-name :4, :size 4, :group :month, :weighted-size 0.5, :selected? false,   :disabled? false :can-select? true}
+                  {:name "05", :key-name :5, :size 4, :group :month, :weighted-size 0.5, :selected? false,   :disabled? false :can-select? true}
+                  {:name "07", :key-name :7, :size 4, :group :month, :weighted-size 0.5, :selected? false,   :disabled? false :can-select? true})})
+  
+  
   (is (= (mapv :name  (:group  (:day (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))))
-         ["1" "2" "3" "4" "5" "7" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20" "21" "24"]))
+         ["01" "02" "03" "04" "05" "07" "08" "09" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20" "21" "24"]))
   (is (= (mapv :key-name  (:group  (:day (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))))
          [:1 :2 :3 :4 :5 :7 :8 :9 :10 :11 :12 :13 :14 :15 :16 :17 :18 :19 :20 :21 :24]))
   (is (= (mapv :group  (:group  (:day (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))))

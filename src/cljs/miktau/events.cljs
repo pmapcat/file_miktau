@@ -227,7 +227,9 @@
   "TESTED"
   [db [_ tag-item]]
   (if (keyword? tag-item)
-     (update db :nodes-temp-tags-to-delete conj tag-item)
+    (if (contains? (:nodes-temp-tags-to-delete db) tag-item)
+      (update db :nodes-temp-tags-to-delete disj tag-item)
+      (update db :nodes-temp-tags-to-delete conj tag-item))
      db))
 (refe/reg-event-db :delete-tag-from-selection delete-tag-from-selection)
 
@@ -237,7 +239,7 @@
   (if (string? tag-item)
     (assoc db :nodes-temp-tags-to-add tag-item)
     db))
-(refe/reg-event-db :add-tag-to-selection add-tag-to-selection)
+(refe/reg-event-db :add-tags-to-selection add-tag-to-selection)
 
 (defn build-drill
   "TESTED"

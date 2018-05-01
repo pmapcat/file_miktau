@@ -100,6 +100,13 @@
    [:.black  {:color "#000000"}]
    [:.orange {:color "#4d4d4d"}]
    [:.selected {:background "red !important"}]
+
+   [:.crossed-out {:background "HSL(22,99%,88%)" :text-decoration "line-through" :color "black"}]
+   [:.crossed-out:hover {:background "HSL(22,99%,88%)" :text-decoration "line-through" :color "black"}]
+   [:.added-in {:background "HSL(130,100%,92%)" :color "black"}]
+   [:.added-in:hover {:background "HSL(130,100%,92%)" :color "black"}]
+   
+   
    
    [:.tag    {:font-family (:body fonts)}]
    [:.tag:hover {:color "#4d4d4d"}]

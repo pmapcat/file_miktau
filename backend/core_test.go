@@ -42,7 +42,19 @@ func TestPerformance(t *testing.T) {
 	timeEval(fmt.Sprintf("With faceting get_app_data on %v", perfsize), func() {
 		assert.Equal(t, int(res.GetAppData(*newCoreQuery().WithTags("natan", "магазины", "sforim")).TotalNodes), 13234)
 	})
+}
+func TestAddingBug(t *testing.T) {
+	cnis := newCoreNodeItemStorage("testing")
+	cnis.MutableAddMany(buildDemoDataset())
 
+	// make none of them have any tags
+	cnis.MutableUpdateInBulk(*newCoreQuery(), func(item *CoreNodeItem) *CoreNodeItem {
+		item.Tags = []string{}
+		return item
+	})
+	// assert that everything is empty
+	assert.Equal(t, len(cnis.GetAppData(*newCoreQuery()).Cloud), 0)
+	assert.Equal(t, len(cnis.GetAppData(*newCoreQuery()).Nodes), 22)
 }
 
 func TestApplyFilter(t *testing.T) {

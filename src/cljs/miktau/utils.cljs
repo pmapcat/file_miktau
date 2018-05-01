@@ -17,9 +17,14 @@
    server-call
    :format
    :response-format))
+(defn pad
+  "Zero Pad numbers - takes a number and the length to pad to as arguments"
+   [n c pad-symbol] 
+   (loop [s (str n)]  
+     (if (< (count s) c) 
+         (recur (str pad-symbol s)) 
+         s)))
 
-(defn pad [item pad-width pad-symbol]
-  ((aget js/window "pad") (str item) pad-width (str pad-symbol)))
 (defn find-all-tags-in-string
   [string]
   (if (string? string)

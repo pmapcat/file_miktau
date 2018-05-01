@@ -174,33 +174,44 @@
 
 (defn tagging-now-group []
   (let [nodes-changing @(refe/subscribe [:nodes-changing])]
-    [:div.background-1.padded-as-button {:style {}}
+    [:div.background-1.padded-as-button
+     
+     ;; group op
      [:div.mik-flush-left
       (views-utils/icon "photo_size_select_small")
       "Selected " [:b (:total-amount nodes-changing)] " files"
       [:a.unstyled-link {:href "#" :on-click #(refe/dispatch [:unselect-all-nodes])} " Unselect"]]
      (group-open)
+     
+     ;; tags to remove
      [:h2.header-font.light-gray.mik-cut-bottom.mik-flush-right
       (views-utils/icon "local_offer")
       "Remove tags from selection"]
-     [:input {:name "tags-to-delete"
-              :placeholder "Remove"
-              :on-change #(refe/dispatch [:delete-tags-from-selection (e->content %)])
-              :value
-              (clojure-string/join "," (nodes-changing :tags-to-delete))}]
+     
+     (for [tag (:tags-to-delete nodes-changing)]
+       [:a.padded-as-button
+        {:key (:name tag)
+         :class (if (:selected? tag) " crossed-out " "")
+         :style {:cursor "pointer" }
+         :on-click #(refe/dispatch [:delete-tag-from-selection (:key-name tag)])} 
+        (:name tag) " "])
+     
+     ;; tags to add
      [:h2.header-font.light-gray.mik-cut-bottom.mik-flush-right
       (views-utils/icon "local_offer")
-      "Add new tags" ]
-     [:input {:name "tags-to-add" :placeholder "Add"
-              :on-change #(refe/dispatch [:add-tags-to-selection (e->content %)])
-              :value (nodes-changing :tags-to-add)}]
+      "Add tags to selection"]
+     [:textarea {:placeholder "Add tags to selection"
+                 :on-change #(refe/dispatch [:add-tags-to-selection (e->content %)])
+                 :value  (:tags-to-add nodes-changing)}]
+     
+     ;; changes to submit
      [:div.mik-flush-right {:style {:margin-top "2em"}}
       [:a.pure-button {:href "#"
-                       :on-click #(refe/dispatch [:submit-tagging-now])}
+                       :on-click #(refe/dispatch [:submit-tagging])}
        (views-utils/icon "save")
        "Save changes!"]
       [:a.pure-button {:href "#"
-                       :on-click #(refe/dispatch [:cancel-tagging-now])}
+                       :on-click #(refe/dispatch [:cancel-tagging])}
        (views-utils/icon "cancel")
        "Cancel changes!"]]]))
 
@@ -210,9 +221,7 @@
     [:label.pure-checkbox
      {:for id :style {:position "relative"}}
      [:input
-      (if selected?
-        {:id id  :style {:width "25px" :height "25px" :cursor "pointer"} :checked true :type "checkbox" :on-change on-change}
-        {:id id  :style {:width "25px" :height "25px" :cursor "pointer"}               :type "checkbox" :on-change on-change})]
+      {:id id  :style {:width "25px" :height "25px" :cursor "pointer"} :checked selected? :type "checkbox" :on-change on-change}]
      [:span {:style {:padding-bottom "5px"}}
       text]]))
 
@@ -249,7 +258,7 @@
          [:div.pure-u-2-24.mik-flush-left
           (views-utils/position-absolute
            {:top ""}
-           (radio-button "" #(refe/dispatch [:select-node (node :file-path) (node :name)]) (:selected? node)))]
+           (radio-button "" #(refe/dispatch [:select-node (str (node :file-path) (node :name))]) (:selected? node)))]
          [:div.pure-u-6-24
           [:a.unstyled-link
            {:href "#" :style {:font-weight "300"}} (:name node)]]
@@ -262,10 +271,9 @@
                :on-click #(refe/dispatch [:clicked-cloud-item (tag :key-name)])
                :class
                (str
-                (cond (:to-delete? tag) "diff-delete-overline"
-                      (:to-add?    tag) "diff-add"
-                      :else
-                      "")
+                (cond (:to-delete? tag) "crossed-out"
+                      (:to-add?    tag) "added-in"
+                      :else "")
                 " "
                 (cond
                   (:selected? tag) "selected"
@@ -360,7 +368,7 @@
     ;; will be able to see it only when selected
     [:div {:style {:position "fixed", :bottom "0px", :right "0px", :width "100%"}}
      [:div.pure-u-1
-      ;; (tagging-now-group)
+      (tagging-now-group)
       ]]]])
 
 (defn choose-root

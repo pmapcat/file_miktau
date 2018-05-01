@@ -98,7 +98,9 @@
                   :disabled?      (not can-select?)
                   :selected?      (= (get (:calendar-selected db) group-name) parsed-name)
                   :can-select?    can-select?}))))})]))
-    (catch :default e [])))
+    (catch :default e
+      (println e)
+      {})))
 
 (refe/reg-sub :calendar calendar)
 
@@ -164,39 +166,50 @@
        :all-selected? all-selected?
        :nodes
        (for [i (:nodes db )]
-         {:selected?
-          (if all-selected?
-            true
-            (contains? (:nodes-selected db )
-                       (str (:file-path i) (:name i))))
-          :modified (i :modified)
-          :id (i :id)
-          :name (:name i)
-          :all-tags (map keyword (i :tags))
-          :file-path (i :file-path)
-          :tags
-          (map
-           #(dissoc % :compare-name)
-           (sort-by
-            :compare-name
-            (concat
-             (for [tag  (i :tags)]
-               {:name           (str (name tag))
-                :key-name       (keyword (str tag))
-                :compare-name   (cljs-string/lower-case (str (name tag)))
-                :to-add?        false
-                :to-delete?     (contains? tags-to-delete  (keyword (str tag)))
-                :selected?      (contains? (:cloud-selected db) (keyword (str tag)))
-                :can-select?    true})
-             (for [tag  newly-added-tags]
-               {:name           (str (name tag))
-                :key-name       (keyword (str tag))
-                :to-add?        true
-                :compare-name   (cljs-string/lower-case (str (name tag)))
-                :to-delete?     false
-                :selected?      false
-                :can-select?    false}))))})})
+         (let [selected?
+               (if all-selected?
+                 true
+                 (contains? (:nodes-selected db )
+                            (str (:file-path i) (:name i))))]
+           {:selected? selected?
+            :modified (i :modified)
+            :id (i :id)
+            :name (:name i)
+            :all-tags (map keyword (i :tags))
+            :file-path (i :file-path)
+            :tags
+            (map
+             #(dissoc % :compare-name)
+             (sort-by
+              :compare-name
+              (if-not selected?
+                (for [tag  (i :tags)]
+                  {:name           (str (name tag))
+                   :key-name       (keyword (str tag))
+                   :compare-name   (cljs-string/lower-case (str (name tag)))
+                   :to-add?        false
+                   :to-delete?     false
+                   :selected?      (contains? (:cloud-selected db) (keyword (str tag)))
+                   :can-select?    true})
+                (concat
+                 (for [tag  (i :tags)]
+                   {:name           (str (name tag))
+                    :key-name       (keyword (str tag))
+                    :compare-name   (cljs-string/lower-case (str (name tag)))
+                    :to-add?        false
+                    :to-delete?     (contains? tags-to-delete  (keyword (str tag)))
+                    :selected?      (contains? (:cloud-selected db) (keyword (str tag)))
+                    :can-select?    true})
+                 (for [tag  newly-added-tags]
+                   {:name           (str (name tag))
+                    :key-name       (keyword (str tag))
+                    :to-add?        true
+                    :compare-name   (cljs-string/lower-case (str (name tag)))
+                    :to-delete?     false
+                    :selected?      false
+                    :can-select?    false})))))}))})
     (catch :default e {})))
+
 
 (refe/reg-sub :node-items node-items)
 
