@@ -2,6 +2,27 @@
   (:require-macros [cljs.test :refer [deftest testing is]])
   (:require [cljs.test :as t]
             [miktau.utils :as utils]))
+(deftest testing-whether-one-rectangle-in-another? []
+  (is (= 
+       (utils/one-rectangle-in-another?
+        {:x 0 :y 0 :width 100 :hight 100}
+        {:x 10 :y 20 :width 100 :hight 100})
+       false))
+  (is (=
+       (utils/one-rectangle-in-another?
+        {:x 40 :y 40 :width 20 :hight 20}
+        {:x 10 :y 20 :width 100 :hight 100})
+       true))
+  (is (=
+       (utils/one-rectangle-in-another?
+        {:x 10 :y 10 :width 20  :hight 20}
+        {:x 10 :y 10 :width 100 :hight 100})
+       true))
+  (is (=
+       (utils/one-rectangle-in-another?
+        {:x 90 :y 90 :width 20  :hight 20}
+        {:x 10 :y 10 :width 100 :hight 100})
+       false)))
 
 (deftest testing-parse-int? []
   (is (= (utils/mik-parse-int 123 -1) 123))

@@ -55,6 +55,11 @@ func TestAddingBug(t *testing.T) {
 	// assert that everything is empty
 	assert.Equal(t, len(cnis.GetAppData(*newCoreQuery()).Cloud), 0)
 	assert.Equal(t, len(cnis.GetAppData(*newCoreQuery()).Nodes), 22)
+	assert.Equal(t, cnis.MutableAddRemoveTagsToSelection(*newCoreQuery().WithFilePathes("/home/mik/this_must_be_it/hello.mp4"), []string{"zanzibar"}, []string{}), 1)
+	assert.Equal(t, len(cnis.GetAppData(*newCoreQuery().WithFilePathes("/home/mik/this_must_be_it/hello.mp4")).Nodes), 1)
+
+	assert.Equal(t, len(cnis.GetAppData(*newCoreQuery()).Cloud), 1)
+
 }
 
 func TestApplyFilter(t *testing.T) {
@@ -83,6 +88,7 @@ func TestApplyFilter(t *testing.T) {
 	// choose by date combined mechanics
 	assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithDate(2017, 7, 20)), true)
 	assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithDate(2016, 7, 20)), false)
+	// choose by file path mechanics
 
 }
 func TestAllNodesShouldHaveDifferentId(t *testing.T) {
@@ -209,10 +215,13 @@ func TestGettingNodesByFilePaths(t *testing.T) {
 	cnis.MutableAddMany(buildDemoDataset())
 
 	counter := 0
-	cnis.GetInBulk(*newCoreQuery().WithFilePathes("/home/mik/chosen_one/", "/home/mik/this_must_be_it/"), func(cni *CoreNodeItem) {
+	cnis.GetInBulk(*newCoreQuery().WithFilePathes("/home/mik/chosen_one/",
+		"/home/mik/this_must_be_it/blab.mp4",
+		"/home/mik/this_must_be_it/hello.mp4",
+		"/home/mik/this_must_be_it/blab.mp4"), func(cni *CoreNodeItem) {
 		counter += 1
 	})
-	assert.Equal(t, counter, 9)
+	assert.Equal(t, counter, 3)
 
 }
 func TestDachaBaselineDataset(t *testing.T) {

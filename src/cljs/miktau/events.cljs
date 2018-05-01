@@ -30,7 +30,7 @@
 (refe/reg-event-fx
  :init
  (fn [_ _]
-   {:db (assoc init-db :loading? true)
+   {:db (assoc init-db :loading? true :nodes-selected #{} :cloud-selected #{:buffer})
     :fx-redirect [:get-app-data]}))
 
 (refe/reg-event-fx
@@ -212,7 +212,23 @@
     (update db :nodes-selected disj file-path)
     :else
     (update db :nodes-selected conj file-path)))
+
 (refe/reg-event-db :select-node select-node)
+
+(defn only-select-node
+  "TESTED"
+  [db [_ file-path]]
+  (cond
+    (not  (string? file-path)) db
+    (contains? (:nodes-selected db) "*")
+    (assoc db :nodes-selected #{file-path})
+    :else
+    (update db :nodes-selected conj file-path)))
+
+(refe/reg-event-db :select-only-select-node only-select-node)
+(defn ^:export call_select_only_select_node [fpath]
+  (refe/dispatch [:select-only-select-node fpath]))
+
 
 (defn file-operation-fx
   "TESTED"

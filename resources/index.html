@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <title></title>
-    <link href="/tagify/tagify.css" rel="stylesheet">
-    <script src="/tagify/tagify.min.js"></script>
-    <script src="/tagify.js"></script>
+    <!-- <link href="/tagify/tagify.css" rel="stylesheet"> -->
+    <!-- <script src="/tagify/tagify.min.js"></script> -->
+    <!-- <script src="/tagify.js"></script> -->
     <script src="/main.js"></script>
+    <!-- <script src="/rectangle.select.js"></script> -->
+    
     
     <!-- pure css -->
     <link href="/online/pure-min.css" rel="stylesheet">
@@ -26,6 +28,13 @@
     <link href="css/garden.css" rel="stylesheet" type="text/css" media="screen">
   </head>
   <body>
+    <style>
+    #rectangular-selection-area {
+      border: 1px dotted #000;
+      position: absolute;
+   }
+    </style>
+    <div id="rectangular-selection-area" hidden></div>
     <div id="container"></div>
     <script type="text/javascript" src="js/app.js"></script>
   </body>

@@ -3,6 +3,7 @@ package main
 import (
 	// "log"
 	"errors"
+	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -37,8 +38,9 @@ func (n *CoreNodeItem) ApplyFilter(c *CoreQuery) bool {
 	// if query contains filepathes list, then it is most likely
 	// that we must filter by filepaths
 	if len(c.FilePaths) > 0 {
+		fname_fpath := filepath.Join(n.FilePath, n.Name)
 		for _, fpath := range c.FilePaths {
-			if n.FilePath == fpath {
+			if fname_fpath == fpath {
 				return true
 			}
 		}
