@@ -17,6 +17,14 @@
    server-call
    :format
    :response-format))
+(defn set-timeout
+  [time-wait fun]
+  (js/setTimeout (fn [_] (fun)) time-wait))
+
+;; (set-timeout 3000 #(println "hello"))
+
+
+
 (defn pad
   "Zero Pad numbers - takes a number and the length to pad to as arguments"
    [n c pad-symbol] 

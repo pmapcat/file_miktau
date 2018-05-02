@@ -4,6 +4,16 @@
   [on]
   [(str ".mik-cut-" on)  { (str "padding-" on) "0"
                           (str "margin-" on) "0"}])
+(def *apple-palette*
+  {:gray "rgb(238, 229, 213)"
+   :red "rgb(128, 21, 29)"
+   :pink "rgb(214, 96, 83)"
+   :green "rgb(132, 127, 70)"
+   :dark-red "rgb(65, 25, 27)"
+   :light-red "rgb(186, 152, 152)"
+   :light-green "rgb(167, 178, 77)"
+   :another-red "rgb(182, 41, 45)"
+   :another-pink "rgb(144, 89, 93)"})
 
 (defn- mik-rotate [rad]
   [(str ".mik-rotate-" rad)
@@ -89,17 +99,22 @@
    [:.background-4 {:background "#e7e7e7"}]
    
    [:.unstyled-link {:text-decoration "none" :font-weight "900" :color "#000000"}]
-   [:.unstyled-link:hover {:text-decoration "none" :color "#ababab"}]
+   [:.unstyled-link:hover {:text-decoration "none" :color
+                           (:light-green *apple-palette*)}]
+   
+   [:.inline-tag:hover {:color (:light-green *apple-palette*)}]
    
    [:.shadow {:box-shadow 'none}]
    [:.pure-menu-link {:color "#000000 !important" :background "none !important"}]
    [:.pure-menu-link:hover {:color "#4d4d4d !important" :background "#ababab !important"}]
    [:.pure-button       {:background "none !important" :font-weight "600 !important" :font-family (:body fonts)}]
-   [:.pure-button:hover {:color "#4d4d4d !important"}]
+   [:.pure-button:hover {:color (str (:light-green *apple-palette*) "!important;")}]
+   
    [:.gray   {:color "#ababab"}]
    [:.black  {:color "#000000"}]
    [:.orange {:color "#4d4d4d"}]
-   [:.selected {:background "red !important"}]
+   [:.selected {:background (str (:light-green *apple-palette*) "!important;")
+                :color (str (:gray *apple-palette*) " !important")}]
 
    [:.crossed-out {:background "HSL(22,99%,88%)" :text-decoration "line-through" :color "black"}]
    [:.crossed-out:hover {:background "HSL(22,99%,88%)" :text-decoration "line-through" :color "black"}]
@@ -109,11 +124,12 @@
    
    
    [:.tag    {:font-family (:body fonts)}]
-   [:.tag:hover {:color "#4d4d4d"}]
+   [:.tag:hover {:color (str (:light-green *apple-palette*))}]
    [:.tag.disabled       {:color "HSL(123,1%,84%)" :cursor "default" }]
    [:.tag.disabled:hover {:color "HSL(123,1%,84%) !important" :cursor "default"}]
    [:.tag.can-select       {:color "black" :cursor "pointer" }]
-   [:.tag.can-select:hover {:color "gray" :cursor "pointer"}]
+   [:.tag.can-select:hover
+    {:color (str (:light-green *apple-palette*))}]
    
    
    

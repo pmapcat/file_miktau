@@ -34,7 +34,7 @@
  (fn [db _]
    db))
 (comment
-  (keys  @(refe/subscribe [:get-db-for-test-purposes])))
+  (println  (str  @(refe/subscribe [:get-db-for-test-purposes]))))
 
 (defn cloud
   "TESTED"

@@ -14,54 +14,6 @@
   (str
    (aget e "target" "value" )))
 
-(defn datetime-widget
-  []
-  [:div.pure-g
-   [:div.pure-u-3-8
-    [:select
-     (for [i (range 1990 2019)]
-       [:option i])]]
-   [:div.pure-u-4-8
-    [:select
-     (for [i (range ["January" "February" "March"  "April"  "May"  "June" "July" "August" "September" "October" "November" "December"])]
-       [:option i])]]
-   [:div.pure-u-1-8
-    [:select
-     (for [i (range 1 32)]
-       [:option i])]]])
-
-(defn menu
-  [first-item items]
-  [:div.dropdown.padded-as-button
-   first-item
-   [:div.dropdown-content
-    (for [[item pos] (zipmap items (range))]
-      [:a.pure-button.mik-flush-left {:key pos :href "#" :style {:text-align "left"}} item])]])
-
-(defn table-menu
-  [first-item items]
-  [:div.dropdown
-   first-item
-   (into
-    []
-    (concat
-     [:div.dropdown-content {:style {:font-size "0.8em"}}]
-     ;; it is highly unlikely that this menu is going to be
-     ;; dynamic. Thus, simple counter as a key suffice
-     items))])
-
-(defn group-open []
-  [:div
-   (table-menu 
-    [:span  (views-utils/icon "folder_open") " Open them"]
-    [
-     [:a.pure-button.unstyled-link {:key "open in a single folder" :href "#" :on-click #(refe/dispatch [:file-operation :in-folder])}
-      (views-utils/icon "folder_open") " In a single folder"]
-     [:a.pure-button.unstyled-link  {:key "each individually" :href "#" :on-click #(refe/dispatch [:file-operation :individually])}
-      (views-utils/icon "list") " Each individually"]
-     [:a.pure-button.unstyled-link  {:key "individually" :href "#"  :on-click #(refe/dispatch [:file-operation :default-program])}
-      (views-utils/icon "filter") " Each in default program"]])])
-
 (defn selection-cloud []
   [:div 
    (for [tag  @(refe/subscribe [:selection-cloud])]
@@ -115,19 +67,20 @@
     (views-utils/icon icon-name) group-name]
    [:div.pure-u-1
     (for [item items]
-      [:a.pure-button {:key   (str (item :key-name))
-                       :style {:text-align "left" :cursor "pointer" :display "inline-block"}
-                       :on-click
-                       (if (:disabled? item)
-                         #(refe/dispatch [:clicked-disabled-calendar-item (:group item) (item :key-name)])
-                         #(refe/dispatch [:click-on-calendar-item (:group item) (item :key-name)]))
-                       :class
-                       (str
-                        (cond (:selected? item) "selected"
-                              (:can-select? item) "can-select"
-                              :else "disabled")
-                        " " additional-item-classes)}
+      [:a.mik-flush-center {:key   (str (item :key-name))
+           :style {:cursor "pointer" :display "inline-block"}
+           :on-click
+           (if (:disabled? item)
+             #(refe/dispatch [:clicked-disabled-calendar-item (:group item) (item :key-name)])
+             #(refe/dispatch [:click-on-calendar-item (:group item) (item :key-name)]))
+           :class
+           (str
+            (cond (:selected? item) "selected"
+                  (:can-select? item) "can-select"
+                  :else "disabled")
+            " " additional-item-classes)}
        (:name item)])]])
+
 
 
 (defn  facet-group-select-time []
@@ -157,39 +110,22 @@
       " pure-u-1-5 tag"
       (:group (:day calendar)))]))
 
-(defn found-group
-  []
-  [:div
-   [:div.mik-flush-right {:style {:text-align "right"}}
-    [:a.pure-button {:href "#"} (views-utils/icon "file_upload") " Add files "]]
-   [:h2.mik-cut-bottom.mik-cut-top.header-font
-    {:style {:font-size "3em"}} "Found " [:b " 10 "] " files"]
-   [:a.unstyled-link {:href "#"} "All"
-    [:span {:style {:font-size "1em" :color "gray"}} "&raquo;"]]
-   (for [i (butlast (lorem/random-word-random-size 10))]
-     [:a.unstyled-link {:href "#"}
-      i
-      [:span {:style {:font-size "1em" :color "gray"}} "&raquo;"]])
-   [:a.unstyled-link {:href "#"}
-    (first (lorem/random-word))]])
-
 (defn tagging-now-group []
   (let [nodes-changing @(refe/subscribe [:nodes-changing])]
     [:div.background-1.padded-as-button {:style {:height "100%"}}
-     
      ;; group op
      [:div.mik-flush-right
       (views-utils/icon "photo_size_select_small")
       " Selected " [:b (:total-amount nodes-changing)] " files"
       [:br]
-      [:a.unstyled-link {:href "#" :on-click #(refe/dispatch [:unselect-all-nodes])} " Unselect"]]
+      [:a.unstyled-link {:href "#" :on-click #(refe/dispatch [:cancel-tagging])} " Unselect"]]
      [:div.padded-as-button
       [:h2.mik-cut-bottom.gray "Open selected files"]
-      [:a.pure-button.mik-cut-left.unstyled-link {:key "in a single folder" :href "#" :on-click #(refe/dispatch [:file-operation :in-folder])}
+      [:a.mik-cut-left.unstyled-link.pure-button {:key "in a single folder" :href "#" :on-click #(refe/dispatch [:file-operation :in-folder])}
        (views-utils/icon "folder_open") " In a single folder"]
-      [:a.pure-button.unstyled-link  {:key "each individually" :href "#" :on-click #(refe/dispatch [:file-operation :individually])}
+      [:a.unstyled-link.pure-button  {:key "each individually" :href "#" :on-click #(refe/dispatch [:file-operation :individually])}
        (views-utils/icon "list") " Each individually"]
-      [:a.pure-button.unstyled-link  {:key "individually" :href "#"  :on-click #(refe/dispatch [:file-operation :default-program])}
+      [:a.unstyled-link.pure-button  {:key "individually" :href "#"  :on-click #(refe/dispatch [:file-operation :default-program])}
        (views-utils/icon "filter") " Each in default program"]]
      
      ;; tags to remove
@@ -247,7 +183,7 @@
          [:div
           "Name"
           [:span {:style {:font-size "0.6em"}}
-           "("
+           "["
            [:a.unstyled-link {:href "#" :key "order-a-z"
                               :on-click #(refe/dispatch [:sort "name"])}
             "a-z"]
@@ -255,21 +191,22 @@
            [:a.unstyled-link {:href "#" :key "order-z-a"
 
                               :on-click #(refe/dispatch [:sort "-name"])}
-            " z-a"] ")"]])]
+            " z-a"] "]"]])]
       [:div.pure-u-6-24.mik-flush-right
        (if selection-mode?
          [:div "Modified"]
          [:div
-          "Modified"
           [:span {:style {:font-size "0.6em"}}
-           "("
+           "["
            [:a.unstyled-link {:href "#" :key "order-a-z"
                               :on-click #(refe/dispatch [:sort "modified"])}
             "recent"]
            "·"
            [:a.unstyled-link {:href "#" :key "order-z-a"
                               :on-click #(refe/dispatch [:sort "-modified"])}
-            " older"] ")"]])]]
+            " older"]
+           "]"]
+          "Modified"])]]
      [:div
       (for [node (:nodes node-items)]
         [:div.pure-g.table-hover.node-item
@@ -285,13 +222,13 @@
            (radio-button "" #(refe/dispatch [:select-node (str (node :file-path) (node :name))]) (:selected? node)))]
          [:div.pure-u-6-24
           [:a.unstyled-link
-           {:href "#" :style {:font-weight "300"}} (:name node)]]
+           {:href "#" :style {:font-weight "300" :word-wrap "break-word"}}
+           (:name node)]]
          [:div.pure-u-10-24
           [:div 
            (for [tag (:tags node)]
-             [:a.unstyled-link.gray
+             [:a.inline-tag
               {:key (:key-name tag)
-               :href "#"
                :on-click
                (if-not selection-mode?
                  #(refe/dispatch [:clicked-cloud-item (tag :key-name)])
@@ -307,6 +244,10 @@
                   (:can-select? tag) "can-select"
                   :else "disabled"))
                :style {:font-weight "300"
+                       :color "black"
+                       :font-size "0.5em"
+                       :padding "3px"
+                       :display "inline-block"
                        :pointer (if selection-mode? "default" "cursor")}}  (:name tag) " "])
            (cond
              selection-mode?
@@ -314,6 +255,7 @@
              (not  (empty? (:all-tags node)))
              [:a.unstyled-link
               {:href "#"
+               :style {:font-size "0.5em"}
                :on-click
                (if-not selection-mode?
                  #(refe/dispatch [:clicked-many-cloud-items (:all-tags node)])
@@ -333,9 +275,11 @@
             (utils/pad (:year   (node :modified)) 4 "0") "."
             (utils/pad (:month  (node :modified)) 2 "0") "."
             (utils/pad (:day  (node :modified))   2 "0"))]]])]
-     [:div.mik-flush-right.gray
-      "Truncated: "
-      [:b  (:omitted-nodes node-items)]]]))
+     (if (> (:omitted-nodes node-items) 0)
+       [:div.mik-flush-right.gray
+        "Truncated: "
+        [:b  (:omitted-nodes node-items)]]
+       [:div])]))
 
 (defn dropzone []
   [:div.mik-flush-center.background-1
@@ -352,7 +296,7 @@
       {:type "text" :placeholder "Filter"
        :value @filtering
        :on-change #(refe/dispatch [:filtering (e->content %)])
-       :on-blur  #(refe/dispatch [:filtering ""])
+       ;; :on-blur  #(utils/set-timeout 100 (fn [] (refe/dispatch [:filtering ""])))
        :style {:width "97%" :height "2em" :padding-left "20px" :background "white !important"}}]
      [:div {:style {:position "absolute" :right "30px" :top "23px"}}
       [:a.unstyled-link {:href "#" :on-click #(refe/dispatch [:clear])} 
@@ -414,7 +358,7 @@
     [:div.mik-flush-center.background-1
      {:style
       {:padding "5em", :margin-top "1em", :margin-bottom "1em", :border "dashed 1px gray"}}
-     [:a.pure-button {:href "#"}
+     [:a {:href "#"}
       (views-utils/icon "file_upload")
       "Or Drop it here"]]]])
 
@@ -423,7 +367,7 @@
   [:div.mik-flush-center.background-1
    {:style {:padding "5em" :border "dashed 1px gray"}}
    [:div
-    [:a.pure-button {:href "#" :style {:font-size "4em"}}
+    [:a {:href "#" :style {:font-size "4em"}}
      "Processing..."]
     [:div.mik-flush-center.background-1
      [:img {:src "/loading.gif"}]]]])

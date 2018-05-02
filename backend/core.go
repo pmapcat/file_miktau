@@ -345,8 +345,8 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	total_nodes := len(nodes_list)
 	// this must be tested, because I have no idea what I am doing
 	// here XD
-	if len(nodes_list) > 100 {
-		nodes_list = nodes_list[99:]
+	if total_nodes > 10 {
+		nodes_list = nodes_list[:10]
 	}
 	// Formatting for the Rest output
 	rsp := CoreAppDataResponse{}

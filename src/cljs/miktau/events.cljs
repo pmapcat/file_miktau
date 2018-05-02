@@ -189,7 +189,6 @@
     :else
     (assoc db :nodes-selected #{"*"})))
 (refe/reg-event-db :select-all-nodes select-all-nodes)
-(refe/reg-event-db :unselect-all-nodes select-all-nodes)
 
 (defn sort-nodes
   "TESTED"

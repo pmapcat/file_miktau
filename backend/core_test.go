@@ -42,6 +42,11 @@ func TestPerformance(t *testing.T) {
 	timeEval(fmt.Sprintf("With faceting get_app_data on %v", perfsize), func() {
 		assert.Equal(t, int(res.GetAppData(*newCoreQuery().WithTags("natan", "магазины", "sforim")).TotalNodes), 13234)
 	})
+
+	timeEval(fmt.Sprintf("Checking amount of nodes, because it should be less than 100 %v", perfsize), func() {
+		assert.Equal(t, int(len(res.GetAppData(*newCoreQuery().WithTags("natan", "магазины", "sforim")).Nodes)), 100)
+	})
+
 }
 func TestAddingBug(t *testing.T) {
 	cnis := newCoreNodeItemStorage("testing")
