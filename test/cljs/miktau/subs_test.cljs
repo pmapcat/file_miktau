@@ -114,13 +114,14 @@
                                                                                  "/home/mik/figuratively/gir.mp4"
                                                                                  "/home/mik/figuratively/grar.mp4"})]
     (is (= with-node-items-count
-           {:ordered-by {:inverse? false, :field :name}, :total-nodes 22, :nodes 22 :ommitted-nodes 0, :all-selected? true} ))
+           {:ordered-by {:inverse? false, :field :name}, :total-nodes 22, :nodes 22 :omitted-nodes 0, :all-selected? true} ))
     (is (=  (mapv :selected? only-node-items)
             [true true true true true true true true true true true true true true true true true true true true true true]))
     (is
      (= 
       (mapv :name (filter :selected? (:nodes (miktau-subs/node-items db nil))))
       ["dar.mp4" "gir.mp4" "grar.mp4"]))
+    (is (=  (:omitted-nodes with-node-items-count) 0))
     
     (is
      (= (:tags (first (filter :selected? (:nodes (miktau-subs/node-items (assoc  db :nodes-temp-tags-to-add "aaa zzz"

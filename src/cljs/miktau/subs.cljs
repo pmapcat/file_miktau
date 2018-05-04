@@ -34,7 +34,7 @@
  (fn [db _]
    db))
 (comment
-  (println  (str  @(refe/subscribe [:get-db-for-test-purposes]))))
+  (println  (:nodes-temp-tags-to-delete  @(refe/subscribe [:get-db-for-test-purposes]))))
 
 (defn cloud
   "TESTED"
@@ -162,7 +162,7 @@
       {:ordered-by
        (utils/parse-sorting-field (:nodes-sorted db))
        :total-nodes (:total-nodes db)
-       :ommitted-nodes (-  (:total-nodes db) (count (:nodes db)))
+       :omitted-nodes (-  (:total-nodes db) (count (:nodes db)))
        :all-selected? all-selected?
        :nodes
        (for [i (:nodes db )]

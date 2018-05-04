@@ -122,6 +122,10 @@
    [:.added-in:hover {:background "HSL(130,100%,92%)" :color "black"}]
    
    
+   [:.disabled {:color "HSL(123,1%,84%)" :cursor "default" }]
+   [:.disabled:hover {:color "HSL(123,1%,84%) !important" :cursor "default !important" }]
+   [:.warning {:background (:light-red *apple-palette*) :font-weight "600" :color "white"
+               :padding "20px"}]
    
    [:.tag    {:font-family (:body fonts)}]
    [:.tag:hover {:color (str (:light-green *apple-palette*))}]

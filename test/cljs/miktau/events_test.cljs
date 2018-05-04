@@ -74,6 +74,10 @@
     (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db (assoc db :cloud-selected #{:zanoza})} [nil :work]))) #{:zanoza :work}))
     (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db (assoc db :cloud-selected #{:work})} [nil :work]))) #{}))
     
+    ;; nil test
+    (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db nil} [nil :work]))) #{:work}))
+    
+    
     (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db db} [nil nil])))     #{}))
     (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db db} [nil 123])))     #{}))
     (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db db} [nil "graws"]))) #{}))))
@@ -94,6 +98,7 @@
 (deftest test-select-all-nodes []
   (let [db (assoc demo-data/initial-db-after-load-from-server :nodes-selected #{})]
     
+    (is (=  (:nodes-selected  (miktau-events/select-all-nodes nil [nil nil])) #{"*"}))
     ;; if nothing selected
     (is (=  (:nodes-selected  (miktau-events/select-all-nodes db [nil nil])) #{"*"}))
     ;; if aleready something selected
@@ -116,6 +121,7 @@
 
 (deftest test-select-node []
   (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{})]
+    (is (=  (:nodes-selected  (miktau-events/select-node nil [nil "blab"])) #{"blab"}))
     ;; if nothing selected
     (is (=  (:nodes-selected  (miktau-events/select-node db [nil nil])) #{}))
     (is (=  (:nodes-selected  (miktau-events/select-node db [nil "hello"])) #{"hello"}))
@@ -144,6 +150,8 @@
   (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{"*"})]
     ;; if nothing selected
     (is (=  (:nodes-temp-tags-to-delete (miktau-events/delete-tag-from-selection (assoc db :nodes-temp-tags-to-delete #{:blab}) [nil :hello])) #{:hello :blab}))
+    (is (=  (:nodes-temp-tags-to-delete (miktau-events/delete-tag-from-selection nil [nil :asd])) #{:asd}))
+    
     (is (=  (:nodes-temp-tags-to-delete (miktau-events/delete-tag-from-selection db [nil :hello])) #{:hello}))
     (is (=  (:nodes-temp-tags-to-delete (miktau-events/delete-tag-from-selection (assoc db :nodes-temp-tags-to-delete #{:hello}) [nil :hello])) #{}))
     

@@ -121,12 +121,21 @@
       [:a.unstyled-link {:href "#" :on-click #(refe/dispatch [:cancel-tagging])} " Unselect"]]
      [:div.padded-as-button
       [:h2.mik-cut-bottom.gray "Open selected files"]
-      [:a.mik-cut-left.unstyled-link.pure-button {:key "in a single folder" :href "#" :on-click #(refe/dispatch [:file-operation :in-folder])}
-       (views-utils/icon "folder_open") " In a single folder"]
-      [:a.unstyled-link.pure-button  {:key "each individually" :href "#" :on-click #(refe/dispatch [:file-operation :individually])}
-       (views-utils/icon "list") " Each individually"]
-      [:a.unstyled-link.pure-button  {:key "individually" :href "#"  :on-click #(refe/dispatch [:file-operation :default-program])}
-       (views-utils/icon "filter") " Each in default program"]]
+      (if (>  (:total-amount nodes-changing) 20)
+        [:span {:key "if-more-than-N"}
+         [:p.warning
+          [:i.material-icons {:style {:font-size "1.2em" :float "right"}} "warning"]
+          "You've selected " [:b ] (:total-amount nodes-changing) " files" [:br]
+          "Opening them all will hang your computer" [:br]
+          "Reduce amount of files to less than 20 in a selection" [:br]
+          "To successfuly open them"]]
+        [:span {:key "if-less-than-N"}
+         [:a.mik-cut-left.unstyled-link.pure-button {:key "in a single folder" :href "#" :on-click #(refe/dispatch [:file-operation :in-folder])}
+          (views-utils/icon "folder_open") " In a single folder"]
+         [:a.unstyled-link.pure-button  {:key "each individually" :href "#" :on-click #(refe/dispatch [:file-operation :individually])}
+          (views-utils/icon "list") " Each individually"]
+         [:a.unstyled-link.pure-button  {:key "individually" :href "#"  :on-click #(refe/dispatch [:file-operation :default-program])}
+          (views-utils/icon "filter") " Each in default program"]])]
      
      ;; tags to remove
      [:h2.header-font.light-gray.mik-cut-bottom {:style {:font-size "1em"}}

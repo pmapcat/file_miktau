@@ -30,7 +30,7 @@
 (refe/reg-event-fx
  :init
  (fn [_ _]
-   {:db (assoc init-db :loading? true :nodes-selected #{} :cloud-selected #{:buffer})
+   {:db (assoc init-db :loading? true :nodes-selected #{} :cloud-selected #{})
     :fx-redirect [:get-app-data]}))
 
 (refe/reg-event-fx
@@ -139,13 +139,17 @@
   "TESTED"
   [{:keys [db]} [_ item]]
   {:db
-   (cond
-     (and  (keyword? item) (contains? (:cloud-selected db) item))
-     (update db :cloud-selected disj item)
-     (keyword? item)
-     (update db :cloud-selected conj item)
-     :else
-     db)
+   (assoc
+    db
+    :cloud-selected
+    (let [cloud-selected (into #{} (:cloud-selected db #{}))]
+      (cond
+        (and  (keyword? item) (contains? cloud-selected item))
+        (disj cloud-selected item)
+        (keyword? item)
+        (conj cloud-selected item)
+        :else
+        cloud-selected)))
    :fx-redirect [:get-app-data]})
 (refe/reg-event-fx :clicked-cloud-item  click-on-cloud)
 (defn click-on-disabled-cloud
@@ -203,14 +207,15 @@
 (defn select-node
   "TESTED"
   [db [_ file-path]]
-  (cond
-    (not  (string? file-path)) db
-    (contains? (:nodes-selected db) "*")
-    (assoc db :nodes-selected #{file-path})
-    (contains? (:nodes-selected db) file-path)
-    (update db :nodes-selected disj file-path)
-    :else
-    (update db :nodes-selected conj file-path)))
+  (let [nodes-selected (into #{} (or (:nodes-selected db) #{}))]
+    (cond
+      (not  (string? file-path)) db
+      (contains? nodes-selected "*")
+      (assoc db :nodes-selected #{file-path})
+      (contains? nodes-selected file-path)
+      (assoc db :nodes-selected (disj nodes-selected file-path))
+      :else
+      (assoc db :nodes-selected (conj nodes-selected file-path)))))
 
 (refe/reg-event-db :select-node select-node)
 
@@ -241,11 +246,18 @@
 (defn delete-tag-from-selection
   "TESTED"
   [db [_ tag-item]]
-  (if (keyword? tag-item)
-    (if (contains? (:nodes-temp-tags-to-delete db) tag-item)
-      (update db :nodes-temp-tags-to-delete disj tag-item)
-      (update db :nodes-temp-tags-to-delete conj tag-item))
-     db))
+  (let [node-temp-tags (into #{} (or (:nodes-temp-tags-to-delete db) #{}))]
+    (assoc
+     db
+     :nodes-temp-tags-to-delete
+     (cond
+       (and (keyword? tag-item) (contains? node-temp-tags tag-item))
+       (disj node-temp-tags tag-item)
+       (keyword? tag-item)
+       (conj node-temp-tags tag-item)
+       :else
+       node-temp-tags))))
+;; (contains? (list 1 2 3) 2)
 (refe/reg-event-db :delete-tag-from-selection delete-tag-from-selection)
 
 (defn add-tag-to-selection
