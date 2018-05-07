@@ -57,15 +57,22 @@ type CoreNodeItem struct {
 	_modified_days uint32
 }
 
+type TreeTag struct {
+	Name     string              `json:"name"`
+	Children map[string]*TreeTag `json:"children"`
+}
+
 type CoreAppDataResponse struct {
-	Error             string                    `json:"error"`
-	NodeSorting       string                    `json:"nodes-sorted"`
-	TotalNodes        uint32                    `json:"total-nodes"`
-	CoreDirectory     string                    `json:"core-directory"`
-	DateNow           CoreDateField             `json:"date-now"`
-	Nodes             []*CoreNodeItem           `json:"nodes"`
-	CloudCanSelect    map[string]bool           `json:"cloud-can-select"`
-	Cloud             map[string]map[string]int `json:"cloud"`
-	CalendarCanSelect CoreDateFacet             `json:"calendar-can-select"`
-	Calendar          CoreDateFacet             `json:"calendar"`
+	Error          string                    `json:"error"`
+	NodeSorting    string                    `json:"nodes-sorted"`
+	TotalNodes     uint32                    `json:"total-nodes"`
+	CoreDirectory  string                    `json:"core-directory"`
+	DateNow        CoreDateField             `json:"date-now"`
+	Nodes          []*CoreNodeItem           `json:"nodes"`
+	CloudCanSelect map[string]bool           `json:"cloud-can-select"`
+	Cloud          map[string]map[string]int `json:"cloud"`
+	TreeTag        *TreeTag                  `json:"tree-tag"`
+
+	CalendarCanSelect CoreDateFacet `json:"calendar-can-select"`
+	Calendar          CoreDateFacet `json:"calendar"`
 }

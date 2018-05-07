@@ -35,6 +35,9 @@
    (map mik-float ["left" "right"])
    (map mik-flush ["left" "right" "center"])
    (map mik-rotate [45 90 180])
+
+   
+   
    [:.padded-as-button {:padding-top "12.8px"
                         :padding-bottom "6.4px"
                         :padding-left "12.8px"
@@ -102,7 +105,7 @@
    [:.unstyled-link:hover {:text-decoration "none" :color
                            (:light-green *apple-palette*)}]
    
-   [:.inline-tag:hover {:color (:light-green *apple-palette*)}]
+
    
    [:.shadow {:box-shadow 'none}]
    [:.pure-menu-link {:color "#000000 !important" :background "none !important"}]
@@ -114,7 +117,9 @@
    [:.black  {:color "#000000"}]
    [:.orange {:color "#4d4d4d"}]
    [:.selected {:background (str (:light-green *apple-palette*) "!important;")
-                :color (str (:gray *apple-palette*) " !important")}]
+                :color (str "white"
+                            " !important")}]
+   
 
    [:.crossed-out {:background "HSL(22,99%,88%)" :text-decoration "line-through" :color "black"}]
    [:.crossed-out:hover {:background "HSL(22,99%,88%)" :text-decoration "line-through" :color "black"}]
@@ -127,13 +132,26 @@
    [:.warning {:background (:light-red *apple-palette*) :font-weight "600" :color "white"
                :padding "20px"}]
    
-   [:.tag    {:font-family (:body fonts)}]
+   [:.tag    {:font-family (:body fonts)
+              :padding "3px"
+              :margin "3px"
+              :font-weight "600"
+              :display "inline-block"
+              :text-decoration "none"}]
    [:.tag:hover {:color (str (:light-green *apple-palette*))}]
    [:.tag.disabled       {:color "HSL(123,1%,84%)" :cursor "default" }]
    [:.tag.disabled:hover {:color "HSL(123,1%,84%) !important" :cursor "default"}]
    [:.tag.can-select       {:color "black" :cursor "pointer" }]
-   [:.tag.can-select:hover
-    {:color (str (:light-green *apple-palette*))}]
+   [:.tag.can-select:hover {:color (str (:light-green *apple-palette*))}]
+   [:.inline-tag:hover {:color (:light-green *apple-palette*)}]   
+   [:.inline-tag
+    {:font-weight "600"
+     :color "black"
+     :padding "3px"
+     :border-radius "5%"
+     :margin "6px"
+     :display "inline-block"}]
+
    
    
    

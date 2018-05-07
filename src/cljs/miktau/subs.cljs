@@ -34,7 +34,53 @@
  (fn [db _]
    db))
 (comment
-  (println  (:nodes-temp-tags-to-delete  @(refe/subscribe [:get-db-for-test-purposes]))))
+  (println  (str (:tree-tag  @(refe/subscribe [:get-db-for-test-purposes])))))
+
+;; the algorithm
+;; if tag is selected, then the tree must show its children
+
+(defn general-tree
+  "TESTED"
+  [item pad-level cloud-can-select cloud-selected]
+  (if (empty? (:name item))
+    []
+    (let [keyworded   (keyword (:name item))
+          can-select? (contains? cloud-can-select  keyworded)
+          selected?   (contains? cloud-selected  keyworded)
+          leaf?       (empty? (:children item))
+          base   (str (:name item))]
+      (flatten
+       [{:name    base
+         :compare-name (cljs-string/lower-case base)
+         :key-name keyworded
+         :size     1
+         :weighted-size  1
+         :header?        (and  selected? (not leaf?))
+         :leaf?          leaf?
+         :disabled?      (and (not can-select?) (not selected?))
+         :selected?      selected?
+         :pad-level      pad-level
+         :pad-background-class (str "rise-to-shadow-" pad-level)
+         :can-select?    can-select?}
+        (cond
+          (and (= keyworded :root) (zero? pad-level))
+          (for [child (vals (:children item))]
+            (general-tree child (inc pad-level) cloud-can-select cloud-selected))
+          (empty? cloud-selected)
+          (if (<  pad-level 1)
+            (for [child (vals (:children item))]
+              (general-tree child (inc pad-level) cloud-can-select cloud-selected))
+            [])
+          selected?
+          (for [child (vals (:children item))]
+            (general-tree child (inc pad-level) cloud-can-select cloud-selected))
+          :else
+          [])]))))
+
+(refe/reg-sub
+ :general-tree
+ (fn [db _]
+   (rest (general-tree (:tree-tag db) 0 (into #{} (keys (:cloud-can-select db))) (:cloud-selected db)))))
 
 (defn cloud
   "TESTED"

@@ -25,6 +25,12 @@ func (n *CoreNodeItem) TagRoot(thesaurus map[string]int) string {
 	}
 	return max_tag
 }
+func (m *CoreNodeItem) MostProminentDrill(the_thesaurus map[string]int) []string {
+	sort.Slice(m.Tags, func(i int, j int) bool {
+		return the_thesaurus[m.Tags[i]] > the_thesaurus[m.Tags[j]]
+	})
+	return m.Tags
+}
 func (n *CoreNodeItem) ModifiedInDays() uint32 {
 	if n._modified_days > 0 {
 		return n._modified_days
@@ -293,6 +299,9 @@ func (n *CoreNodeItemStorage) GetInBulk(query CoreQuery, cb func(*CoreNodeItem))
 func (n *CoreNodeItem) IsTagged() bool {
 	return len(n.Tags) > 0
 }
+func newTreeTag(name string) *TreeTag {
+	return &TreeTag{Name: name, Children: map[string]*TreeTag{}}
+}
 
 func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 
@@ -305,6 +314,7 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	cloud_can_select := map[string]bool{}
 	nodes_list := []*CoreNodeItem{}
 	tag_thesaurus := n.GetThesaurus()
+	mpr := newTreeTag("root")
 
 	calendar := CoreDateFacet{Year: map[int]int{}, Month: map[int]int{}, Day: map[int]int{}}
 	calendar_can_select := CoreDateFacet{Year: map[int]int{}, Month: map[int]int{}, Day: map[int]int{}}
@@ -312,13 +322,23 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	for _, node := range n.GetNodesSorted(query.Sorted) {
 		// getting MPT
 		if node.IsTagged() {
-			tagroot := node.TagRoot(tag_thesaurus)
+			mpd := node.MostProminentDrill(tag_thesaurus)
+			tagroot := mpd[0]
+
 			_, ok := cloud[tagroot]
 			if !ok {
 				cloud[tagroot] = map[string]int{}
 			}
 			for _, tag := range node.Tags {
 				cloud[tagroot][tag] += 1
+			}
+			local_mpr := mpr
+			for _, tag := range mpd {
+				_, ok := local_mpr.Children[tag]
+				if !ok {
+					local_mpr.Children[tag] = newTreeTag(tag)
+				}
+				local_mpr = local_mpr.Children[tag]
 			}
 		}
 
@@ -345,8 +365,8 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	total_nodes := len(nodes_list)
 	// this must be tested, because I have no idea what I am doing
 	// here XD
-	if total_nodes > 10 {
-		nodes_list = nodes_list[:10]
+	if total_nodes > 100 {
+		nodes_list = nodes_list[:100]
 	}
 	// Formatting for the Rest output
 	rsp := CoreAppDataResponse{}
@@ -358,6 +378,30 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	rsp.Cloud = cloud
 	rsp.CloudCanSelect = cloud_can_select
 	rsp.CoreDirectory = n.core_dir
+	rsp.TreeTag = mpr
 	rsp.DateNow = dateNow()
 	return rsp
+}
+
+func (n *TreeTag) ChildrenList() []*TreeTag {
+	po := []*TreeTag{}
+	for _, v := range n.Children {
+		po = append(po, v)
+	}
+	sort.Slice(po, func(i int, j int) bool {
+		return po[i].Name < po[j].Name
+	})
+	return po
+}
+
+// no need for performance here
+// doing naive string concat
+func (n *TreeTag) Show(space string) string {
+	result := ""
+	result += space + n.Name + " \n"
+	for _, item := range n.ChildrenList() {
+		result += item.Show(space + "-")
+	}
+	return result
+
 }

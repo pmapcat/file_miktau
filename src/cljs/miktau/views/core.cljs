@@ -40,7 +40,7 @@
         {:style {:padding-bottom "0px" :padding-top "0px"}}
         (:group-name item)]]
       (for [tag  (:group item)]
-        [:a.tag.padded-as-button
+        [:a.tag
          {:key  (:key-name tag)
           :href "#"
           :on-click
@@ -54,11 +54,35 @@
                  (:disabled? tag) "disabled"))
           :style
           {:font-size
-           (str  (+ 0.6 (* 2.4  (tag :weighted-size))) "em")
-           :font-weight "300"
-           :display "inline-block"
-           :text-decoration "none"}}
+           (str  (+ 0.6 (* 2.4  (tag :weighted-size))) "em")}}
          (:name tag) " "])])])
+
+(defn general-tree []
+  [:div
+   (for [tag @(refe/subscribe [:general-tree])]
+     [:a.tag
+      {:key  (str  (:key-name tag) (:pad-level tag))
+       :href "#"
+       :on-click
+       (if (:disabled? tag)
+         #(refe/dispatch [:clicked-disabled-cloud-item (tag :key-name)])
+         #(refe/dispatch [:clicked-cloud-item (tag :key-name)]))
+       :class
+       (str
+        (cond (:selected? tag) " selected "
+              (:can-select? tag) " can-select "
+              (:disabled? tag) " disabled ")
+        (if (:header? tag)
+          " padded-as-button mik-cut-bottom mik-cut-top header-font "
+          " ")
+        " " (:pad-background-class tag))
+       :style
+       {:font-size "1em" :display "block"
+        :margin-top "3px"
+        :margin-bottom "3px"
+        
+        :margin-left (str (:pad-level tag) "em")}}
+      " "(:name tag) ])])
 
 (defn facet-group-select-time-subwidget
   [icon-name group-name additional-item-classes items]
@@ -80,8 +104,6 @@
                   :else "disabled")
             " " additional-item-classes)}
        (:name item)])]])
-
-
 
 (defn  facet-group-select-time []
   (let [calendar @(refe/subscribe [:calendar])]
@@ -223,6 +245,7 @@
           :data-fpath  (str (:file-path node) (:name node))
           :style {:padding-bottom "10px"
                   :padding-top "10px"
+                  :font-size "0.8em"
                   :border-bottom "solid 1px #e3e3e3"
                   :cursor "pointer"}}
          [:div.pure-u-2-24.mik-flush-left
@@ -252,24 +275,21 @@
                   (:selected? tag) "selected"
                   (:can-select? tag) "can-select"
                   :else "disabled"))
-               :style {:font-weight "300"
-                       :color "black"
-                       :font-size "0.5em"
-                       :padding "3px"
-                       :display "inline-block"
-                       :pointer (if selection-mode? "default" "cursor")}}  (:name tag) " "])
+               :style {                       :pointer (if selection-mode? "default" "cursor")}}  (:name tag) " "])
            (cond
              selection-mode?
              [:span]
              (not  (empty? (:all-tags node)))
              [:a.unstyled-link
               {:href "#"
-               :style {:font-size "0.5em"}
                :on-click
                (if-not selection-mode?
                  #(refe/dispatch [:clicked-many-cloud-items (:all-tags node)])
                  identity)}
-              "all"]
+              [:span
+               {:style {:padding "3px" :margin "3px" :font-size "0.8em"}}
+               (views-utils/icon
+                "arrow_forward")]]
              :else
              [:span])]]
          [:div.pure-u-6-24.mik-flush-right
@@ -329,11 +349,15 @@
     [:div.pure-u-7-8
      (filter-input)]]
    ;; time facet
-   [:div.pure-u-1-3.background-0
+   [:div.pure-u-1-5.background-0
     [:div.padded-as-button
      (facet-group-select-time)]]
+   
+   [:div.pure-u-2-5.background-1
+    [:div.padded-as-button
+     (general-tree)]]
    ;; cloud facet
-   [:div.pure-u-2-3
+   [:div.pure-u-2-5
     ;; [:div.background-1 {:style {:overflow "hidden" :height "70px"}}
     ;;  [:div {:style {:font-size "0.7em", :padding-bottom "2em"}}
     ;;   (selection-cloud)]]
@@ -346,13 +370,13 @@
   []
   [:div.background-2
    [:div.pure-g
-    [:div.background-2  {:style {:position "fixed" :width "50%" :top "0" :bottom "0" :overflow-y "scroll"}}
+    [:div.background-2  {:style {:position "fixed" :width "70%" :top "0" :bottom "0" :overflow-y "scroll"}}
      (if @(refe/subscribe [:selection-mode?])
        [:div.pure-u-1 {:style {:height "100%"}}
         [tagging-now-group]]
        [left-pane])]
     ;; found, files, and tag anew group
-    [:div.pure-u-1-2.background-3 {:style {:position "fixed" :width "50%" :top 0 :bottom 0 :right 0 :height "100%" :overflow-y "scroll"}}
+    [:div.pure-u-1-2.background-3 {:style {:position "fixed" :width "30%" :top 0 :bottom 0 :right 0 :height "100%" :overflow-y "scroll"}}
      [:div.padded-as-button
       ;; (found-group)
       [file-table]]]]])

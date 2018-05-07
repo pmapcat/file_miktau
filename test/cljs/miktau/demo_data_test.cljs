@@ -1,29 +1,33 @@
 (ns miktau.demo-data-test)
 (def demo-db
   {:loading? true
-    :filtering ""
-    
-    :nodes-sorted "-name"
-    :core-directory ":test:"
-    :date-now {:year 2016 :month 7 :day 21}
-    
-    :nodes [{:id 0, :name "blab.mp4" :file-path "/home/mik/this_must_be_it/" :tags []
-             :modified {:year 2016 :month 7 :day 21}}]
-    :nodes-selected #{"*"}
-    :nodes-temp-tags-to-delete #{}
-    :nodes-temp-tags-to-add    ""
-    
-    :cloud-selected #{:blab}
-    :cloud  {:VolutPatem {:blab 43 :blip 27 :blop 12}}
-    :cloud-can-select {:blip true :blop true}
-    
-    :calendar-selected {:year  2018  :day 23 :month 11}
-    :calendar   {:year {:2018 12 :2017 13 :2016 12}
-                 :month {:12 1 :13 1 :14 2}
-                 :day   {:1 3 :2 3 :3 4}}
-    :calendar-can-select {:year {:2018 2}
-                          :month {:11 3}
-                          :day   {:9 3}}})
+   :filtering ""
+   
+   :nodes-sorted "-name"
+   :core-directory ":test:"
+   :date-now {:year 2016 :month 7 :day 21}
+   
+   
+   
+   :nodes [{:id 0, :name "blab.mp4" :file-path "/home/mik/this_must_be_it/" :tags []
+            :modified {:year 2016 :month 7 :day 21}}]
+   
+   
+   :nodes-selected #{"*"}
+   :nodes-temp-tags-to-delete #{}
+   :nodes-temp-tags-to-add    ""
+   
+   :cloud-selected #{:blab}
+   :cloud  {:VolutPatem {:blab 43 :blip 27 :blop 12}}
+   :cloud-can-select {:blip true :blop true}
+   
+   :calendar-selected {:year  2018  :day 23 :month 11}
+   :calendar   {:year {:2018 12 :2017 13 :2016 12}
+                :month {:12 1 :13 1 :14 2}
+                :day   {:1 3 :2 3 :3 4}}
+   :calendar-can-select {:year {:2018 2}
+                         :month {:11 3}
+                         :day   {:9 3}}})
 
 (def initial-db-after-load-from-server
   {:nodes-selected #{"*"},
@@ -31,6 +35,7 @@
    :cloud-can-select {:moscow_market true, :devops true, :personal true, :usecases true, :биржа true, :amazon true, :магазины true, :wiki true, :work true, :sforim true, :согласовать true, :natan true, :работа_сделана true, :bibliostore true, :translator true, :скачка_источников true, :everybook true, :UI true, :blog true, :zeldin true},
    :loading? false,
    :cloud {:work {:moscow_market 9, :devops 1, :personal 4, :usecases 2, :биржа 2, :amazon 2, :магазины 2, :wiki 1, :work 20, :sforim 2, :согласовать 1, :natan 13, :bibliostore 8, :translator 2, :скачка_источников 1, :everybook 1, :UI 1, :blog 1, :zeldin 2}, :работа_сделана {:работа_сделана 1}},
+   :tree-tag {:name "root", :children {:work {:name "work", :children {:everybook {:name "everybook", :children {}}, :natan {:name "natan", :children {:bibliostore {:name "bibliostore", :children {:translator {:name "translator", :children {}}}}, :moscow_market {:name "moscow_market", :children {:amazon {:name "amazon", :children {}}, :bibliostore {:name "bibliostore", :children {:translator {:name "translator", :children {:amazon {:name "amazon", :children {:devops {:name "devops", :children {}}}}}}, :магазины {:name "магазины", :children {}}}}, :биржа {:name "биржа", :children {:скачка_источников {:name "скачка_источников", :children {}}}}}}, :sforim {:name "sforim", :children {:wiki {:name "wiki", :children {:согласовать {:name "согласовать", :children {}}}}}}, :биржа {:name "биржа", :children {:UI {:name "UI", :children {}}}}, :магазины {:name "магазины", :children {:sforim {:name "sforim", :children {}}}}}}, :personal {:name "personal", :children {:blog {:name "blog", :children {}}, :usecases {:name "usecases", :children {}}}}, :zeldin {:name "zeldin", :children {}}}}, :работа_сделана {:name "работа_сделана", :children {}}}}
    :nodes-temp-tags-to-add "",
    :nodes-temp-tags-to-delete #{},
    :filtering "",
@@ -87,6 +92,7 @@
                       :UI true,
                       :blog true,
                       :zeldin true},
+   :tree-tag {:name "root", :children {:work {:name "work", :children {:everybook {:name "everybook", :children {}}, :natan {:name "natan", :children {:bibliostore {:name "bibliostore", :children {:translator {:name "translator", :children {}}}}, :moscow_market {:name "moscow_market", :children {:amazon {:name "amazon", :children {}}, :bibliostore {:name "bibliostore", :children {:translator {:name "translator", :children {:amazon {:name "amazon", :children {:devops {:name "devops", :children {}}}}}}, :магазины {:name "магазины", :children {}}}}, :биржа {:name "биржа", :children {:скачка_источников {:name "скачка_источников", :children {}}}}}}, :sforim {:name "sforim", :children {:wiki {:name "wiki", :children {:согласовать {:name "согласовать", :children {}}}}}}, :биржа {:name "биржа", :children {:UI {:name "UI", :children {}}}}, :магазины {:name "магазины", :children {:sforim {:name "sforim", :children {}}}}}}, :personal {:name "personal", :children {:blog {:name "blog", :children {}}, :usecases {:name "usecases", :children {}}}}, :zeldin {:name "zeldin", :children {}}}}, :работа_сделана {:name "работа_сделана", :children {}}}}
    :cloud {:work {:moscow_market 9,
                   :devops 1,
                   :personal 4,

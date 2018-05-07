@@ -15,6 +15,8 @@
    :nodes-selected #{}
    :nodes-temp-tags-to-delete #{}
    :nodes-temp-tags-to-add    ""
+
+   :tree-tag {}
    
    :cloud-selected #{}
    :cloud  {}
@@ -69,9 +71,11 @@
    :calendar                (:calendar response)
    :cloud                   (:cloud response)
    :cloud-can-select        (:cloud-can-select response)
+   :tree-tag                (:tree-tag response)
    :nodes-sorted            (:nodes-sorted response)))
 
 (refe/reg-event-db :got-app-data got-app-data)
+
 
 (refe/reg-event-db
  :back

@@ -140,6 +140,39 @@ func TestCloudCouldSelectShouldntHaveEmptyTags(t *testing.T) {
 	}
 }
 
+func TestGettingTaggingTree(t *testing.T) {
+	cnis := newCoreNodeItemStorage("testing")
+	cnis.MutableAddMany(buildDemoDataset())
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).TreeTag.Show("-"), `-root 
+--work 
+---everybook 
+---natan 
+----bibliostore 
+-----translator 
+----moscow_market 
+-----amazon 
+-----bibliostore 
+------translator 
+-------amazon 
+--------devops 
+------магазины 
+-----биржа 
+------скачка_источников 
+----sforim 
+-----wiki 
+------согласовать 
+----биржа 
+-----UI 
+----магазины 
+-----sforim 
+---personal 
+----blog 
+----usecases 
+---zeldin 
+--работа_сделана 
+`)
+}
+
 func TestGettingStationaryAppData(t *testing.T) {
 	cnis := newCoreNodeItemStorage("testing")
 	cnis.MutableAddMany(buildDemoDataset())

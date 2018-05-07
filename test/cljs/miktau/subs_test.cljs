@@ -66,6 +66,28 @@
   ;; [TODO] test on  <selection>
   )
 
+(deftest testing-general-tree []
+  (let [tree-display #(str (apply str (repeat (:pad-level %) "-" )) (:name %))
+        db demo-data/initial-db-after-load-from-server]
+    ;; testing grouping ability
+    (is (= (mapv  tree-display (miktau-subs/general-tree (:tree-tag db) 0 #{} #{}))
+           ["root" "-work" "-работа_сделана"]))
+
+    (is (= (mapv  tree-display (miktau-subs/general-tree (:tree-tag db) 0 (into #{} (keys (:cloud-can-select db))) #{}))
+           ["root" "-work" "-работа_сделана"]))
+    
+    (is (= (take 8 (mapv  tree-display (miktau-subs/general-tree (:tree-tag db) 0 (into #{} (keys (:cloud-can-select db))) #{:work})))
+           ["root"
+            "-work"
+            "--everybook"
+            "--natan"
+            "---bibliostore"
+            "----translator"
+            "---moscow_market"
+            "----amazon"]))
+    (is (= (miktau-subs/general-tree nil nil nil nil) []))
+    (is (= (miktau-subs/general-tree [] 0 [] []) []))))
+
 (deftest null-testing []
   (is  (miktau-subs/filtering nil nil))
   (is  (miktau-subs/cloud nil nil))
@@ -105,6 +127,8 @@
     (is (= (exec-fn {:year 2019                   }) false))
     (is (= (exec-fn {:year 2019 :day 23           }) false))
     (is (= (exec-fn {:year 2019 :day 23 :month 11 }) false))))
+
+
 
 (deftest testing-node-items []
   ;; [TODO] test on selection
