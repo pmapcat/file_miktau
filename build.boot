@@ -11,10 +11,13 @@
                  [pjstadig/humane-test-output "0.8.3"    :scope "test"]
                  [org.clojure/clojurescript "1.9.562"]
                  [crisptrutski/boot-cljs-test "0.3.0" :scope "test"]
-                 [reagent "0.6.0"]
+                 [reagent "0.8.0" :exclusions [cljsjs/react]]
+                 [cljsjs/react-with-addons "15.6.1-0"]
+                 
                  [re-frame "0.10.5"]
                  [day8.re-frame/http-fx "0.1.6"]
                  [cljs-ajax "0.7.3"]
+                 [day8.re-frame/re-frame-10x "0.3.3-react16"]
                  [org.martinklepsch/boot-garden "1.3.2-0" :scope "test"]])
 (require
  '[adzerk.boot-cljs      :refer [cljs]]
@@ -52,7 +55,10 @@
   identity)
 
 (deftask development []
-  (task-options! cljs {:optimizations :none}
+  (task-options! cljs {:optimizations :none
+                       :compiler-options
+                       {:closure-defines      {"re_frame.trace.trace_enabled_QMARK_" true}
+                        :preloads             '[day8.re-frame-10x.preload]}}
                  reload {:on-jsload 'miktau.app/init})
   identity)
 

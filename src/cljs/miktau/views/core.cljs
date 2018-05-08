@@ -80,7 +80,6 @@
        {:font-size "1em" :display "block"
         :margin-top "3px"
         :margin-bottom "3px"
-        
         :margin-left (str (:pad-level tag) "em")}}
       " "(:name tag) ])])
 
@@ -88,7 +87,7 @@
   [icon-name group-name additional-item-classes items]
   [:div.pure-g {:role "group"}
    [:h2.pure-u-1.mik-cut-bottom.mik-cut-top.padded-as-button.light-gray.header-font
-    (views-utils/icon icon-name) group-name]
+    [views-utils/icon icon-name] group-name]
    [:div.pure-u-1
     (for [item items]
       [:a.mik-flush-center {:key   (str (item :key-name))
@@ -114,30 +113,30 @@
      ;;  @(refe/subscribe [:fast-access-calendar]))
      
      ;; year      
-     (facet-group-select-time-subwidget
+     [facet-group-select-time-subwidget
       "line_style"
       (:group-name (:year calendar))
       " pure-u-1-3 tag "
-      (:group (:year calendar)))
+      (:group (:year calendar))]
      ;; month
-     (facet-group-select-time-subwidget
+     [facet-group-select-time-subwidget
       "date_range"
       (:group-name (:month calendar))
       " pure-u-1-5 tag "
-      (:group (:month calendar)))
+      (:group (:month calendar))]
      ;; day
-     (facet-group-select-time-subwidget
+     [facet-group-select-time-subwidget
       "date_range"
       (:group-name (:day calendar))
       " pure-u-1-5 tag"
-      (:group (:day calendar)))]))
+      (:group (:day calendar))]]))
 
 (defn tagging-now-group []
   (let [nodes-changing @(refe/subscribe [:nodes-changing])]
     [:div.background-1.padded-as-button {:style {:height "100%"}}
      ;; group op
      [:div.mik-flush-right
-      (views-utils/icon "photo_size_select_small")
+      [views-utils/icon "photo_size_select_small"]
       " Selected " [:b (:total-amount nodes-changing)] " files"
       [:br]
       [:a.unstyled-link {:href "#" :on-click #(refe/dispatch [:cancel-tagging])} " Unselect"]]
@@ -153,15 +152,15 @@
           "To successfuly open them"]]
         [:span {:key "if-less-than-N"}
          [:a.mik-cut-left.unstyled-link.pure-button {:key "in a single folder" :href "#" :on-click #(refe/dispatch [:file-operation :in-folder])}
-          (views-utils/icon "folder_open") " In a single folder"]
+          [views-utils/icon "folder_open"] " In a single folder"]
          [:a.unstyled-link.pure-button  {:key "each individually" :href "#" :on-click #(refe/dispatch [:file-operation :individually])}
-          (views-utils/icon "list") " Each individually"]
+          [views-utils/icon "list"] " Each individually"]
          [:a.unstyled-link.pure-button  {:key "individually" :href "#"  :on-click #(refe/dispatch [:file-operation :default-program])}
-          (views-utils/icon "filter") " Each in default program"]])]
+          [views-utils/icon "filter"] " Each in default program"]])]
      
      ;; tags to remove
      [:h2.header-font.light-gray.mik-cut-bottom {:style {:font-size "1em"}}
-      (views-utils/icon "local_offer")
+      [views-utils/icon "local_offer"]
       "Remove tags from selection"]
      [:div 
       (for [tag (:tags-to-delete nodes-changing)]
@@ -174,7 +173,7 @@
      
      ;; tags to add
      [:h2.header-font.light-gray.mik-cut-bottom {:style {:font-size "1em"}}
-      (views-utils/icon "local_offer")
+      [views-utils/icon "local_offer"]
       "Add tags to selection"]
      [:div
       [:textarea.padded-as-button
@@ -185,8 +184,8 @@
      
      ;; changes to submit
      [:div.mik-flush-right.padded-as-button {:style {:margin-top "5em"}}
-      [:a.pure-button {:href "#" :on-click #(refe/dispatch [:cancel-tagging])} (views-utils/icon "cancel") " Cancel"]
-      [:a.pure-button {:href "#" :on-click #(refe/dispatch [:submit-tagging])} (views-utils/icon "save")   " Save"]]]))
+      [:a.pure-button {:href "#" :on-click #(refe/dispatch [:cancel-tagging])} [views-utils/icon "cancel"] " Cancel"]
+      [:a.pure-button {:href "#" :on-click #(refe/dispatch [:submit-tagging])} [views-utils/icon "save"]   " Save"]]]))
 
 (defn radio-button
   [text on-change selected?]
@@ -207,7 +206,7 @@
       [:div.pure-u-2-24
        (views-utils/position-absolute
         {:top "0px"}
-        (radio-button "" #(refe/dispatch [:select-all-nodes]) (:all-selected? node-items)))]
+        [radio-button "" #(refe/dispatch [:select-all-nodes]) (:all-selected? node-items)])]
       [:div.pure-u-16-24
        (if selection-mode?
          [:div "Name"]
@@ -249,9 +248,9 @@
                   :border-bottom "solid 1px #e3e3e3"
                   :cursor "pointer"}}
          [:div.pure-u-2-24.mik-flush-left
-          (views-utils/position-absolute
+          [views-utils/position-absolute
            {:top ""}
-           (radio-button "" #(refe/dispatch [:select-node (str (node :file-path) (node :name))]) (:selected? node)))]
+           [radio-button "" #(refe/dispatch [:select-node (str (node :file-path) (node :name))]) (:selected? node)]]]
          [:div.pure-u-6-24
           [:a.unstyled-link
            {:href "#" :style {:font-weight "300" :word-wrap "break-word"}}
@@ -288,8 +287,8 @@
                  identity)}
               [:span
                {:style {:padding "3px" :margin "3px" :font-size "0.8em"}}
-               (views-utils/icon
-                "arrow_forward")]]
+               [views-utils/icon
+                "arrow_forward"]]]
              :else
              [:span])]]
          [:div.pure-u-6-24.mik-flush-right
@@ -315,7 +314,7 @@
    {:style {:padding "5em" :margin-top "1em" :margin-bottom "1em"
             :border "dashed 1px gray"}}
    [:a.pure-button {:href "#"}
-    (views-utils/icon "file_upload")
+    [views-utils/icon "file_upload"]
     "Drop files here"]])
 
 (defn filter-input []
@@ -331,7 +330,7 @@
       [:a.unstyled-link {:href "#" :on-click #(refe/dispatch [:clear])} 
        "Clear"]]
      [:div {:style {:position "absolute" :right "90px" :top "23px"}}
-      (views-utils/icon "search")]]))
+      [views-utils/icon "search"]]]))
 (defn left-pane
   []
   [:div.pure-g
@@ -345,17 +344,17 @@
         :style
         {:font-size "3em", :padding-top "0.5em",
          :padding-left "0.5em", :padding-right "0.5em"}}
-       (views-utils/icon "keyboard_arrow_left")]]]
+       [views-utils/icon "keyboard_arrow_left"]]]]
     [:div.pure-u-7-8
-     (filter-input)]]
+     [filter-input]]]
    ;; time facet
    [:div.pure-u-1-5.background-0
     [:div.padded-as-button
-     (facet-group-select-time)]]
+     [facet-group-select-time]]]
    
    [:div.pure-u-2-5.background-1
     [:div.padded-as-button
-     (general-tree)]]
+     [general-tree]]]
    ;; cloud facet
    [:div.pure-u-2-5
     ;; [:div.background-1 {:style {:overflow "hidden" :height "70px"}}
@@ -364,7 +363,7 @@
     
     [:div.background-2
      [:div 
-      (general-cloud)]]]])
+      [general-cloud]]]]])
 
 (defn drill
   []
@@ -392,7 +391,7 @@
      {:style
       {:padding "5em", :margin-top "1em", :margin-bottom "1em", :border "dashed 1px gray"}}
      [:a {:href "#"}
-      (views-utils/icon "file_upload")
+      [views-utils/icon "file_upload"]
       "Or Drop it here"]]]])
 
 (defn processing
@@ -406,4 +405,4 @@
      [:img {:src "/loading.gif"}]]]])
 
 (defn main []
-  (drill))
+  [drill])
