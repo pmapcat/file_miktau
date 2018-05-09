@@ -30,32 +30,30 @@
        {:font-weight "300"
         :text-decoration "none"}}
       (:name tag) " "])])
+(defn general-cloud-tag-item [tag]
+  [:a.tag
+   {:key  (:key-name tag)
+    :href "#"
+    :on-click
+    (if (:disabled? tag)
+      #(refe/dispatch [:clicked-disabled-cloud-item (tag :key-name)])
+      #(refe/dispatch [:clicked-cloud-item (tag :key-name)]))
+    :class
+    (str
+     (cond (:selected? tag) "selected"
+           (:can-select? tag) "can-select"
+           (:disabled? tag) "disabled"))
+    :style
+    {:font-size
+     (str  (+ 0.6 (* 2.4  (tag :weighted-size))) "em")}}
+   (:name tag) " "])
 
 (defn general-cloud []
   [:div
-   (for [item @(refe/subscribe [:cloud])]
-     [:div {:key (:group-name item)}
-      [:div.mik-flush-right
-       [:h2.padded-as-button.mik-cut-bottom.mik-cut-top.header-font.light-gray
-        {:style {:padding-bottom "0px" :padding-top "0px"}}
-        (:group-name item)]]
-      (for [tag  (:group item)]
-        [:a.tag
-         {:key  (:key-name tag)
-          :href "#"
-          :on-click
-          (if (:disabled? tag)
-            #(refe/dispatch [:clicked-disabled-cloud-item (tag :key-name)])
-            #(refe/dispatch [:clicked-cloud-item (tag :key-name)]))
-          :class
-          (str
-           (cond (:selected? tag) "selected"
-                 (:can-select? tag) "can-select"
-                 (:disabled? tag) "disabled"))
-          :style
-          {:font-size
-           (str  (+ 0.6 (* 2.4  (tag :weighted-size))) "em")}}
-         (:name tag) " "])])])
+   (for [tag  (:group (first @(refe/subscribe [:cloud])))]
+     [:span {:key (:key-name tag)}
+      [general-cloud-tag-item tag]])])
+
 
 (defn general-tree []
   [:div
@@ -189,120 +187,127 @@
 
 (defn radio-button
   [text on-change selected?]
-  (let [id (str (random-uuid))]
-    [:label.pure-checkbox
-     {:for id :style {:position "relative"}}
-     [:input
-      {:id id  :style {:width "25px" :height "25px" :cursor "pointer"} :checked selected? :type "checkbox" :on-change on-change}]
-     [:span {:style {:padding-bottom "5px"}}
-      text]]))
+  [:label.pure-checkbox
+   {:for "blab" :style {:position "relative"}}
+   [:input
+    {:id "blab"  :style {:width "25px" :height "25px" :cursor "pointer"} :checked selected? :type "checkbox" :on-change on-change}]
+   [:span {:style {:padding-bottom "5px"}}
+    text]])
+
+(defn file-table-header [selection-mode? all-selected?]
+  [:div.pure-g {:style {:padding-bottom "1em"}}
+   ;; select all nodes button
+   [:div.pure-u-2-24
+    (views-utils/position-absolute
+     {:top "0px"}
+     [radio-button "" #(refe/dispatch [:select-all-nodes]) all-selected?])]
+   [:div.pure-u-16-24
+    (if selection-mode?
+      [:div "Name"]
+      [:div
+       "Name"
+       [:span {:style {:font-size "0.6em"}}
+        "["
+        [:a.unstyled-link {:href "#" :key "order-a-z"
+                           :on-click #(refe/dispatch [:sort "name"])}
+         "a-z"]
+        "·"
+        [:a.unstyled-link {:href "#" :key "order-z-a"
+
+                           :on-click #(refe/dispatch [:sort "-name"])}
+         " z-a"] "]"]])]
+   [:div.pure-u-6-24.mik-flush-right
+    (if selection-mode?
+      [:div "Modified"]
+      [:div
+       [:span {:style {:font-size "0.6em"}}
+        "["
+        [:a.unstyled-link {:href "#" :key "order-a-z"
+                           :on-click #(refe/dispatch [:sort "modified"])}
+         "recent"]
+        "·"
+        [:a.unstyled-link {:href "#" :key "order-z-a"
+                           :on-click #(refe/dispatch [:sort "-modified"])}
+         " older"]
+        "]"]
+       "Modified"])]])
+
+(defn tagging-in-a-single-node-item
+  [tags selection-mode?]
+  [:div
+   (for [tag tags]
+     [:a.inline-tag
+      {:key (:key-name tag)
+       :on-click
+       (if-not selection-mode?
+         #(refe/dispatch [:clicked-cloud-item (tag :key-name)])
+         identity)
+       :class
+       (str
+        (cond (:to-delete? tag) "crossed-out"
+              (:to-add?    tag) "added-in"
+              :else "")
+        " "
+        (cond
+          (:selected? tag) "selected"
+          (:can-select? tag) "can-select"
+          :else "disabled"))
+       :style {                       :pointer (if selection-mode? "default" "cursor")}}  (:name tag) " "])])
+
+(defn single-node-item [node selection-mode?]
+  [:tr
+   {:key (str  (:id node))
+    :data-fpath  (str (:file-path node) (:name node))
+    :style {:padding-bottom "10px"
+            :padding-top "10px"
+            :font-size "0.8em"
+            :border-bottom "solid 1px #e3e3e3"
+            :cursor "pointer"}}
+   [:td
+    [views-utils/position-absolute
+     {:top ""}
+     [radio-button "" #(refe/dispatch [:select-node (str (node :file-path) (node :name))]) (:selected? node)]]]
+   [:td
+    [:a.unstyled-link
+     {:href "#" :style {:font-weight "300" :word-wrap "break-word"}}
+     (:name node)]]
+   [:td
+    [tagging-in-a-single-node-item (:tags node) selection-mode?]
+    (cond
+      selection-mode?
+      [:span]
+      (not  (empty? (:all-tags node)))
+      [:a.unstyled-link
+       {:href "#"
+        :on-click
+        (if-not selection-mode?
+          #(refe/dispatch [:clicked-many-cloud-items (:all-tags node)])
+          identity)}
+       [:span
+        {:style {:padding "3px" :margin "3px" :font-size "0.8em"}}
+        [views-utils/icon "arrow_forward"]]]
+      :else
+      [:span])]
+   [:td
+    [:a.unstyled-link {:href "#"
+                       :on-click
+                       (if-not selection-mode? #(refe/dispatch  [:click-on-calendar-item "FastAccess" (node :modified)]) identity)
+                       :style {:font-weight "300"}}
+     (str
+      (utils/pad (:year   (node :modified)) 4 "0") "."
+      (utils/pad (:month  (node :modified)) 2 "0") "."
+      (utils/pad (:day    (node :modified)) 2 "0"))]]])
 
 (defn file-table []
   (let [node-items  @(refe/subscribe [:node-items])
         selection-mode? @(refe/subscribe [:selection-mode?])]
-    [:div.padded-as-button.background-1 
-     [:div.pure-g {:style {:padding-bottom "1em"}}
-      ;; select all nodes button
-      [:div.pure-u-2-24
-       (views-utils/position-absolute
-        {:top "0px"}
-        [radio-button "" #(refe/dispatch [:select-all-nodes]) (:all-selected? node-items)])]
-      [:div.pure-u-16-24
-       (if selection-mode?
-         [:div "Name"]
-         [:div
-          "Name"
-          [:span {:style {:font-size "0.6em"}}
-           "["
-           [:a.unstyled-link {:href "#" :key "order-a-z"
-                              :on-click #(refe/dispatch [:sort "name"])}
-            "a-z"]
-           "·"
-           [:a.unstyled-link {:href "#" :key "order-z-a"
-
-                              :on-click #(refe/dispatch [:sort "-name"])}
-            " z-a"] "]"]])]
-      [:div.pure-u-6-24.mik-flush-right
-       (if selection-mode?
-         [:div "Modified"]
-         [:div
-          [:span {:style {:font-size "0.6em"}}
-           "["
-           [:a.unstyled-link {:href "#" :key "order-a-z"
-                              :on-click #(refe/dispatch [:sort "modified"])}
-            "recent"]
-           "·"
-           [:a.unstyled-link {:href "#" :key "order-z-a"
-                              :on-click #(refe/dispatch [:sort "-modified"])}
-            " older"]
-           "]"]
-          "Modified"])]]
-     [:div
-      (for [node (:nodes node-items)]
-        [:div.pure-g.table-hover.node-item
-         {:key (str  (node :id))
-          :data-fpath  (str (:file-path node) (:name node))
-          :style {:padding-bottom "10px"
-                  :padding-top "10px"
-                  :font-size "0.8em"
-                  :border-bottom "solid 1px #e3e3e3"
-                  :cursor "pointer"}}
-         [:div.pure-u-2-24.mik-flush-left
-          [views-utils/position-absolute
-           {:top ""}
-           [radio-button "" #(refe/dispatch [:select-node (str (node :file-path) (node :name))]) (:selected? node)]]]
-         [:div.pure-u-6-24
-          [:a.unstyled-link
-           {:href "#" :style {:font-weight "300" :word-wrap "break-word"}}
-           (:name node)]]
-         [:div.pure-u-10-24
-          [:div 
-           (for [tag (:tags node)]
-             [:a.inline-tag
-              {:key (:key-name tag)
-               :on-click
-               (if-not selection-mode?
-                 #(refe/dispatch [:clicked-cloud-item (tag :key-name)])
-                 identity)
-               :class
-               (str
-                (cond (:to-delete? tag) "crossed-out"
-                      (:to-add?    tag) "added-in"
-                      :else "")
-                " "
-                (cond
-                  (:selected? tag) "selected"
-                  (:can-select? tag) "can-select"
-                  :else "disabled"))
-               :style {                       :pointer (if selection-mode? "default" "cursor")}}  (:name tag) " "])
-           (cond
-             selection-mode?
-             [:span]
-             (not  (empty? (:all-tags node)))
-             [:a.unstyled-link
-              {:href "#"
-               :on-click
-               (if-not selection-mode?
-                 #(refe/dispatch [:clicked-many-cloud-items (:all-tags node)])
-                 identity)}
-              [:span
-               {:style {:padding "3px" :margin "3px" :font-size "0.8em"}}
-               [views-utils/icon
-                "arrow_forward"]]]
-             :else
-             [:span])]]
-         [:div.pure-u-6-24.mik-flush-right
-          [:a.unstyled-link {:href "#"
-                             :on-click
-                             (if-not selection-mode?
-                               #(refe/dispatch  [:click-on-calendar-item "FastAccess" (node :modified)])
-                               identity)
-                             :style
-                             {:font-weight "300"}}
-           (str
-            (utils/pad (:year   (node :modified)) 4 "0") "."
-            (utils/pad (:month  (node :modified)) 2 "0") "."
-            (utils/pad (:day  (node :modified))   2 "0"))]]])]
+    [:div.padded-as-button.background-1
+     [file-table-header selection-mode? (:all-selected? node-items)]
+     [:table
+      [:tbody
+       (for [node (:nodes node-items)]
+         ^{:key (str (:id node))}
+         [single-node-item node selection-mode?])]]
      (if (> (:omitted-nodes node-items) 0)
        [:div.mik-flush-right.gray
         "Truncated: "
@@ -355,8 +360,9 @@
    [:div.pure-u-2-5.background-1
     [:div.padded-as-button
      [general-tree]]]
+   
    ;; cloud facet
-   [:div.pure-u-2-5
+   [:div.pure-u-4-5
     ;; [:div.background-1 {:style {:overflow "hidden" :height "70px"}}
     ;;  [:div {:style {:font-size "0.7em", :padding-bottom "2em"}}
     ;;   (selection-cloud)]]
@@ -379,7 +385,8 @@
     [:div.pure-u-1-2.background-3 {:style {:position "fixed" :width "30%" :top 0 :bottom 0 :right 0 :height "100%" :overflow-y "scroll"}}
      [:div.padded-as-button
       ;; (found-group)
-      [file-table]]]]])
+      ;; [file-table]
+      ]]]])
 
 (defn choose-root
   []

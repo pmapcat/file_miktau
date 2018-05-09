@@ -57,22 +57,27 @@
    :http-xhrio (utils/server-call  (query-building/build-get-app-data db) :got-app-data :http-error)})
 (refe/reg-event-fx :get-app-data get-app-data)
 
+
 (defn got-app-data
   "TESTED"
   [db [_ response]]
-  (assoc
-   db
-   :loading?                false
-   :core-directory          (:core-directory response)
-   :calendar-can-select     (:calendar-can-select response)
-   :total-nodes             (:total-nodes response)
-   :date-now                (:date-now response)
-   :nodes                   (:nodes response)
-   :calendar                (:calendar response)
-   :cloud                   (:cloud response)
-   :cloud-can-select        (:cloud-can-select response)
-   :tree-tag                (:tree-tag response)
-   :nodes-sorted            (:nodes-sorted response)))
+  (let [got-app-data-if-diff
+        (fn [db key]
+          (if-not (= (key db) (key response))
+            (assoc db key  (key response))
+            db))]
+    (->
+     (assoc db :loading? false)
+     (got-app-data-if-diff :core-directory)         
+     (got-app-data-if-diff :calendar-can-select)    
+     (got-app-data-if-diff :total-nodes)            
+     (got-app-data-if-diff :date-now)               
+     (got-app-data-if-diff :nodes)                  
+     (got-app-data-if-diff :calendar)               
+     (got-app-data-if-diff :cloud)                  
+     (got-app-data-if-diff :cloud-can-select)       
+     (got-app-data-if-diff :tree-tag)               
+     (got-app-data-if-diff :nodes-sorted))))
 
 (refe/reg-event-db :got-app-data got-app-data)
 

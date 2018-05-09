@@ -5,6 +5,7 @@ import (
 )
 
 const MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM = 32
+const MAX_ITEMS_IN_SEARCH_RESULT = 10
 
 type CoreNodeItemStorage struct {
 	sync.RWMutex

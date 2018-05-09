@@ -204,7 +204,7 @@
   (try
     (let [all-selected? (=  (first (:nodes-selected db)) "*")
           tags-to-delete  (:nodes-temp-tags-to-delete db)
-          newly-added-tags (utils/find-all-tags-in-string (:nodes-temp-tags-to-add db))]
+          newly-added-tags (into #{} (utils/find-all-tags-in-string (:nodes-temp-tags-to-add db)))]
       {:ordered-by
        (utils/parse-sorting-field (:nodes-sorted db))
        :total-nodes (:total-nodes db)
@@ -257,7 +257,7 @@
     (catch :default e {})))
 
 
-(refe/reg-sub :node-items node-items)
+;; (refe/reg-sub :node-items node-items)
 
 (defn generate-tags-on-selection
   "TESTED"

@@ -7,7 +7,7 @@
             [miktau.views.core :as views-core]
             [miktau.config :as config]))
 
-(enable-console-print!)
+;; (enable-console-print!)
 
 (defn dev-setup []
   (when config/debug?
@@ -18,8 +18,11 @@
   (re-frame/clear-subscription-cache!)
   (reagent/render [views-core/main]
                   (.getElementById js/document "container")))
+(comment
+  )
 
 (defn render []
   (re-frame/dispatch-sync [:init])
+
   (dev-setup)
   (mount-root))

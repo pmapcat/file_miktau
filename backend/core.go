@@ -310,10 +310,10 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	// on the dataset.
 	// for more info on the algorithm look into
 	// gokinate project on github
-	cloud := map[string]map[string]int{}
 	cloud_can_select := map[string]bool{}
 	nodes_list := []*CoreNodeItem{}
 	tag_thesaurus := n.GetThesaurus()
+	cloud := map[string]map[string]int{"root": tag_thesaurus}
 	mpr := newTreeTag("root")
 
 	calendar := CoreDateFacet{Year: map[int]int{}, Month: map[int]int{}, Day: map[int]int{}}
@@ -323,15 +323,6 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 		// getting MPT
 		if node.IsTagged() {
 			mpd := node.MostProminentDrill(tag_thesaurus)
-			tagroot := mpd[0]
-
-			_, ok := cloud[tagroot]
-			if !ok {
-				cloud[tagroot] = map[string]int{}
-			}
-			for _, tag := range node.Tags {
-				cloud[tagroot][tag] += 1
-			}
 			local_mpr := mpr
 			for _, tag := range mpd {
 				_, ok := local_mpr.Children[tag]
@@ -365,8 +356,8 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	total_nodes := len(nodes_list)
 	// this must be tested, because I have no idea what I am doing
 	// here XD
-	if total_nodes > 100 {
-		nodes_list = nodes_list[:100]
+	if total_nodes > MAX_ITEMS_IN_SEARCH_RESULT {
+		nodes_list = nodes_list[:MAX_ITEMS_IN_SEARCH_RESULT]
 	}
 	// Formatting for the Rest output
 	rsp := CoreAppDataResponse{}
