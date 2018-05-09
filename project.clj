@@ -3,9 +3,9 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.238" :scope "provided"]
+                 [pjstadig/humane-test-output "0.8.3"    :scope "test"]
                  [com.cognitect/transit-clj "0.8.309"]
                  [ring "1.6.3"]
                  ;; [eftest "0.5.1"]
@@ -15,7 +15,7 @@
                  [clj-logging-config "1.9.12"]
                  [compojure "1.6.1"]
                  [environ "1.1.0"]
-                 [pjstadig/humane-test-output "0.8.3"    :scope "test"]
+                 
                  [day8.re-frame/http-fx "0.1.6"]
                  [cljs-ajax "0.7.3"]
                  [day8.re-frame/re-frame-10x "0.3.3-react16"]                 
@@ -58,6 +58,8 @@
                            :asset-path "js/compiled/out"
                            :output-to "dev-target/public/js/compiled/miktau.js"
                            :output-dir "dev-target/public/js/compiled/out"
+                           :closure-defines      {"re_frame.trace.trace_enabled_QMARK_" true}
+                           :preloads             [day8.re-frame-10x.preload]
                            :source-map-timestamp true}}
 
                {:id "test"
@@ -112,7 +114,8 @@
                              [com.cemerick/piggieback "0.2.2"]
                              [org.clojure/tools.nrepl "0.2.13"]
                              [lein-doo "0.1.10"]
-                             [reloaded.repl "0.2.4"]]
+                             [reloaded.repl "0.2.4"]
+                             [day8.re-frame/re-frame-10x "0.3.3"]]
 
               :plugins [[lein-figwheel "0.5.15"]
                         [lein-doo "0.1.10"]]
