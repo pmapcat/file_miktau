@@ -10,11 +10,9 @@
 
 ;; (js/goog.DEBUG )
 
-
-
-(defn init []
-  (aset  js/goog "DEBUG" true)
-  (refe/dispatch-sync [:init])
-  (reagent/render-component [views_core/main]
-                            (.getElementById js/document "container"))
-  )
+;; (defn init []
+;;   ;; (aset  js/goog "DEBUG" true)
+;;   (refe/dispatch-sync [:init])
+;;   (reagent/render-component [views_core/main]
+;;                             (.getElementById js/document "container"))
+;;   )

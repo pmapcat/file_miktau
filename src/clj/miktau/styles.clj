@@ -1,4 +1,5 @@
-(ns miktau.styles)
+(ns miktau.styles
+  (:require [garden-watcher.def :refer [defstyles]]))
 ;; ============================  >  GENERAL  <  =========================== 
 (defn- mik-cut
   [on]
@@ -160,3 +161,6 @@
    [:.body-font {:font-family (:body fonts)}]
    
    (general-classes)])
+
+(defstyles style
+  screen)

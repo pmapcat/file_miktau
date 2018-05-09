@@ -3,7 +3,7 @@ root: .
 startup_window: lein
 windows:
   - testing:
-      boot auto-test
+      lein doo phantom
   - lein:
       layout: main-vertical
       panes:
@@ -14,5 +14,5 @@ windows:
             - sudo /etc/init.d/nginx start
             - ls
         - repl:
-            boot dev
-            
+            - lein repl
+            - (go)

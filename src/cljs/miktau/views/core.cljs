@@ -368,6 +368,7 @@
 (defn drill
   []
   [:div.background-2
+
    [:div.pure-g
     [:div.background-2  {:style {:position "fixed" :width "70%" :top "0" :bottom "0" :overflow-y "scroll"}}
      (if @(refe/subscribe [:selection-mode?])

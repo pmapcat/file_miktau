@@ -1,0 +1,322 @@
+.minimal-table {
+  width: 100%;
+  border: none !important;
+}
+
+.minimal-table>thead {
+  background: none !important;
+  border-bottom: 1px;
+}
+
+.minimal-table>thead>tr {
+  border-bottom: solid 2px;;
+}
+
+.minimal-table>tbody>tr:hover {
+  background: #dddddd;
+  color: white;
+  cursor: pointer;
+}
+
+.minimal-table>tbody>tr>td {
+  padding-top: 0.5em;
+}
+
+.minimal-table, .minimal-table td, .minimal-table th {
+  border: none !important;
+  padding: 0 !important;
+}
+
+tags>:div>:input {
+  background: none !important;
+}
+
+tags, tag, x:hover {
+  background: #ABABA9;
+}
+
+tags, tag>div:before {
+  background: #dddddd;
+}
+
+.table-hover:hover {
+  background: white !important;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dropdown:after {
+  content: " \25BE";
+  color: #a7a6a6;
+  font-size: 0.8em;;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background: #f7f7f7 !important;
+  z-index: 999;
+}
+
+.dropdown:hover>.dropdown-content {
+  display: block;
+}
+
+.dropdown:hover {
+  color: #4d4d4d;
+}
+
+.pure-g {
+  display: flex;
+}
+
+.background-0 {
+  background: #ffffff;
+}
+
+.background-1 {
+  background: #f7f7f7;
+}
+
+.background-2 {
+  background: #f1f1f1;
+}
+
+.background-3 {
+  background: #ebebeb;
+}
+
+.background-4 {
+  background: #e7e7e7;
+}
+
+.unstyled-link {
+  text-decoration: none;
+  font-weight: 900;
+  color: #000000;
+}
+
+.unstyled-link:hover {
+  text-decoration: none;
+  color: rgb(167, 178, 77);
+}
+
+.shadow {
+  box-shadow: none;
+}
+
+.pure-menu-link {
+  color: #000000 !important;
+  background: none !important;
+}
+
+.pure-menu-link:hover {
+  color: #4d4d4d !important;
+  background: #ababab !important;
+}
+
+.pure-button {
+  background: none !important;
+  font-weight: 600 !important;
+  font-family: "Source Sans Pro", sans-serif !important;
+}
+
+.pure-button:hover {
+  color: rgb(167, 178, 77)!important;;
+}
+
+.gray {
+  color: #ababab;
+}
+
+.black {
+  color: #000000;
+}
+
+.orange {
+  color: #4d4d4d;
+}
+
+.selected {
+  background: rgb(167, 178, 77)!important;;
+  color: white !important;
+}
+
+.crossed-out {
+  background: HSL(22,99%,88%);
+  text-decoration: line-through;
+  color: black;
+}
+
+.crossed-out:hover {
+  background: HSL(22,99%,88%);
+  text-decoration: line-through;
+  color: black;
+}
+
+.added-in {
+  background: HSL(130,100%,92%);
+  color: black;
+}
+
+.added-in:hover {
+  background: HSL(130,100%,92%);
+  color: black;
+}
+
+.disabled {
+  color: HSL(123,1%,84%);
+  cursor: default;
+}
+
+.disabled:hover {
+  color: HSL(123,1%,84%) !important;
+  cursor: default !important;
+}
+
+.warning {
+  background: rgb(186, 152, 152);
+  font-weight: 600;
+  color: white;
+  padding: 20px;
+}
+
+.tag {
+  font-family: "Source Sans Pro", sans-serif !important;
+  padding: 3px;
+  margin: 3px;
+  font-weight: 600;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.tag:hover {
+  color: rgb(167, 178, 77);
+}
+
+.tag.disabled {
+  color: HSL(123,1%,84%);
+  cursor: default;
+}
+
+.tag.disabled:hover {
+  color: HSL(123,1%,84%) !important;
+  cursor: default;
+}
+
+.tag.can-select {
+  color: black;
+  cursor: pointer;
+}
+
+.tag.can-select:hover {
+  color: rgb(167, 178, 77);
+}
+
+.inline-tag:hover {
+  color: rgb(167, 178, 77);
+}
+
+.inline-tag {
+  font-weight: 600;
+  color: black;
+  padding: 3px;
+  border-radius: 5%;
+  margin: 6px;
+  display: inline-block;
+}
+
+.light-gray {
+  color: #dddddd;
+}
+
+.header-font {
+  font-family: "Source Sans Pro", sans-serif !important;
+}
+
+.body-font {
+  font-family: "Source Sans Pro", sans-serif !important;
+}
+
+.mik-cut-top {
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.mik-cut-bottom {
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.mik-cut-left {
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.mik-cut-right {
+  padding-right: 0;
+  margin-right: 0;
+}
+
+.mik-float-left {
+  float: left;
+}
+
+.mik-float-right {
+  float: right;
+}
+
+.mik-flush-left {
+  text-align: left;
+}
+
+.mik-flush-right {
+  text-align: right;
+}
+
+.mik-flush-center {
+  text-align: center;
+}
+
+.mik-rotate-45 {
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.mik-rotate-90 {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+
+.mik-rotate-180 {
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+.padded-as-button {
+  padding-top: 12.8px;
+  padding-bottom: 6.4px;
+  padding-left: 12.8px;
+  padding-right: 12.8px;
+}
+
+.margin-as-button {
+  margin-top: 12.8px;
+  margin-bottom: 6.4px;
+  margin-left: 12.8px;
+  margin-right: 12.8px;
+}
