@@ -276,6 +276,7 @@
        (map keyword)
        (into #{})))))
 
+
 (defn nodes-changing
   "TESTED"
   [db _]

@@ -9,6 +9,5 @@ func main() {
 	// for i := 0; i <= 1000; i++ {
 	// 	CNIS.MutableAddMany(buildDachaDataset())
 	// }
-
 	serve.Serve(4000)
 }

@@ -4,6 +4,7 @@
    [re-frame.core :as refe]
    [clojure.set :as clojure-set]
    [miktau.query-building :as query-building]))
+
 (def init-db
   {:loading? true
    :filtering ""
@@ -29,6 +30,7 @@
    :calendar-can-select {:year {}
                          :month {}
                          :day   {}}})
+
 (refe/reg-event-fx
  :init
  (fn [_ _]
