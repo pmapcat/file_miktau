@@ -15,6 +15,8 @@
                  [clj-logging-config "1.9.12"]
                  [compojure "1.6.1"]
                  [environ "1.1.0"]
+                 [bidi "2.1.3"]
+                 [kibu/pushy "0.3.8"]
                  
                  [day8.re-frame/http-fx "0.1.6"]
                  [cljs-ajax "0.7.3"]
