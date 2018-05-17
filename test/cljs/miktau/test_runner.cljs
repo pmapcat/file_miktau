@@ -29,8 +29,8 @@
  'miktau.nodes.subs-test
  
  'miktau.edit-nodes.events-test
- ;; 'miktau.edit-nodes.subs-test
- ;; 'miktau.edit-nodes.query-building-test
+ 'miktau.edit-nodes.subs-test
+ 'miktau.edit-nodes.query-building-test
  
  'miktau.app-test
  'miktau.events-test

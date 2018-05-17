@@ -20,6 +20,7 @@
 
 (refe/reg-event-fx :edit-nodes/get-app-data get-app-data)
 
+
 (defn got-app-data
   "TESTED"
   [db [_ response]]
@@ -28,7 +29,8 @@
           (if-not (= (key db) (key response))
             (assoc db key  (key response))
             db))]
-    (got-app-data-if-diff db :cloud-can-select)))
+    (got-app-data-if-diff db :cloud-can-select)
+    (got-app-data-if-diff db :nodes)))
 
 (refe/reg-event-fx :edit-nodes/got-app-data got-app-data)
 
