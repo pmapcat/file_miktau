@@ -83,7 +83,6 @@
 
 (refe/reg-event-db :got-app-data got-app-data)
 
-
 (refe/reg-event-db
  :back
  (fn [db _]

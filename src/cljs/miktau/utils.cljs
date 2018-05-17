@@ -3,6 +3,13 @@
                [clojure.string :as cljs-string]
                [clojure.set :as clojure-set]
                [re-frame.core :as refe]))
+
+(defn meta-page? [db page-name]
+  (= (get-in db [:meta :page]) page-name))
+
+;; (meta-page? nil :cloude)
+
+
 (defn server-call [api-call on-success on-error]
   {:method :post
    :uri    (:url api-call)
