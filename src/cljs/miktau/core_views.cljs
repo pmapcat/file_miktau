@@ -10,8 +10,8 @@
   [:div
    [:div {:style {:padding "30px" :margin "30px"}}]
    [:a {:href "#" :on-click #(refe/dispatch [:cloud/init-page #{:bibliostore} {}]) } "cloud"]
-   [:a {:href "#" :on-click #(refe/dispatch [:nodes/init-page #{"*"} #{:bibliostore} {}]) } "node items"]
-   [:a {:href "#" :on-click #(refe/dispatch [:nodes/init-page #{"*"} #{:bibliostore} {}]) } "nodes edit"]
+   [:a {:href "#" :on-click #(refe/dispatch [:nodes/init-page #{} #{} {}]) } "node items"]
+   [:a {:href "#" :on-click #(refe/dispatch [:edit-nodes/init-page #{"*"} #{:bibliostore} {}]) } "nodes edit"]
    [:div
     (let [meta-page @(refe/subscribe [:meta])]
       (if (:loading? meta-page)

@@ -12,6 +12,9 @@
 (defn set-loading [db is-loading?]
   (assoc-in db [:meta :loading?] is-loading?))
 
+(defn set-loading-db [db is-loading?]
+  (assoc-in db [:loading?] is-loading?))
+
 
 (def meta-db
   {:page :cloud

@@ -32,7 +32,7 @@
                   (.getElementById js/document "container")))
 
 (defn render []
-  (re-frame/dispatch-sync [:cloud/init-page #{} {}])
+  (re-frame/dispatch-sync [:edit-nodes/init-page #{"*"} #{:bibliostore} {}])
 
   (dev-setup)
   (mount-root))

@@ -3,6 +3,12 @@
   (:require [miktau.nodes.events :as miktau-events]
             [miktau.nodes.demo-data-test :as demo-data]))
 
+(deftest test-initialize-page []
+  (is (= (:db (miktau-events/init {:db (dissoc demo-data/demo-db :meta)} nil nil nil))
+         {:nodes-sorted "", :nodes [], :nodes-selected {},
+          :meta {:page :nodes, :loading? false}, :total-nodes 0, :cloud-selected #{}, :calendar-selected {}})))
+
+
 (deftest test-select-all-nodes []
   (let [db (assoc demo-data/initial-db-after-load-from-server :nodes-selected #{})]
     

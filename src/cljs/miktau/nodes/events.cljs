@@ -8,27 +8,37 @@
 (defn init
   "TODO: TEST
    params [_ nodes-selected-set cloud-selected-set calendar-selected-dict] are *nullable*"
-  [{:keys [db]} [_ nodes-selected-set cloud-selected-set calendar-selected-dict]]
+  [_ [_ nodes-selected-set cloud-selected-set calendar-selected-dict]]
   {:db
    (assoc miktau-db/default-db
-          (or (:meta db) (meta-db/set-page meta-db/meta-db :edit-nodes))
+          :meta (meta-db/set-loading-db (meta-db/set-page meta-db/meta-db :nodes) true)
           :cloud-selected (or cloud-selected-set #{})
           :calendar-selected (or  calendar-selected-dict {})
           :nodes-selected    (or  nodes-selected-set {}))
    :fx-redirect [:nodes/get-app-data]})
 (refe/reg-event-fx :nodes/init-page init)
 
+(defn edit-nodes
+  [{:keys [db]} _]
+  {:db (meta-db/set-loading db true)
+   :fx-redirect [:edit-nodes/init-page
+                 (:nodes-selected db)
+                 (:cloud-selected db)
+                 (:calendar-selected db)]})
+(refe/reg-event-fx :nodes/edit-nodes edit-nodes)
+
+
 
 (defn get-app-data
   "TESTED"
-  [db]
-  {:db (meta-db/set-loading db true)
+  [{:keys [db]} _]
+  {:db  db
    :http-xhrio
    (utils/server-call
     {:url "/api/get-app-data"
      :params
      {:modified (or (:calendar-selected db) {})
-      :sorted   ""
+      :sorted   (or (:nodes-sorted db) "")
       :tags     (or (into [] (sort (map str (map name (:cloud-selected db))))) [])}}
     :nodes/got-app-data :http-error)})
 
@@ -36,16 +46,12 @@
 
 (defn got-app-data
   "TESTED"
-  [db [_ response]]
-  (let [got-app-data-if-diff
-        (fn [db key]
-          (if-not (= (key db) (key response))
-            (assoc db key  (key response))
-            db))]
-    (->
-     (meta-db/set-loading db false)
-     (got-app-data-if-diff :nodes)
-     (got-app-data-if-diff :total-nodes))))
+  [{:keys [db]} [_ response]]
+  {:db
+   (->
+    (meta-db/set-loading db false)
+    (assoc :nodes (:nodes response))
+    (assoc :total-nodes (:total-nodes response)))})
 
 (refe/reg-event-fx :nodes/got-app-data got-app-data)
 

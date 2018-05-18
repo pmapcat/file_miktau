@@ -9,7 +9,7 @@
 
 
 (comment
-  (println  (str (:tree-tag  @(refe/subscribe [:edit-nodes/get-db-for-test-purposes])))))
+  (println  (:meta @(refe/subscribe [:edit-nodes/get-db-for-test-purposes]))))
 
 (defn nodes-changing
   "TESTED"

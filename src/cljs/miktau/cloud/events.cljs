@@ -7,11 +7,11 @@
 
 (defn init
   "TODO: TEST"
-  [{:keys [db]} [_ cloud-selected-set calendar-selected-dict]]
+  [_ [_ cloud-selected-set calendar-selected-dict]]
   {:db
    (assoc miktau-db/default-db
           :meta
-          (meta-db/set-page (:meta db) :cloud)
+          (meta-db/set-loading-db (meta-db/set-page meta-db/meta-db :cloud) true)
           :cloud-selected (or cloud-selected-set #{})
           :calendar-selected (or  calendar-selected-dict {}))
    :fx-redirect [:cloud/get-app-data]})
@@ -59,7 +59,6 @@
           (if-not (= (key db) (key response))
             (assoc db key  (key response))
             db))]
-    (println  "PRINTING DB: " db)
     (->
      (meta-db/set-loading db false)
      (got-app-data-if-diff :calendar-can-select)

@@ -1,9 +1,7 @@
 (ns miktau.nodes.views
   (:require [miktau.views.utils :as views-utils]
             [re-frame.core :as refe]
-            [clojure.string :as clojure-string]
-            [miktau.utils :as utils]
-            [miktau.lorem :as lorem]))
+            [miktau.utils :as utils]))
 
 (defn radio-button
   [text on-change selected?]
@@ -106,6 +104,10 @@
         selection-mode? @(refe/subscribe [:nodes/selection-mode?])]
     [:div.padded-as-button.background-1
      [file-table-header selection-mode? (:all-selected? node-items)]
+     (if selection-mode?
+       [:button.pure-button
+        {:on-click #(refe/dispatch [:nodes/edit-nodes])} "Edit tags"]
+       [:span])
      [:table
       [:tbody
        (for [node (:nodes node-items)]
@@ -121,10 +123,8 @@
   []
   [:div.background-2
    [:div.pure-g
-    ;; found, files, and tag anew group
-    [:div.pure-u-1-2.background-3 {:style {:position "fixed" :width "30%" :top 0 :bottom 0 :right 0 :height "100%" :overflow-y "scroll"}}
-     [:div.padded-as-button
-      [file-table]]]]])
+    [:div.pure-u-1.padded-as-button
+     [file-table]]]])
 
 
 

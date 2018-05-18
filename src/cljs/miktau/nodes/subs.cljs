@@ -12,7 +12,7 @@
 
 (refe/reg-sub :nodes/get-db-for-test-purposes (fn [db _] db))
 (comment
-  (println  (str (:tree-tag  @(refe/subscribe [:nodes/get-db-for-test-purposes])))))
+  (println   (:meta @(refe/subscribe [:nodes/get-db-for-test-purposes]))))
 
 (defn node-items
   "TESTED"

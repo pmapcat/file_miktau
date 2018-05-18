@@ -10,10 +10,11 @@
 (defn init
   "TODO: TEST
    params [_ nodes-selected-set cloud-selected-set calendar-selected-dict] are *nullable*"
-  [{:keys [db]} [_ nodes-selected-set cloud-selected-set calendar-selected-dict]]
+  [_ [_ nodes-selected-set cloud-selected-set calendar-selected-dict]]
   {:db
    (assoc miktau-db/default-db
-          (or (:meta db) (meta-db/set-page meta-db/meta-db :edit-nodes))
+          :meta
+          (meta-db/set-loading-db (meta-db/set-page meta-db/meta-db :edit-nodes) true)
           :cloud-selected (or cloud-selected-set #{})
           :calendar-selected (or  calendar-selected-dict {})
           :nodes-selected    (or  nodes-selected-set {}))
@@ -22,9 +23,9 @@
 
 (defn get-app-data
   "TESTED"
-  [db]
+  [{:keys [db]} _]
   (if-let [core-query (query-building/build-core-query-for-action db nil)]
-    {:db (meta-db/set-loading db true)
+    {:db db
      :http-xhrio
      (utils/server-call
       {:url "/api/get-app-data"
@@ -32,23 +33,17 @@
       :edit-nodes/got-app-data :http-error)}
     {:db (meta-db/set-loading db false)
      :fx-redirect [:http-error]}))
-
-
 (refe/reg-event-fx :edit-nodes/get-app-data get-app-data)
 
 
 (defn got-app-data
   "TESTED"
   [db [_ response]]
-  (let [got-app-data-if-diff
-        (fn [db key]
-          (if-not (= (key db) (key response))
-            (assoc db key  (key response))
-            db))]
-    (got-app-data-if-diff db :cloud-can-select)
-    (got-app-data-if-diff db :nodes)))
-
-(refe/reg-event-fx :edit-nodes/got-app-data got-app-data)
+  (->
+   (meta-db/set-loading db false)
+   (assoc :cloud-can-select (:cloud-can-select response))
+   (assoc :nodes (:nodes response))))
+(refe/reg-event-db :edit-nodes/got-app-data got-app-data)
 
 (defn file-operation-fx
   "TESTED"
@@ -116,13 +111,10 @@
     :nodes-temp-tags-to-delete #{})
    :fx-redirect  [:edit-nodes/redirect-to-nodes]})
 
-(refe/reg-event-db :edit-nodes/cancel-tagging cancel-tagging)
+(refe/reg-event-fx :edit-nodes/cancel-tagging cancel-tagging)
 
 ;; TODO implement
 (refe/reg-event-fx
  :edit-nodes/redirect-to-nodes
  (fn [{:keys [db]} _]
    {:db db}))
-
-
-
