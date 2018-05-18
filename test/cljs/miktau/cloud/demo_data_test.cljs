@@ -1,9 +1,10 @@
-(ns miktau.cloud.demo-data-test)
+(ns miktau.cloud.demo-data-test
+  (:require [miktau.meta-db :as meta-db]))
 
 (def demo-db
   {:tree-tag {}
    :filtering ""
-   :meta {:page :cloud}
+   :meta (meta-db/set-page meta-db/meta-db :cloud)
    
    :cloud-selected #{:blab}
    :cloud  {:VolutPatem {:blab 43 :blip 27 :blop 12}}
@@ -26,7 +27,7 @@
    :date-now {:year 2018, :month 4, :day 17},   
    :tree-tag {:name "root", :children {:work {:name "work", :children {:everybook {:name "everybook", :children {}}, :natan {:name "natan", :children {:bibliostore {:name "bibliostore", :children {:translator {:name "translator", :children {}}}}, :moscow_market {:name "moscow_market", :children {:amazon {:name "amazon", :children {}}, :bibliostore {:name "bibliostore", :children {:translator {:name "translator", :children {:amazon {:name "amazon", :children {:devops {:name "devops", :children {}}}}}}, :магазины {:name "магазины", :children {}}}}, :биржа {:name "биржа", :children {:скачка_источников {:name "скачка_источников", :children {}}}}}}, :sforim {:name "sforim", :children {:wiki {:name "wiki", :children {:согласовать {:name "согласовать", :children {}}}}}}, :биржа {:name "биржа", :children {:UI {:name "UI", :children {}}}}, :магазины {:name "магазины", :children {:sforim {:name "sforim", :children {}}}}}}, :personal {:name "personal", :children {:blog {:name "blog", :children {}}, :usecases {:name "usecases", :children {}}}}, :zeldin {:name "zeldin", :children {}}}}, :работа_сделана {:name "работа_сделана", :children {}}}}
    :filtering "",
-   :meta {:page :cloud}
+   :meta (meta-db/set-page meta-db/meta-db :cloud)
    :cloud-selected #{:blab},
    :calendar {:year {:2016 14, :2017 6, :2018 2},
               :month {:1 1, :2 8, :3 1, :4 4, :5 4, :7 4}, :day {:14 1, :18 1, :12 1, :11 1, :24 1, :10 1, :21 1, :13 1, :4 1, :16 1, :7 1, :1 1, :8 1, :9 1, :20 1, :17 1, :19 1, :2 1, :5 2, :15 1, :3 1}},

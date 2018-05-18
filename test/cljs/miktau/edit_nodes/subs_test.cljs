@@ -2,13 +2,14 @@
   (:require-macros [cljs.test :refer [deftest testing is]])
   (:require [cljs.test :as t]
             [miktau.edit-nodes.subs :as miktau-subs]
+            [miktau.meta-db :as meta-db]
             [miktau.edit-nodes.demo-data-test :as demo-data]))
 
 
 (deftest testing-nodes-changing
   []
   (is (= (miktau-subs/nodes-changing nil nil) {}))
-  (is (= (miktau-subs/nodes-changing {:meta {:page :edit-nodes}} nil)
+  (is (= (miktau-subs/nodes-changing (meta-db/set-page-db demo-data/initial-db-after-load-from-server :edit-nodes) nil)
          {:all-selected? false, :total-amount 0, :tags-to-add nil, :tags-to-delete (list)}))
   
   (is (= (dissoc (miktau-subs/nodes-changing demo-data/initial-db-after-load-from-server nil) :tags-to-delete)

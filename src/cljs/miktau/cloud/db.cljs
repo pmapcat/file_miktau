@@ -1,7 +1,8 @@
-(ns miktau.cloud.db)
+(ns miktau.cloud.db
+  (:require [miktau.meta-db :as meta-db]))
 
 (def default-db
-  {:meta {:page :cloud}
+  {:meta (meta-db/set-page meta-db/meta-db :cloud)
    :tree-tag {}
    :filtering ""
    :date-now {}

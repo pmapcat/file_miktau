@@ -1,14 +1,28 @@
 (ns miktau.nodes.events
   (:require
    [miktau.utils :as utils]
+   [miktau.meta-db :as meta-db]   
+   [miktau.nodes.db :as miktau-db]
    [re-frame.core :as refe]))
 
-:nodes/clicked-cloud-item
+(defn init
+  "TODO: TEST
+   params [_ nodes-selected-set cloud-selected-set calendar-selected-dict] are *nullable*"
+  [{:keys [db]} [_ nodes-selected-set cloud-selected-set calendar-selected-dict]]
+  {:db
+   (assoc miktau-db/default-db
+          (or (:meta db) (meta-db/set-page meta-db/meta-db :edit-nodes))
+          :cloud-selected (or cloud-selected-set #{})
+          :calendar-selected (or  calendar-selected-dict {})
+          :nodes-selected    (or  nodes-selected-set {}))
+   :fx-redirect [:nodes/get-app-data]})
+(refe/reg-event-fx :nodes/init-page init)
+
 
 (defn get-app-data
   "TESTED"
   [db]
-  {:db (assoc db :loading? true)
+  {:db (meta-db/set-loading db true)
    :http-xhrio
    (utils/server-call
     {:url "/api/get-app-data"
@@ -29,7 +43,7 @@
             (assoc db key  (key response))
             db))]
     (->
-     (assoc db :loading? false)
+     (meta-db/set-loading db false)
      (got-app-data-if-diff :nodes)
      (got-app-data-if-diff :total-nodes))))
 

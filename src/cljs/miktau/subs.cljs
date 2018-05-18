@@ -1,9 +1,16 @@
 (ns miktau.subs
   (:require [re-frame.core :as refe]
             [clojure.string :as cljs-string]
-            [clojure.set :as clojure-set]
-
+            [miktau.meta-db :as meta-db]
             [miktau.utils :as utils]))
+
+(defn meta-items [db _]
+  (or (:meta db)
+      meta-db/meta-db))
+
+(refe/reg-sub :meta meta-items)
+
+
 (defn filtering [db _]
   (or (:filtering db) ""))
 

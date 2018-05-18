@@ -1,8 +1,8 @@
 (ns miktau.cloud.subs
   (:require [re-frame.core :as refe]
             [clojure.string :as cljs-string]
-            [miktau.utils :as utils :refer [meta-page?]]))
-
+            [miktau.meta-db :refer [meta-page?]]
+            [miktau.utils :as utils]))
 (defn filtering [db _]
   (or (:filtering db) ""))
 (refe/reg-sub :cloud/filtering filtering)
@@ -18,13 +18,16 @@
           (cljs-string/includes? (str (:compare-name item)) compara))))))
 
 (defn get-db-for-test-purposes [db _]
-  (if-not (meta-page? db :cloud)
-    {}
-    db))
+  ;; (if-not (meta-page? db :cloud)
+    ;; {}
+  db)
+;; )
 (refe/reg-sub :cloud/get-db-for-test-purposes get-db-for-test-purposes)
 
 (comment
-  (println  (str (:tree-tag  @(refe/subscribe [:cloud/get-db-for-test-purposes])))))
+  (println (:meta @(refe/subscribe [:cloud/get-db-for-test-purposes])))
+  (refe/dispatch [:cloud/get-app-data])
+  )
 
 ;; the algorithm
 ;; if tag is selected, then the tree must show its children

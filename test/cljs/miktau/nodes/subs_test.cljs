@@ -1,13 +1,10 @@
 (ns miktau.nodes.subs-test
   (:require-macros [cljs.test :refer [deftest testing is]])
-  (:require [cljs.test :as t]
-            [miktau.nodes.subs :as miktau-subs]
-            [miktau.utils :as utils]
-            [miktau.nodes.events :as miktau-events]
-            [clojure.data :as clojure-data]
+  (:require [miktau.nodes.subs :as miktau-subs]
             [miktau.nodes.demo-data-test :as demo-data]))
 
 (deftest testing-selection-mode? []
+  
   (is (= (miktau-subs/selection-mode?  demo-data/initial-db-after-load-from-server nil) true))
   (is (= (miktau-subs/selection-mode?  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{"asdads"}) nil) true))
   (is (= (miktau-subs/selection-mode?  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{})         nil) false))

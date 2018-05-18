@@ -1,15 +1,29 @@
 (ns miktau.cloud.events
   (:require
    [miktau.utils :as utils]
+   [miktau.cloud.db :as miktau-db]
+   [miktau.meta-db :as meta-db]
    [re-frame.core :as refe]))
+
+(defn init
+  "TODO: TEST"
+  [{:keys [db]} [_ cloud-selected-set calendar-selected-dict]]
+  {:db
+   (assoc miktau-db/default-db
+          :meta
+          (meta-db/set-page (:meta db) :cloud)
+          :cloud-selected (or cloud-selected-set #{})
+          :calendar-selected (or  calendar-selected-dict {}))
+   :fx-redirect [:cloud/get-app-data]})
+(refe/reg-event-fx :cloud/init-page init)
 
 (defn clear
   "TESTED"
-  [db _]
+  [{:keys [db]}  _]
   {:db 
    (assoc db
-          :filtering ""
-          :cloud-selected #{})
+       :filtering ""
+       :cloud-selected #{})
    :fx-redirect [:cloud/get-app-data]})
 (refe/reg-event-fx :cloud/clear clear)
 
@@ -24,8 +38,8 @@
 
 (defn get-app-data
   "TESTED"
-  [db]
-  {:db (assoc db :loading? true)
+  [{:keys [db]} _]
+  {:db db ;; (meta-db/set-loading db true)
    :http-xhrio
    (utils/server-call
     {:url "/api/get-app-data"
@@ -45,24 +59,17 @@
           (if-not (= (key db) (key response))
             (assoc db key  (key response))
             db))]
+    (println  "PRINTING DB: " db)
     (->
-     ;; (assoc db :loading? false)
-     (got-app-data-if-diff db :calendar-can-select)
+     (meta-db/set-loading db false)
+     (got-app-data-if-diff :calendar-can-select)
      (got-app-data-if-diff :date-now)
      (got-app-data-if-diff :calendar)
      (got-app-data-if-diff :cloud)
      (got-app-data-if-diff :cloud-can-select)
      (got-app-data-if-diff :tree-tag))))
-(refe/reg-event-fx :cloud/got-app-data got-app-data)
+(refe/reg-event-db :cloud/got-app-data got-app-data)
 
-(defn init-page
-  "TODO: TEST"
-  [{:keys [db]} [_ cloud-selected-set calendar-selected-dict]]
-  (assoc db :loading? true
-         :cloud-selected cloud-selected-set
-         :calendar-selecetd calendar-selected-dict))
-
-(refe/reg-event-fx :cloud/init-page init-page)
 
 
 (defn click-on-fast-access-item

@@ -1,11 +1,12 @@
 (ns miktau.edit-nodes.subs
   (:require [re-frame.core :as refe]
             [clojure.string :as cljs-string]
-            [miktau.utils :refer [meta-page?]]))
+            [miktau.meta-db :refer [meta-page?]]))
 
 (defn selection-mode? [db _] true)
 (refe/reg-sub :edit-nodes/selection-mode? selection-mode?)
 (refe/reg-sub :edit-nodes/get-db-for-test-purposes (fn [db _] db))
+
 
 (comment
   (println  (str (:tree-tag  @(refe/subscribe [:edit-nodes/get-db-for-test-purposes])))))

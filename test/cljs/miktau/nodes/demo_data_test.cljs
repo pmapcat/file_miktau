@@ -1,12 +1,13 @@
-(ns miktau.nodes.demo-data-test)
+(ns miktau.nodes.demo-data-test
+  (:require [miktau.meta-db :as meta-db]))
 
 (def demo-db
   {:nodes-sorted "-name"
    :nodes [{:id 0, :name "blab.mp4" :file-path "/home/mik/this_must_be_it/" :tags []
             :modified {:year 2016 :month 7 :day 21}}]
    :nodes-selected #{"*"}
-   :meta {:page :nodes}
-
+   :meta (meta-db/set-page meta-db/meta-db :nodes)
+   
    :total-nodes 1
    
    :cloud-selected #{:blab}
@@ -16,7 +17,7 @@
   {:nodes-selected #{"*"},
    :nodes-sorted "",
    :cloud-selected #{:blab},
-   :meta {:page :nodes}
+   :meta (meta-db/set-page meta-db/meta-db :nodes)
    :total-nodes 22
    :nodes [{:id 0, :name "blab.mp4", :file-path "/home/mik/this_must_be_it/", :tags [], :modified {:year 2016, :month 7, :day 21}}
            {:id 1, :name "hello.mp4",:file-path "/home/mik/this_must_be_it/", :tags ["natan" "work" "bibliostore" "moscow_market"], :modified {:year 2017, :month 7, :day 20}}

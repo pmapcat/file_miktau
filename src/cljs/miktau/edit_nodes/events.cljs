@@ -2,21 +2,37 @@
   (:require
    [miktau.utils :as utils]
    [miktau.edit-nodes.query-building :as query-building]
+   [miktau.edit-nodes.db :as miktau-db]
+   [miktau.meta-db :as meta-db]
    [clojure.set :as clojure-set]
    [re-frame.core :as refe]))
+
+(defn init
+  "TODO: TEST
+   params [_ nodes-selected-set cloud-selected-set calendar-selected-dict] are *nullable*"
+  [{:keys [db]} [_ nodes-selected-set cloud-selected-set calendar-selected-dict]]
+  {:db
+   (assoc miktau-db/default-db
+          (or (:meta db) (meta-db/set-page meta-db/meta-db :edit-nodes))
+          :cloud-selected (or cloud-selected-set #{})
+          :calendar-selected (or  calendar-selected-dict {})
+          :nodes-selected    (or  nodes-selected-set {}))
+   :fx-redirect [:edit-nodes/get-app-data]})
+(refe/reg-event-fx :edit-nodes/init-page init)
 
 (defn get-app-data
   "TESTED"
   [db]
   (if-let [core-query (query-building/build-core-query-for-action db nil)]
-    {:db (assoc db :loading? true)
+    {:db (meta-db/set-loading db true)
      :http-xhrio
      (utils/server-call
       {:url "/api/get-app-data"
        :params  core-query}
       :edit-nodes/got-app-data :http-error)}
-    {:db (assoc db :loading? false)
+    {:db (meta-db/set-loading db false)
      :fx-redirect [:http-error]}))
+
 
 (refe/reg-event-fx :edit-nodes/get-app-data get-app-data)
 

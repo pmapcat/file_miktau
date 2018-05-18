@@ -1,10 +1,21 @@
 (ns miktau.core
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame]
-            [miktau.events]
-            [miktau.subs]
+            
             [miktau.effects]
-            [miktau.views.core :as views-core]
+            [miktau.subs]
+            [miktau.events]
+            
+            [miktau.cloud.events]
+            [miktau.cloud.subs]
+            [miktau.nodes.events]
+            [miktau.nodes.subs]
+            [miktau.edit-nodes.events]
+            [miktau.edit-nodes.subs]
+            
+            
+            [miktau.core-views :as miktau-core-views]
+            
             [miktau.config :as config]))
 
 ;; (enable-console-print!)
@@ -17,11 +28,11 @@
 
 (defn mount-root []
   (re-frame/clear-subscription-cache!)
-  (reagent/render [views-core/main]
+  (reagent/render [miktau-core-views/main]
                   (.getElementById js/document "container")))
 
 (defn render []
-  (re-frame/dispatch-sync [:init])
+  (re-frame/dispatch-sync [:cloud/init-page #{} {}])
 
   (dev-setup)
   (mount-root))

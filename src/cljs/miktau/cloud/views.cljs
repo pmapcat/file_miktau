@@ -122,13 +122,14 @@
    [:div.pure-u-1
     [:div.pure-u-1-8
      [:div
-      [:a.unstyled-link
-       {:href "#"
-        :on-click #(refe/dispatch [:back])
-        :style
-        {:font-size "3em", :padding-top "0.5em",
-         :padding-left "0.5em", :padding-right "0.5em"}}
-       [views-utils/icon "keyboard_arrow_left"]]]]
+      ;; [:a.unstyled-link
+      ;;  {:href "#"
+      ;;   :on-click #(refe/dispatch [:back])
+      ;;   :style
+      ;;   {:font-size "3em", :padding-top "0.5em",
+      ;;    :padding-left "0.5em", :padding-right "0.5em"}}
+      ;;  [views-utils/icon "keyboard_arrow_left"]]
+      ]]
     [:div.pure-u-7-8
      [filter-input]]]
    ;; time facet

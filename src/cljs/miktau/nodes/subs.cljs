@@ -1,7 +1,8 @@
 (ns miktau.nodes.subs
   (:require [re-frame.core :as refe]
             [clojure.string :as cljs-string]
-            [miktau.utils :as utils :refer [meta-page?]]))
+            [miktau.utils :as utils]
+            [miktau.meta-db :refer [meta-page?]]))
 
 (defn selection-mode? [db _]
   (if-not (meta-page? db :nodes)

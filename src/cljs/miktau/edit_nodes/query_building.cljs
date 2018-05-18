@@ -1,6 +1,7 @@
 (ns miktau.edit-nodes.query-building
   (:require [miktau.utils :as utils]))
 
+
 (defn build-core-query-for-action
   "TESTED"
   [db item-or]
@@ -15,6 +16,13 @@
          :file-paths (or   (into [] (sort (:nodes-selected db))) [])
          :tags []}
         :else item-or))
+(defn build-core-query-for-retrieval
+  "TESTED"
+  [db]
+  {:modified (or (:calendar-selected db) {})
+   :sorted   (or (:nodes-sorted db) "")
+   :tags     (or (into [] (sort (map str (map name (:cloud-selected db))))) [])})
+
 
 (defn build-bulk-operate-on-files
   "TESTED"

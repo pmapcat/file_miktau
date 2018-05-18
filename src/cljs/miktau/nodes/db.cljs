@@ -1,9 +1,11 @@
-(ns miktau.nodes.db)
+(ns miktau.nodes.db
+  (:require [miktau.meta-db :as meta-db]))
+
 (def default-db
   {:nodes-sorted ""
    :nodes []
    :nodes-selected #{}
-   :meta {:page :nodes}
+   :meta (meta-db/set-page meta-db/meta-db :nodes)
    
    :total-nodes 0
    

@@ -30,31 +30,6 @@
                      :request  {:modified {:year 2018, :day 23, :month 11}, :sorted "", :file-paths [], :tags ["blab"]}}}))
     (is (= (query-building/build-bulk-operate-on-files db nil nil) nil))))
 
-(deftest test-build-switch-projects []
-  (let [db  demo-data/initial-db-after-load-from-server]
-    (is (= (query-building/build-switch-projects (assoc  db :core-directory "/home/mik/zero") nil)
-           {:url "/api/switch-projects"
-            :params {:file-path "/home/mik/zero"}}))
-    (is (= (query-building/build-switch-projects (assoc db :core-directory nil) nil)
-           nil))
-    (is (= (query-building/build-switch-projects (assoc db :core-directory :zanoza) nil)
-           nil))))
-
-(deftest test-build-check-is-live []
-  (is (= (query-building/build-check-is-live)
-         {:url  "/api"
-          :params {}})))
-
-(deftest test-build-get-app-data []
-  (let [db  demo-data/initial-db-after-load-from-server]
-    (is (= (query-building/build-get-app-data db)
-           {:url "/api/get-app-data"
-            :params
-            {:modified {:year 2018, :day 23, :month 11},
-             :sorted "",
-             :tags ["blab"]}}))
-    (is (= (query-building/build-get-app-data nil)
-           {:url "/api/get-app-data", :params {:modified {}, :sorted "", :tags []}}))))
 
 (deftest test-build-update-records []
   (let [db  (assoc demo-data/initial-db-after-load-from-server
