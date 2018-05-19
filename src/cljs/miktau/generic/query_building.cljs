@@ -1,4 +1,4 @@
-(ns miktau.query-building
+(ns miktau.generic.query-building
   (:require [miktau.utils :as utils]))
 
 (defn build-core-query-for-retrieval
@@ -69,23 +69,3 @@
   []
   {:url  "/api"
    :params {}})
-
-;; 
-;; type FileActionRequest struct {
-;; 	Error   error     `json:"error"`
-;; 	Action  string    `json:"action"` // symlinks/default/filebrowser
-;; 	Request CoreQuery `json:"request"`
-;;                                }
-;; /api/switch-projects
-;; type SwitchFoldersRequest struct {
-;; 	Error    error  `json:"error"`
-;; 	FilePath string `json:"file-path"`
-;;                                   }
-;; /api/update-records
-;; type ModifyRecordsRequest struct {
-;; 	RecordsAffected int       `json:"records-affected"`
-;; 	Error           string    `json:"error"`
-;; 	TagsToAdd       []string  `json:"tags-to-add"`
-;; 	TagsToDelete    []string  `json:"tags-to-delete"`
-;; 	Request         CoreQuery `json:"request"`
-;; }

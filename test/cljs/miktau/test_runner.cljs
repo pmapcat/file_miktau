@@ -11,13 +11,9 @@
    [miktau.edit-nodes.subs-test]
    [miktau.edit-nodes.query-building-test]
    
+   [miktau.generic.query-building-test]
    
-   [miktau.app-test]
-   [miktau.events-test]
-   [miktau.query-building-test]
-   [miktau.various-test]
-   [miktau.demo-data-test]
-   [miktau.subs-test]))
+   [miktau.various-test]))
 
 (enable-console-print!)
 
@@ -31,12 +27,8 @@
  'miktau.edit-nodes.events-test
  'miktau.edit-nodes.subs-test
  'miktau.edit-nodes.query-building-test
- 
- 'miktau.app-test
- 'miktau.events-test
- 'miktau.query-building-test
- 'miktau.various-test
- 'miktau.subs-test
- 'miktau.demo-data-test)
+
+ 'miktau.generic.query-building-test
+ 'miktau.various-test)
 
 

@@ -1,6 +1,6 @@
 (ns miktau.generic.views
   (:require [re-frame.core :as refe]
-            [miktau.views.utils :as views-utils]))
+            [miktau.generic.views-utils :as views-utils]))
 
 (defn dropzone []
   [:div.mik-flush-center.background-1

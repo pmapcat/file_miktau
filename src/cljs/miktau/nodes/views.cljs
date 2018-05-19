@@ -1,5 +1,5 @@
 (ns miktau.nodes.views
-  (:require [miktau.views.utils :as views-utils]
+  (:require [miktau.generic.views-utils :as views-utils]
             [re-frame.core :as refe]
             [miktau.utils :as utils]))
 

@@ -1,4 +1,4 @@
-(ns miktau.effects
+(ns miktau.generic.effects
   (:require
    [day8.re-frame.http-fx]
    [re-frame.core :as refe]))

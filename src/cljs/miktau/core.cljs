@@ -2,9 +2,9 @@
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame]
             
-            [miktau.effects]
-            [miktau.subs]
-            [miktau.events]
+            [miktau.generic.effects]
+            [miktau.generic.subs]
+            [miktau.generic.events]
             
             [miktau.cloud.events]
             [miktau.cloud.subs]

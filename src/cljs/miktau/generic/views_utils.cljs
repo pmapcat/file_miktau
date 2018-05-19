@@ -1,4 +1,4 @@
-(ns miktau.views.utils
+(ns miktau.generic.views-utils
   (:require [clojure.string :as cstring]))
 
 

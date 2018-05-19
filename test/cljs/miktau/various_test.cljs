@@ -1,7 +1,6 @@
 (ns miktau.various-test
   (:require-macros [cljs.test :refer [deftest testing is]])
-  (:require [cljs.test :as t]
-            [miktau.utils :as utils]))
+  (:require [miktau.utils :as utils]))
 
 (deftest testing-parse-int? []
   (is (= (utils/mik-parse-int 123 -1) 123))
