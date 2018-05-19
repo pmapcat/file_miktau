@@ -2,7 +2,7 @@
   (:require-macros [cljs.test :refer [deftest testing is]])
   (:require [cljs.test :as t]
             [miktau.cloud.subs :as miktau-subs]
-            [miktau.utils :as utils]
+            [miktau.tools :as utils]
             [miktau.cloud.events :as miktau-events]
             [clojure.data :as clojure-data]
             [miktau.cloud.demo-data-test :as demo-data]))

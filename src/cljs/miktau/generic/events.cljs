@@ -1,4 +1,4 @@
-(ns miktau.genric.events
+(ns miktau.generic.events
   (:require
    [re-frame.core :as refe]))
 

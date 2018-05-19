@@ -1,7 +1,7 @@
 (ns miktau.edit-nodes.events-test
   (:require-macros [cljs.test :refer [deftest testing is]])
   (:require [miktau.edit-nodes.events :as miktau-events]
-            [miktau.utils  :as utils]
+            [miktau.tools  :as utils]
             [miktau.edit-nodes.demo-data-test :as demo-data]))
 
 (deftest test-file-opreration []

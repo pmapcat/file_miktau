@@ -1,6 +1,6 @@
 (ns miktau.edit-nodes.query-building-test
   (:require-macros [cljs.test :refer [deftest testing is]])
-  (:require [miktau.demo-data-test :as demo-data]
+  (:require [miktau.edit-nodes.demo-data-test :as demo-data]
             [miktau.edit-nodes.query-building :as query-building]))
 
 (deftest test-building-query-for-retrieval []

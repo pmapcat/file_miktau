@@ -15,7 +15,6 @@
             
             
             [miktau.core-views :as miktau-core-views]
-            
             [miktau.config :as config]))
 
 ;; (enable-console-print!)
@@ -32,7 +31,7 @@
                   (.getElementById js/document "container")))
 
 (defn render []
-  (re-frame/dispatch-sync [:edit-nodes/init-page #{"*"} #{:bibliostore} {}])
+  (re-frame/dispatch-sync [:nodes/init-page #{"*"} #{:bibliostore} {}])
 
   (dev-setup)
   (mount-root))

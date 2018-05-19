@@ -1,6 +1,6 @@
 (ns miktau.edit-nodes.events
   (:require
-   [miktau.utils :as utils]
+   [miktau.tools :as utils]
    [miktau.edit-nodes.query-building :as query-building]
    [miktau.edit-nodes.db :as miktau-db]
    [miktau.meta-db :as meta-db]

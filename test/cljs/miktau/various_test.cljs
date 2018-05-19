@@ -1,6 +1,9 @@
 (ns miktau.various-test
   (:require-macros [cljs.test :refer [deftest testing is]])
-  (:require [miktau.utils :as utils]))
+  (:require [miktau.tools :as utils]))
+
+;; (utils/mik-parse-int "asdad" 0)
+
 
 (deftest testing-parse-int? []
   (is (= (utils/mik-parse-int 123 -1) 123))

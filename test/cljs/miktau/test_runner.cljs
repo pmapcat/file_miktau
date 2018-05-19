@@ -1,6 +1,7 @@
 (ns miktau.test-runner
   (:require
    [doo.runner :refer-macros [doo-tests]]
+   [miktau.tools :as utils]
    [miktau.cloud.events-test]
    [miktau.cloud.subs-test]
 
@@ -11,9 +12,10 @@
    [miktau.edit-nodes.subs-test]
    [miktau.edit-nodes.query-building-test]
    
-   [miktau.generic.query-building-test]
+   ;; [miktau.generic.query-building-test]
    
-   [miktau.various-test]))
+   ;; [miktau.various-test]
+   ))
 
 (enable-console-print!)
 
@@ -28,7 +30,8 @@
  'miktau.edit-nodes.subs-test
  'miktau.edit-nodes.query-building-test
 
- 'miktau.generic.query-building-test
- 'miktau.various-test)
+ ;; 'miktau.generic.query-building-test
+ ;; 'miktau.various-test
+ )
 
 

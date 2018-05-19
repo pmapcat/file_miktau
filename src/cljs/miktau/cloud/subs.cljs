@@ -2,7 +2,7 @@
   (:require [re-frame.core :as refe]
             [clojure.string :as cljs-string]
             [miktau.meta-db :refer [meta-page?]]
-            [miktau.utils :as utils]))
+            [miktau.tools :as utils]))
 (defn filtering [db _]
   (or (:filtering db) ""))
 (refe/reg-sub :cloud/filtering filtering)

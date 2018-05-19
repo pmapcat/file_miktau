@@ -1,3 +1,0 @@
-{:require  [miktau.app]
- :init-fns [miktau.app/init]
- :compiler-options {:asset-path "js/app.out"}}

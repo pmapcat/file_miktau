@@ -1,7 +1,7 @@
 (ns miktau.cloud.events-test
   (:require-macros [cljs.test :refer [deftest testing is]])
   (:require [miktau.cloud.events :as miktau-events]
-            [miktau.utils  :as utils]
+            [miktau.tools :as utils]
             [clojure.data :as clojure-data]
             [miktau.cloud.demo-data-test :as demo-data]
             [miktau.demo-data-test :refer [demo-response]]))
@@ -10,6 +10,10 @@
   [a b]
   (is (= a b)
       (str (butlast (clojure-data/diff a b)))))
+
+
+(deftest test-existence-of-utils-namespace []
+  (is (= utils/in-utils-variable "BLAB")))
 
 (deftest test-clicking-on-disabled-cloud-item []
   (let [db (assoc demo-data/initial-db-after-load-from-server :cloud-selected #{:hem :in :dal})]

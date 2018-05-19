@@ -1,5 +1,5 @@
 (ns miktau.generic.query-building
-  (:require [miktau.utils :as utils]))
+  (:require [miktau.tools :as utils]))
 
 (defn build-core-query-for-retrieval
   "TESTED"

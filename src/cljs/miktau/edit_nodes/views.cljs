@@ -17,7 +17,7 @@
        {:key (:name tag)
         :class (if (:selected? tag) " crossed-out " "")
         :style {:cursor "pointer"  :display "inline-block"}
-        :on-click #(refe/dispatch [:delete-tag-from-selection (:key-name tag)])} 
+        :on-click #(refe/dispatch [:edit-nodes/delete-tag-from-selection (:key-name tag)])} 
        (:name tag) " "])]])
 
 (defn group-operations [nodes-changing]
@@ -32,11 +32,11 @@
        "Reduce amount of files to less than 20 in a selection" [:br]
        "To successfuly open them"]]
      [:span {:key "if-less-than-N"}
-      [:a.mik-cut-left.unstyled-link.pure-button {:key "in a single folder" :href "#" :on-click #(refe/dispatch [:file-operation :in-folder])}
+      [:a.mik-cut-left.unstyled-link.pure-button {:key "in a single folder" :href "#" :on-click #(refe/dispatch [:edit-nodes/file-operation :in-folder])}
        [views-utils/icon "folder_open"] " In a single folder"]
-      [:a.unstyled-link.pure-button  {:key "each individually" :href "#" :on-click #(refe/dispatch [:file-operation :individually])}
+      [:a.unstyled-link.pure-button  {:key "each individually" :href "#" :on-click #(refe/dispatch [:edit-nodes/file-operation :individually])}
        [views-utils/icon "list"] " Each individually"]
-      [:a.unstyled-link.pure-button  {:key "individually" :href "#"  :on-click #(refe/dispatch [:file-operation :default-program])}
+      [:a.unstyled-link.pure-button  {:key "individually" :href "#"  :on-click #(refe/dispatch [:edit-nodes/file-operation :default-program])}
        [views-utils/icon "filter"] " Each in default program"]])])
 (defn add-tags-to-selection [nodes-changing]
   [:div
@@ -47,18 +47,18 @@
     [:textarea.padded-as-button
      {:placeholder "tag_one, tag_another, tag_third, tag_nth"
       :style  {:width "98%" :height "100px" :resize "none" }
-      :on-change #(refe/dispatch [:add-tags-to-selection (e->content %)])
+      :on-change #(refe/dispatch [:edit-nodes/add-tags-to-selection (e->content %)])
       :value  (:tags-to-add nodes-changing)}]]])
 
 (defn main []
-  (let [nodes-changing @(refe/subscribe [:nodes-changing])]
+  (let [nodes-changing @(refe/subscribe [:edit-nodes/nodes-changing])]
     [:div.background-1.padded-as-button {:style {:height "100%"}}
      ;; group op
      [:div.mik-flush-right
       [views-utils/icon "photo_size_select_small"]
       " Selected " [:b (:total-amount nodes-changing)] " files"
       [:br]
-      [:a.unstyled-link {:href "#" :on-click #(refe/dispatch [:cancel-tagging])} " Unselect"]]
+      [:a.unstyled-link {:href "#" :on-click #(refe/dispatch [:edit-nodes/cancel-tagging])} " Unselect"]]
      ;; group operations on dataset
      [group-operations nodes-changing]
      ;; tags to remove
@@ -67,5 +67,5 @@
      [add-tags-to-selection nodes-changing]
      ;; changes to submit
      [:div.mik-flush-right.padded-as-button {:style {:margin-top "5em"}}
-      [:a.pure-button {:href "#" :on-click #(refe/dispatch [:cancel-tagging])} [views-utils/icon "cancel"] " Cancel"]
-      [:a.pure-button {:href "#" :on-click #(refe/dispatch [:submit-tagging])} [views-utils/icon "save"]   " Save"]]]))
+      [:a.pure-button {:href "#" :on-click #(refe/dispatch [:edit-nodes/cancel-tagging])} [views-utils/icon "cancel"] " Cancel"]
+      [:a.pure-button {:href "#" :on-click #(refe/dispatch [:edit-nodes/submit-tagging])} [views-utils/icon "save"]   " Save"]]]))

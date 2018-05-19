@@ -1,6 +1,6 @@
 (ns miktau.nodes.events
   (:require
-   [miktau.utils :as utils]
+   [miktau.tools :as utils]
    [miktau.meta-db :as meta-db]   
    [miktau.nodes.db :as miktau-db]
    [re-frame.core :as refe]))

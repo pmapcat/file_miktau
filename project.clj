@@ -22,7 +22,10 @@
                  [org.danielsz/system "0.4.1"]
                  [org.clojure/tools.namespace "0.2.11"]
                  [re-frame "0.10.5"]
-                 [lambdaisland/garden-watcher "0.3.2"]]
+                 [lambdaisland/garden-watcher "0.3.2"]
+
+                 [cljsjs/jquery "2.2.2-0"]
+                 [cljsjs/typeahead-bundle "0.11.1-1"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-environ "1.1.0"]

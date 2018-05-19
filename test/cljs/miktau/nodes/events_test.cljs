@@ -1,6 +1,7 @@
 (ns miktau.nodes.events-test
   (:require-macros [cljs.test :refer [deftest testing is]])
   (:require [miktau.nodes.events :as miktau-events]
+            [cljs.test :as t]
             [miktau.nodes.demo-data-test :as demo-data]))
 
 (deftest test-initialize-page []
