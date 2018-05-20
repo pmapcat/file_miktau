@@ -65,73 +65,66 @@
 (def screen
   [
    ;; tables 
-   [:.minimal-table {:width "100%" :border "none !important"}
-    [:&>thead {:background "none !important" :border-bottom "1px"}
-     [:&>tr {:border-bottom "solid 2px;"}]]
+   ;; [:.minimal-table {:width "100%" :border "none !important"}
+   ;;  [:&>thead {:background "none !important" :border-bottom "1px"}
+   ;;   [:&>tr {:border-bottom "solid 2px;"}]]
     
-    [:&>tbody
-     [:&>tr:hover {:background "#dddddd" :color "white" :cursor "pointer"}]
-     [:&>tr>td {:padding-top "0.5em"}]]
+   ;;  [:&>tbody
+   ;;   [:&>tr:hover {:background "#dddddd" :color "white" :cursor "pointer"}]
+   ;;   [:&>tr>td {:padding-top "0.5em"}]]
     
-    [:& :td :th {:border "none !important" :padding "0 !important"}]]
-   ;; tag input
-   [[:tags>:div>:input {:background "none !important"}]
-    [:tags :tag :x:hover {:background "#ABABA9"}]
-    [:tags :tag>div:before {:background "#dddddd"}]]
-   [:.table-hover:hover {:background "white !important"}]
+   ;;  [:& :td :th {:border "none !important" :padding "0 !important"}]]
+   ;; ;; tag input
+   ;; [[:tags>:div>:input {:background "none !important"}]
+   ;;  [:tags :tag :x:hover {:background "#ABABA9"}]
+   ;;  [:tags :tag>div:before {:background "#dddddd"}]]
+   ;; [:.table-hover:hover {:background "white !important"}]
    
-   ;; dropdowns 
-   [:.dropdown
-    {:position "relative" :display "inline-block"
-     :font-weight "600"
-     :cursor "pointer"}
-    [:&:after
-     {:content "\" \\25BE\""
-      :color "#a7a6a6"
-      :font-size "0.8em;"}]
-    [:&-content
-     {:display "none" :position "absolute" :background "#f7f7f7 !important"
-      :z-index "999"}]
-    [:&:hover>.dropdown-content {:display "block"}]
-    [:&:hover {:color "#4d4d4d"}]]
-   [:.pure-g {:display "flex"}]
+   ;; ;; dropdowns 
+   ;; [:.dropdown
+   ;;  {:position "relative" :display "inline-block"
+   ;;   :font-weight "600"
+   ;;   :cursor "pointer"}
+   ;;  [:&:after
+   ;;   {:content "\" \\25BE\""
+   ;;    :color "#a7a6a6"
+   ;;    :font-size "0.8em;"}]
+   ;;  [:&-content
+   ;;   {:display "none" :position "absolute" :background "#f7f7f7 !important"
+   ;;    :z-index "999"}]
+   ;;  [:&:hover>.dropdown-content {:display "block"}]
+   ;;  [:&:hover {:color "#4d4d4d"}]]
+   ;; [:.pure-g {:display "flex"}]
    
-   [:.background-0 {:background "#ffffff"}]
-   [:.background-1 {:background "#f7f7f7" }]
-   [:.background-2 {:background "#f1f1f1"}]
-   [:.background-3 {:background "#ebebeb"}]
-   [:.background-4 {:background "#e7e7e7"}]
+   ;; [:.background-0 {:background "#ffffff"}]
+   ;; [:.background-1 {:background "#f7f7f7" }]
+   ;; [:.background-2 {:background "#f1f1f1"}]
+   ;; [:.background-3 {:background "#ebebeb"}]
+   ;; [:.background-4 {:background "#e7e7e7"}]
    
-   [:.unstyled-link {:text-decoration "none" :font-weight "900" :color "#000000"}]
-   [:.unstyled-link:hover {:text-decoration "none" :color
-                           (:light-green *apple-palette*)}]
+   
+   ;; [:.shadow {:box-shadow 'none}]
+   ;; [:.pure-menu-link {:color "#000000 !important" :background "none !important"}]
+   ;; [:.pure-menu-link:hover {:color "#4d4d4d !important" :background "#ababab !important"}]
+   ;; ;; [:.pure-button       {:background "none !important" :font-weight "600 !important" :font-family (:body fonts)}]
+   
+   ;; [:.pure-button:hover {:color (str (:light-green *apple-palette*) "!important;")}]
+   
+   ;; [:.gray   {:color "#ababab"}]
+   ;; [:.black  {:color "#000000"}]
+   ;; [:.orange {:color "#4d4d4d"}]
    
 
-   
-   [:.shadow {:box-shadow 'none}]
-   [:.pure-menu-link {:color "#000000 !important" :background "none !important"}]
-   [:.pure-menu-link:hover {:color "#4d4d4d !important" :background "#ababab !important"}]
-   [:.pure-button       {:background "none !important" :font-weight "600 !important" :font-family (:body fonts)}]
-   [:.pure-button:hover {:color (str (:light-green *apple-palette*) "!important;")}]
-   
-   [:.gray   {:color "#ababab"}]
-   [:.black  {:color "#000000"}]
-   [:.orange {:color "#4d4d4d"}]
-   [:.selected {:background (str (:light-green *apple-palette*) "!important;")
-                :color (str "white"
-                            " !important")}]
-   
-
-   [:.crossed-out {:background "HSL(22,99%,88%)" :text-decoration "line-through" :color "black"}]
-   [:.crossed-out:hover {:background "HSL(22,99%,88%)" :text-decoration "line-through" :color "black"}]
-   [:.added-in {:background "HSL(130,100%,92%)" :color "black"}]
-   [:.added-in:hover {:background "HSL(130,100%,92%)" :color "black"}]
+   ;; [:.crossed-out {:background "HSL(22,99%,88%)" :text-decoration "line-through" :color "black"}]
+   ;; [:.crossed-out:hover {:background "HSL(22,99%,88%)" :text-decoration "line-through" :color "black"}]
+   ;; [:.added-in {:background "HSL(130,100%,92%)" :color "black"}]
+   ;; [:.added-in:hover {:background "HSL(130,100%,92%)" :color "black"}]
    
    
-   [:.disabled {:color "HSL(123,1%,84%)" :cursor "default" }]
-   [:.disabled:hover {:color "HSL(123,1%,84%) !important" :cursor "default !important" }]
-   [:.warning {:background (:light-red *apple-palette*) :font-weight "600" :color "white"
-               :padding "20px"}]
+   ;; [:.disabled {:color "HSL(123,1%,84%)" :cursor "default" }]
+   ;; [:.disabled:hover {:color "HSL(123,1%,84%) !important" :cursor "default !important" }]
+   ;; [:.warning {:background (:light-red *apple-palette*) :font-weight "600" :color "white"
+   ;;             :padding "20px"}]
    
    [:.tag    {:font-family (:body fonts)
               :padding "3px"
@@ -139,26 +132,48 @@
               :font-weight "600"
               :display "inline-block"
               :text-decoration "none"}]
+   
    [:.tag:hover {:color (str (:light-green *apple-palette*))}]
    [:.tag.disabled       {:color "HSL(123,1%,84%)" :cursor "default" }]
    [:.tag.disabled:hover {:color "HSL(123,1%,84%) !important" :cursor "default"}]
    [:.tag.can-select       {:color "black" :cursor "pointer" }]
    [:.tag.can-select:hover {:color (str (:light-green *apple-palette*))}]
-   [:.inline-tag:hover {:color (:light-green *apple-palette*)}]   
-   [:.inline-tag
-    {:font-weight "600"
-     :color "black"
-     :padding "3px"
-     :border-radius "5%"
-     :margin "6px"
-     :display "inline-block"}]
+   [:.tag.selected {:background (str (:light-green *apple-palette*) "!important;") :color (str "white !important")}]
+
+   [:.red-clickable {:color "red"}]
+   [:.red-clickable:hover {:color "#f5c6c6"}]
+   [:.green-clickable {:color "rgba(160, 195, 119, 1)"}]
+   [:.green-clickable:hover {:color "rgb(216, 239, 189)"}]
+   [:.black-clickable {:color "black"}]
+   [:.black-clickable:hover {:color "#a7a3a3"}]
+   [:.blue-clickable {:color "blue"}]
+   [:.blue-clickable:hover {:color "#8f8fff"}]
+   
+   
+   
+   [:.unstyled-link {:text-decoration "none" :font-weight "900" }]
+   [:.unstyled-link:hover {:text-decoration "none"}]
+
+   
+   
+   
+   
+   ;; [:.inline-tag:hover {:color (:light-green *apple-palette*)}]   
+   ;; [:.inline-tag
+   ;;  {:font-weight "600"
+   ;;   :color "black"
+   ;;   :padding "3px"
+   ;;   :border-radius "5%"
+   ;;   :margin "6px"
+   ;;   :display "inline-block"}]
 
    
    
    
    [:.light-gray  {:color "#dddddd"}]
-   [:.header-font  {:font-family (:body fonts)}]
-   [:.body-font {:font-family (:body fonts)}]
+   ;; [:.header-font  {:font-family (:body fonts)}]
+   ;; [:.body-font {:font-family (:body fonts)}]
+   
    
    (general-classes)])
 

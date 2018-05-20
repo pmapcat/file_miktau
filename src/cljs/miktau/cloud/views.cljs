@@ -27,7 +27,7 @@
 
 (defn general-cloud []
   [:div
-   (for [tag  (:group (first @(refe/subscribe [:cloud/cloud])))]
+   (for [tag  @(refe/subscribe [:cloud/cloud])]
      [:span {:key (:key-name tag)}
       [general-cloud-tag-item tag]])])
 
@@ -81,60 +81,123 @@
 
 (defn  facet-group-select-time []
   (let [calendar @(refe/subscribe [:cloud/calendar])]
-    [:div.pure-g
+    [:div.pure-g {:style {:font-size "1em"}}
      ;; year      
      [facet-group-select-time-subwidget
       "line_style"
       (:group-name (:year calendar))
-      " pure-u-1-3 tag "
+      " pure-u-1-5 tag "
       (:group (:year calendar))]
      ;; month
      [facet-group-select-time-subwidget
       "date_range"
       (:group-name (:month calendar))
-      " pure-u-1-5 tag "
+      " pure-u-1-8 tag "
       (:group (:month calendar))]
      ;; day
      [facet-group-select-time-subwidget
       "date_range"
       (:group-name (:day calendar))
-      " pure-u-1-5 tag"
+      " pure-u-1-8 tag"
       (:group (:day calendar))]]))
 
 (defn filter-input []
-  (let [filtering (refe/subscribe [:cloud/filtering])]
-    [:div.padded-as-button {:style {:position "relative"}}
-     [:input.background-0
-      {:type "text" :placeholder "Filter"
-       :value @filtering
-       :on-change #(refe/dispatch [:cloud/filtering (e->content %)])
-       :style {:width "97%" :height "2em" :padding-left "20px" :background "white !important"}}]
-     [:div {:style {:position "absolute" :right "30px" :top "23px"}}
-      [:a.unstyled-link {:href "#" :on-click #(refe/dispatch [:cloud/clear])} 
-       "Clear"]]
-     [:div {:style {:position "absolute" :right "90px" :top "23px"}}
-      [views-utils/icon "search"]]]))
+  [:div.padded-as-button {:style {:position "relative" :padding-top "20px" :padding-bottom "20px"}}
+   [:input
+    {:type "text" :placeholder "Type tags in here..."
+     :style {:width "90%" :height "2em" :padding-left "3px" :background "white !important"}}]
+   [:div.pure-button.pure-button-primary {:style {:position "absolute" :right "30px" :top "20px"}}
+    [views-utils/icon "search"]]])
+(defn for-every-and-last
+  [data-set]
+  (let [last-by-index (dec (count data-set))
+        first-by-indx 0]
+    (for [[k v ] (zipmap data-set (range))]
+      [k {:point k
+          :index v
+          :last? (= v last-by-index)
+          :first? (= v 0)}])))
 
+(defn breadcrumbs []
+  (let [breadcrumbs @(refe/subscribe [:cloud/breadcrumbs])]
+    [:div 
+     [:a.unstyled-link.red-clickable {:href "#" :on-click #(refe/dispatch [:cloud/clear]) :style {:padding-right "5px"}} "[Clear] "]
+     
+     [:span {:style {:padding-right "5px"}}
+      
+      (for [[item meta-item]  (for-every-and-last (:calendar breadcrumbs))]
+        ^{:key (:name item)}
+        [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
+         (if-not (:last? meta-item) " > " " | ")])
+      
+      (for [[item meta-item] (for-every-and-last (:cloud-items breadcrumbs))]
+        ^{:key (:name item)}
+        [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
+         (if-not (:last? meta-item) " > " " | ")])]
+     
+     [:span 
+      (for [[item meta-item]  (for-every-and-last (:cloud-can-select breadcrumbs))]
+        ^{:key (:name item)}
+        [:span
+         [:a.unstyled-link.green-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
+         (if-not (:last? meta-item) " • " " ")])]]))
+
+
+(defn back-button
+  []
+  [:div {:style {:position "relative"}}
+   [:a.unstyled-link 
+    {:href "#"
+     :on-click #(refe/dispatch [:back])
+     :style
+     {:font-size "3em", :padding-top "0.2em",
+      :position "absolute"
+      :padding-left "0.5em", :padding-right "0.5em"}}
+    [views-utils/icon "keyboard_arrow_left"]]])
+(defn nodes-selected-view []
+  [:div {:style {:font-size "0.8em" }}
+   [:div.pure-u-1-2 
+    [:h2.mik-cut-top.light-gray "Group actions on"]
+    [:span "Selected: " [:b "47"] " files"]]
+   [:div.pure-u-1-2.mik-flush-right
+    [:button.pure-button.pure-button-primary
+     "Narrow results"] [:br]
+    [:a.unstyled-link.blue-clickable {:href "#"}
+     "Tag selection"] [:br]
+    [:a.unstyled-link.blue-clickable {:href "#"}
+     "Open in a single folder"] [:br]
+    [:a.unstyled-link.blue-clickable {:href "#"}
+     "Open each individually"] [:br]
+    [:a.unstyled-link.blue-clickable {:href "#"}
+     "Open each in a default program"]]])
 (defn main
   []
-  [:div.pure-g
+  [:div.pure-g {:style {:margin-bottom "200px"}}
    ;; header
-   [:div.pure-u-1
-    [:div.pure-u-1-8
-     [:div
-      ;; [:a.unstyled-link
-      ;;  {:href "#"
-      ;;   :on-click #(refe/dispatch [:back])
-      ;;   :style
-      ;;   {:font-size "3em", :padding-top "0.5em",
-      ;;    :padding-left "0.5em", :padding-right "0.5em"}}
-      ;;  [views-utils/icon "keyboard_arrow_left"]]
-      ]]
-    [:div.pure-u-7-8
+   [:div.pure-u-1 {:style {:box-shadow "1px 1px 2px 0px gray"}}
+    [:div.pure-u-1-4
+     [:div [back-button]]]
+    [:div.pure-u-3-4
      [filter-input]]]
-   ;; time facet
-   [:div.pure-u-1-5.background-0 [:div.padded-as-button [facet-group-select-time]]]
-   ;; tree facet
-   [:div.pure-u-2-5.background-1 [:div.padded-as-button [general-tree]]]
-   ;; cloud facet
-   [:div.pure-u-4-5 [:div.background-2 [:div  [general-cloud]]]]])
+   ;; [:div.pure-u-1-8
+   ;;  [:button.pure-button.default {:style {:background "blue"}}
+   ;;   [views-utils/icon "search"]]]
+   
+   [:div.pure-u-1-4
+    [:div.padded-as-button [facet-group-select-time]]]
+   [:div.pure-u-3-4
+    ;; header panel
+    
+
+    ;; breadcrumbs
+    [:div.pure-u-1.padded-as-button {:style {:padding-bottom "30px" :font-size "0.9em"}}
+     [breadcrumbs]]
+    
+    ;; cloud
+    [:div.pure-u-1.padded-as-button
+     [general-cloud]]
+    [:div.padded-as-button {:style {:position "fixed" :left "0px" :right "0px" :bottom "0px"  :background "white" :box-shadow "2px 0px 3px 0px grey"}}
+     [nodes-selected-view]]
+
+    
+    ]])

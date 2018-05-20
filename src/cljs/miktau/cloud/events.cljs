@@ -24,7 +24,8 @@
   {:db 
    (assoc db
        :filtering ""
-       :cloud-selected #{})
+       :cloud-selected #{}
+       :calendar-selected {})
    :fx-redirect [:cloud/get-app-data]})
 (refe/reg-event-fx :cloud/clear clear)
 
@@ -69,8 +70,6 @@
      (got-app-data-if-diff :cloud-can-select)
      (got-app-data-if-diff :tree-tag))))
 (refe/reg-event-db :cloud/got-app-data got-app-data)
-
-
 
 (defn click-on-fast-access-item
   "TESTED"
@@ -125,7 +124,8 @@
         (keyword? item)
         (conj cloud-selected item)
         :else
-        cloud-selected)))
+        cloud-selected))
+    :cloud-can-select {})
    :fx-redirect [:cloud/get-app-data]})
 
 (refe/reg-event-fx :cloud/clicked-cloud-item click-on-cloud)
@@ -135,7 +135,9 @@
   [{:keys [db]} [_ item]]
   {:db
    (if (keyword? item)
-     (assoc  (discard-selection db) :cloud-selected #{item})
+     (assoc  (discard-selection db)
+             :cloud-selected #{item}
+             :cloud-can-select {})
      db)
    :fx-redirect [:cloud/get-app-data]})
 

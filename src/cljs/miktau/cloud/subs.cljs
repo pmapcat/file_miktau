@@ -3,29 +3,16 @@
             [clojure.string :as cljs-string]
             [miktau.meta-db :refer [meta-page?]]
             [miktau.tools :as utils]))
-(defn filtering [db _]
-  (or (:filtering db) ""))
-(refe/reg-sub :cloud/filtering filtering)
-
-(defn cloud-filtering-should-display?
-  [db]
-  (if-not (meta-page? db :cloud)
-    (fn [_] true)
-    (if (empty? (:filtering  db))
-      (fn [_] true)
-      (let [compara (cljs-string/lower-case (str (:filtering db)))]
-        (fn [item]
-          (cljs-string/includes? (str (:compare-name item)) compara))))))
 
 (defn get-db-for-test-purposes [db _]
-  ;; (if-not (meta-page? db :cloud)
-    ;; {}
-  db)
-;; )
+  (if-not (meta-page? db :cloud)
+    {}
+    db))
+
 (refe/reg-sub :cloud/get-db-for-test-purposes get-db-for-test-purposes)
 
 (comment
-  (println (:meta @(refe/subscribe [:cloud/get-db-for-test-purposes])))
+  (println (:cloud @(refe/subscribe [:cloud/get-db-for-test-purposes])))
   (refe/dispatch [:cloud/get-app-data])
   )
 
@@ -69,6 +56,8 @@
             (general-tree child (inc pad-level) cloud-can-select cloud-selected))
           :else
           [])]))))
+
+
 (defn general-tree-subscription
   [db _]
   (if-not (meta-page? db :cloud)
@@ -83,28 +72,20 @@
   (if-not (meta-page? db :cloud)
     []
     (try
-      (for [[group-name group] (:cloud db)]
-        (let [max-size (apply max (vals group))
-              filterer (cloud-filtering-should-display? db) 
-              should-display?
-              (fn [group]
-                (filter filterer group))]
-          {:group-name (str (name group-name))
-           :max-size   max-size
-           :group
-           (sort-by
-            :compare-name
-            (should-display?
-             (for [[tag tag-size] group]
-               {:name    (str (name tag))
-                :compare-name (cljs-string/lower-case (str (name tag)))
-                :key-name tag
-                :size     tag-size
-                :group    group-name
-                :weighted-size (/ tag-size max-size)
-                :disabled?      (not (contains? (:cloud-can-select db) tag))
-                :selected?      (contains? (db :cloud-selected) tag)
-                :can-select?    (contains? (:cloud-can-select db) tag)})))}))
+      (let [group (:root (:cloud db))
+            max-size (apply max (vals group))]
+        (sort-by
+         :compare-name
+         (for [[tag tag-size] group]
+           {:name    (str (name tag))
+            :compare-name (cljs-string/lower-case (str (name tag)))
+            :key-name tag
+            :size     tag-size
+            :group    "root"
+            :weighted-size (/ tag-size max-size)
+            :disabled?      (not (contains? (:cloud-can-select db) tag))
+            :selected?      (contains? (db :cloud-selected) tag)
+            :can-select?    (contains? (:cloud-can-select db) tag)})))
       (catch :default e []))))
 
 (refe/reg-sub :cloud/cloud cloud)
@@ -175,31 +156,34 @@
 
 (refe/reg-sub :cloud/fast-access-calendar fast-access-calendar)
 
-
-
-(defn selection-cloud
-  "TESTED"
-  [db _]
+(defn breadcrumbs [db _]
   (if-not (meta-page? db :cloud)
-    []
-    (cond
-      (empty? (:cloud-can-select db)) []
-      (empty? (:cloud-selected  db))  []
-      :else
-      (sort-by
-       :compare-name
-       (let [filterer (cloud-filtering-should-display? db) 
-             should-display?
-             (fn [group]
-               (filter filterer group))]
-         (should-display?
-          (for [[tag _] (:cloud-can-select db )]
-            {:name    (str (name tag))
-             :compare-name (cljs-string/lower-case (str (name tag)))
-             :key-name tag
-             :weighted-size  1
-             :size           1
-             :selected?      (contains? (db :cloud-selected) tag)
-             :can-select?    true})))))))
+    {}
+    (let [calendar-crumb #(if-let [item (% (:calendar-selected db))] {:name (str (name %) ": " (utils/pad item 2 0)) :on-click [:cloud/click-on-calendar-item % item]} nil)
+          ranker (:root (:cloud db))
+          selectable-items 
+          (if (and (empty? (:cloud-selected db)) (empty? (:calendar-selected db)))
+            (keys (:children (:tree-tag db)))
+            (keys (:cloud-can-select  db)))]
+      {:calendar
+       (filter
+        (comp not nil?)
+        [(calendar-crumb :year)
+         (calendar-crumb :month)
+         (calendar-crumb :day)])
+       :cloud-items
+       (for [item  (:cloud-selected  db)]
+         {:name (str (name item))  :on-click [:cloud/clicked-cloud-item item]})
+       :cloud-can-select
+       (take
+        10
+        (sort-by
+         :rank
+         (filter
+          (comp not empty?)
+          (for [item  selectable-items]
+            (if (contains? (:cloud-selected db) item)
+              {}
+              {:name (str (name item)) :rank (- (item ranker)) :on-click [:cloud/clicked-cloud-item   item]})))))})))
 
-(refe/reg-sub :cloud/selection-cloud selection-cloud)
+(refe/reg-sub :cloud/breadcrumbs breadcrumbs)

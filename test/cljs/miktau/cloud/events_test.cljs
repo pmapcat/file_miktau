@@ -70,6 +70,7 @@
     (is (=  (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc  db :calendar-selected {:year 2018 :month 3})} [nil "FastAccess" {:year 2018 :month 3}]))) {}))
     (is (=  (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 20 :month 3})} [nil "FastAccess" {:year 2018}]))) {:year 2018}))))
 
+
 (deftest test-click-on-cloud []
   (let [db (assoc demo-data/initial-db-after-load-from-server :cloud-selected #{})]
     ;; no selection is available when click happens
@@ -80,7 +81,6 @@
     
     ;; nil test
     (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db nil} [nil :work]))) #{:work}))
-    
     
     (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db db} [nil nil])))     #{}))
     (is (=  (:cloud-selected  (:db (miktau-events/click-on-cloud {:db db} [nil 123])))     #{}))

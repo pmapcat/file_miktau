@@ -194,3 +194,22 @@
          (into [] (take  21 (repeat :day)))))
   (is (= (mapv :selected?  (:group  (:day (miktau-subs/calendar demo-data/initial-db-after-load-from-server nil))))
          (into [] (take  21 (repeat false))))))
+
+(deftest test-breadcrumbs []
+  (let [db demo-data/initial-db-after-load-from-server]
+    (is (= (miktau-subs/breadcrumbs db nil)
+           {:calendar
+            [{:name "year 2018", :on-click [:cloud/click-on-calendar-item :year 2018]}
+             {:name "month 11", :on-click [:cloud/click-on-calendar-item :month 11]}
+             {:name "day 23", :on-click [:cloud/click-on-calendar-item :day 23]}],
+            :cloud-items (list {:name "blab", :on-click [:cloud/click-on-cloud-item :blab]}),
+            :cloud-can-select (list {:name "moscow_market", :on-click [:cloud/click-on-cloud-item :moscow_market]}
+                                    {:name "devops", :on-click [:cloud/click-on-cloud-item :devops]}
+                                    {:name "personal", :on-click [:cloud/click-on-cloud-item :personal]}
+                                    {:name "usecases", :on-click [:cloud/click-on-cloud-item :usecases]}
+                                    {:name "биржа", :on-click [:cloud/click-on-cloud-item :биржа]})}))
+
+    (is (= (miktau-subs/breadcrumbs (assoc db :cloud-selected #{}
+                                           :calendar-selected {}) nil)
+           {:calendar (list), :cloud-items (list), :cloud-can-select
+            (list {:name "work", :on-click [:cloud/click-on-cloud-item :work]} {:name "работа_сделана", :on-click [:cloud/click-on-cloud-item :работа_сделана]})}))))

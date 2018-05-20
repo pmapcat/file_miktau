@@ -7,7 +7,8 @@
 (deftest test-initialize-page []
   (is (= (:db (miktau-events/init {:db (dissoc demo-data/demo-db :meta)} nil nil nil))
          {:nodes-sorted "", :nodes [], :nodes-selected {},
-          :meta {:page :nodes, :loading? false}, :total-nodes 0, :cloud-selected #{}, :calendar-selected {}})))
+          :meta {:page :nodes, :loading? true}, :total-nodes 0, :cloud-selected #{}, :calendar-selected {}})))
+
 
 
 (deftest test-select-all-nodes []

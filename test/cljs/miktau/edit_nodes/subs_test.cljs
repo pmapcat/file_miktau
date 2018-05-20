@@ -5,17 +5,14 @@
             [miktau.meta-db :as meta-db]
             [miktau.edit-nodes.demo-data-test :as demo-data]))
 
-
 (deftest testing-nodes-changing
   []
   (is (= (miktau-subs/nodes-changing nil nil) {}))
-  (is (= (miktau-subs/nodes-changing (meta-db/set-page-db demo-data/initial-db-after-load-from-server :edit-nodes) nil)
-         {:all-selected? false, :total-amount 0, :tags-to-add nil, :tags-to-delete (list)}))
+  ;; (is (= (miktau-subs/nodes-changing (assoc (meta-db/set-page-db demo-data/initial-db-after-load-from-server :edit-nodes) :nodes-selected #{}) nil)
+  ;;        {:all-selected? false, :total-amount 0, :tags-to-add nil :tags-to-delete (list)}))
   
   (is (= (dissoc (miktau-subs/nodes-changing demo-data/initial-db-after-load-from-server nil) :tags-to-delete)
          {:all-selected? true, :total-amount 22, :tags-to-add ""}))
-
-  
   
   (is (= (first (:tags-to-delete (miktau-subs/nodes-changing demo-data/initial-db-after-load-from-server nil)))
          {:name "amazon"

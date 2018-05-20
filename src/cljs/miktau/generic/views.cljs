@@ -26,11 +26,11 @@
 
 (defn processing
   []
-  [:div.mik-flush-center.background-1
-   {:style {:padding "5em" :border "dashed 1px gray"}}
+  [:div.mik-flush-center
+   {:style {:padding "5em" }}
    [:div
-    [:a {:href "#" :style {:font-size "4em"}}
+    [:h1 {:style {:font-size "4em"}}
      "Processing..."]
-    [:div.mik-flush-center.background-1
+    [:div.mik-flush-center
      [:img {:src "/loading.gif"}]]]])
 
