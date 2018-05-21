@@ -5,7 +5,6 @@
    [miktau.meta-db :as meta-db]
    [re-frame.core :as refe]))
 
-
 (defn init
   "TODO: TEST"
   [_ [_ cloud-selected-set calendar-selected-dict]]
@@ -17,6 +16,21 @@
           :calendar-selected (or  calendar-selected-dict {}))
    :fx-redirect [:cloud/get-app-data]})
 (refe/reg-event-fx :cloud/init-page init)
+
+(defn redirect-to-nodes
+  [{:keys [db]} [_ all-nodes-selected?]]
+  {:db  db
+   :fx-redirect [:nodes/init-page (if all-nodes-selected? #{"*"} #{}) (:cloud-selected db) (:calendar-selected db)]})
+(refe/reg-event-fx :cloud/redirect-to-nodes redirect-to-nodes)
+
+(defn redirect-to-nodes-edit
+  [{:keys [db]} [_ all-nodes-selected?]]
+  {:db  db
+   :fx-redirect [:edit-nodes/init-page (if all-nodes-selected? #{"*"} #{}) (:cloud-selected db) (:calendar-selected db)]})
+(refe/reg-event-fx :cloud/redirect-to-edit-nodes redirect-to-nodes)
+
+
+
 
 (defn clear
   "TESTED"
@@ -37,38 +51,32 @@
          (str data)))
 (refe/reg-event-db :cloud/filtering filtering)
 
-
 (defn get-app-data
   "TESTED"
   [{:keys [db]} _]
-  {:db db ;; (meta-db/set-loading db true)
-   :http-xhrio
-   (utils/server-call
-    {:url "/api/get-app-data"
-     :params
-     {:modified (or (:calendar-selected db) {})
-      :sorted   ""
-      :tags     (or (into [] (sort (map str (map name (:cloud-selected db))))) [])}}
-    :cloud/got-app-data :http-error)})
-
+  {:db db
+   :fx-redirect [:api-handler/get-app-data :cloud/got-app-data #{} (:cloud-selected db) (:calendar-selected db)]})
 (refe/reg-event-fx :cloud/get-app-data get-app-data)
+
+
+(defn numberize-calendar-response
+  [calres]
+  {:day (utils/integerize-keyword-keys (:day calres))
+   :month (utils/integerize-keyword-keys (:month calres))
+   :year (utils/integerize-keyword-keys (:year calres))})
 
 (defn got-app-data
   "TESTED"
   [db [_ response]]
-  (let [got-app-data-if-diff
-        (fn [db key]
-          (if-not (= (key db) (key response))
-            (assoc db key  (key response))
-            db))]
-    (->
-     (meta-db/set-loading db false)
-     (got-app-data-if-diff :calendar-can-select)
-     (got-app-data-if-diff :date-now)
-     (got-app-data-if-diff :calendar)
-     (got-app-data-if-diff :cloud)
-     (got-app-data-if-diff :cloud-can-select)
-     (got-app-data-if-diff :tree-tag))))
+  (->
+   (meta-db/set-loading db false)
+   (assoc :calendar-can-select (numberize-calendar-response (:calendar-can-select response)))
+   (assoc :date-now (:date-now response))
+   (assoc :calendar (numberize-calendar-response (:calendar response)))
+   (assoc :cloud (:cloud response))
+   (assoc :total-nodes (:total-nodes response))
+   (assoc :cloud-can-select (:cloud-can-select response))
+   (assoc :tree-tag (:tree-tag response))))
 (refe/reg-event-db :cloud/got-app-data got-app-data)
 
 (defn click-on-fast-access-item
@@ -84,16 +92,15 @@
 
 (defn click-on-calendar-item
   "TESTED"
-  [{:keys [db]} [_ group key-name]]
+  [{:keys [db]} [_ group item]]
   {:db
    (if (=  group "FastAccess")
-     (click-on-fast-access-item db group key-name)
+     (click-on-fast-access-item db group item)
      (try
-       (let [item (utils/mik-parse-int (name key-name) nil)
-             already-has-item (get-in db [:calendar-selected group])]
+       (let [already-has-item (get-in db [:calendar-selected group])]
          (cond
            (and  item (> item 0) (= already-has-item item))
-           (assoc-in db [:calendar-selected group] nil)
+           (update db :calendar-selected dissoc group)
            (and  item (> item 0))
            (assoc-in db [:calendar-selected group] item)
            :else
@@ -101,6 +108,7 @@
        (catch :default e
          db)))
    :fx-redirect [:cloud/get-app-data]})
+
 
 (refe/reg-event-fx :cloud/click-on-calendar-item click-on-calendar-item)
 
@@ -130,6 +138,23 @@
 
 (refe/reg-event-fx :cloud/clicked-cloud-item click-on-cloud)
 
+(defn clicked-many-cloud-items
+  "TESTED"
+  [{:keys [db]} [_ items]]
+  {:db
+   (cond
+     (not (utils/seq-of-predicate? items keyword?)) db
+     :else
+     (assoc db :cloud-selected (into #{} items)))
+   :fx-redirect [:cloud/get-app-data]})
+(refe/reg-event-fx :cloud/clicked-many-cloud-items  clicked-many-cloud-items)
+
+(defn breadcrumbs-show-all?-switch
+  [db _]
+  (update db :breadcrumbs-show-all? not))
+(refe/reg-event-db :cloud/breadcrumbs-show-all?-switch  breadcrumbs-show-all?-switch)
+
+
 (defn click-on-disabled-cloud
   "TESTED"
   [{:keys [db]} [_ item]]
@@ -151,4 +176,3 @@
    :fx-redirect [:cloud/get-app-data]})
 
 (refe/reg-event-fx :cloud/clicked-disabled-calendar-item click-on-disabled-calendar)
-

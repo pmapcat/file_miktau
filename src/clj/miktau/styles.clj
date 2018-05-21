@@ -149,10 +149,12 @@
    [:.blue-clickable {:color "blue"}]
    [:.blue-clickable:hover {:color "#8f8fff"}]
    
-   
-   
    [:.unstyled-link {:text-decoration "none" :font-weight "900" }]
    [:.unstyled-link:hover {:text-decoration "none"}]
+
+   
+
+   
 
    
    

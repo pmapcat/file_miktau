@@ -1,5 +1,6 @@
 (ns miktau.cloud.views
   (:require [miktau.generic.views-utils :as views-utils]
+            [reagent.core :as reagent]
             [re-frame.core :as refe]))
 
 (defn e->content
@@ -108,11 +109,12 @@
      :style {:width "90%" :height "2em" :padding-left "3px" :background "white !important"}}]
    [:div.pure-button.pure-button-primary {:style {:position "absolute" :right "30px" :top "20px"}}
     [views-utils/icon "search"]]])
+
+
 (defn for-every-and-last
   [data-set]
-  (let [last-by-index (dec (count data-set))
-        first-by-indx 0]
-    (for [[k v ] (zipmap data-set (range))]
+  (let [last-by-index (dec (count data-set))]
+    (for [[v k] (map list (range) data-set)]
       [k {:point k
           :index v
           :last? (= v last-by-index)
@@ -121,26 +123,42 @@
 (defn breadcrumbs []
   (let [breadcrumbs @(refe/subscribe [:cloud/breadcrumbs])]
     [:div 
-     [:a.unstyled-link.red-clickable {:href "#" :on-click #(refe/dispatch [:cloud/clear]) :style {:padding-right "5px"}} "[Clear] "]
+     [:a.unstyled-link.red-clickable {:href "#" :on-click #(refe/dispatch [:cloud/clear]) :style {:padding-right "5px"}} "«Clear»"]
      
      [:span {:style {:padding-right "5px"}}
       
+      ;; calendar
       (for [[item meta-item]  (for-every-and-last (:calendar breadcrumbs))]
         ^{:key (:name item)}
         [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
          (if-not (:last? meta-item) " > " " | ")])
       
+      ;; cloud items
       (for [[item meta-item] (for-every-and-last (:cloud-items breadcrumbs))]
         ^{:key (:name item)}
         [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
-         (if-not (:last? meta-item) " > " " | ")])]
+         (if-not (:last? meta-item) " > " " ")])]
      
-     [:span 
-      (for [[item meta-item]  (for-every-and-last (:cloud-can-select breadcrumbs))]
-        ^{:key (:name item)}
-        [:span
-         [:a.unstyled-link.green-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
-         (if-not (:last? meta-item) " • " " ")])]]))
+     ;; potential selection
+     (if-not (empty? (:cloud-can-select breadcrumbs))
+       [:span
+        "( "
+        (for [[item meta-item]  (for-every-and-last
+                                 (if (:show-all? breadcrumbs)
+                                   (:cloud-can-select breadcrumbs)
+                                   (take 10 (:cloud-can-select breadcrumbs))))]
+          
+          ^{:key (:name item)}
+          [:span
+           [:a.unstyled-link.green-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
+           (if-not (:last? meta-item) " • " " ")])
+        
+        (if (:can-expand? breadcrumbs)
+          [:a.unstyled-link.green-clickable {:href "#" :style {:padding-left "5px" } :on-click #(refe/dispatch [:cloud/breadcrumbs-show-all?-switch])} "…" ]
+          [:span])
+        " )"]
+       [:span])]))
+
 
 
 (defn back-button
@@ -154,6 +172,7 @@
       :position "absolute"
       :padding-left "0.5em", :padding-right "0.5em"}}
     [views-utils/icon "keyboard_arrow_left"]]])
+
 (defn nodes-selected-view []
   [:div {:style {:font-size "0.8em" }}
    [:div.pure-u-1-2 
@@ -162,14 +181,16 @@
    [:div.pure-u-1-2.mik-flush-right
     [:button.pure-button.pure-button-primary
      "Narrow results"] [:br]
+    
     [:a.unstyled-link.blue-clickable {:href "#"}
-     "Tag selection"] [:br]
+     "Edit tags on selection"] [:br]
     [:a.unstyled-link.blue-clickable {:href "#"}
      "Open in a single folder"] [:br]
     [:a.unstyled-link.blue-clickable {:href "#"}
      "Open each individually"] [:br]
     [:a.unstyled-link.blue-clickable {:href "#"}
      "Open each in a default program"]]])
+
 (defn main
   []
   [:div.pure-g {:style {:margin-bottom "200px"}}
@@ -198,6 +219,4 @@
      [general-cloud]]
     [:div.padded-as-button {:style {:position "fixed" :left "0px" :right "0px" :bottom "0px"  :background "white" :box-shadow "2px 0px 3px 0px grey"}}
      [nodes-selected-view]]
-
-    
     ]])

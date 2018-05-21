@@ -24,17 +24,9 @@
 (defn get-app-data
   "TESTED"
   [{:keys [db]} _]
-  (if-let [core-query (query-building/build-core-query-for-action db nil)]
-    {:db db
-     :http-xhrio
-     (utils/server-call
-      {:url "/api/get-app-data"
-       :params  core-query}
-      :edit-nodes/got-app-data :http-error)}
-    {:db (meta-db/set-loading db false)
-     :fx-redirect [:http-error]}))
+  {:db db
+   :fx-redirect [:api-handler/get-app-data :edit-nodes/got-app-data (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
 (refe/reg-event-fx :edit-nodes/get-app-data get-app-data)
-
 
 (defn got-app-data
   "TESTED"
@@ -48,12 +40,9 @@
 (defn file-operation-fx
   "TESTED"
   [{:keys [db]} [_ operation-name]]
-  (if-let [api-call (query-building/build-bulk-operate-on-files db operation-name nil)]
-    ;; TODO: wht is :mutable-server-operation ?
-    {:http-xhrio (utils/server-call api-call :mutable-server-operation :http-error)
-     :db db}
-    {:db db}))
-(refe/reg-event-fx :edit-nodes/file-operation file-operation-fx)
+  {:db db
+   :fx-redirect [:api-handler/file-op :edit-nodes/got-app-data operation-name (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
+(refe/reg-event-fx :generic/file-operation file-operation-fx)
 
 (defn delete-tag-from-selection
   "TESTED"
@@ -92,13 +81,12 @@
 (defn submit-tagging
   "TESTED"
   [{:keys [db]} _]
-  (if-let [api-call (query-building/build-update-records db nil)]
-    {:db  (assoc  db :cloud-selected (:cloud-selected (build-updated-drilldown-on-nodes-or-cloud db))
-                  :nodes-temp-tags-to-add ""
-                  :nodes-temp-tags-to-delete #{})
-     :http-xhrio (utils/server-call api-call :edit-nodes/redirect-to-nodes :http-error)}
-    {:db db}))
-
+  {:db  (assoc  db :cloud-selected (:cloud-selected (build-updated-drilldown-on-nodes-or-cloud db))
+                :nodes-temp-tags-to-add ""
+                :nodes-temp-tags-to-delete #{})
+   :fx-redirect
+   [:api-handler/submit-tagging :edit-nodes/got-app-data (:nodes-temp-tags-to-add db) (:nodes-temp-tags-to-delete db)
+    (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
 (refe/reg-event-fx :edit-nodes/submit-tagging submit-tagging)
 
 (defn cancel-tagging

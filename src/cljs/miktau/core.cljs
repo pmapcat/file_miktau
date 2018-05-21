@@ -31,7 +31,10 @@
                   (.getElementById js/document "container")))
 
 (defn render []
-  (re-frame/dispatch-sync [:cloud/init-page #{:bibliostore} {:year 2017 :month 2 :day 9}])
+  (re-frame/dispatch-sync [:cloud/init-page #{:bibliostore}
+                           ;; {}
+                           {:year 2017 :month 4 :day 10}
+                           ])
 
   (dev-setup)
   (mount-root))

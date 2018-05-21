@@ -8,8 +8,14 @@
    {:db (assoc db :loading? false)
     :log!  (str response)}))
 
+
 (refe/reg-event-db
  :back
  (fn [db _]
    (.log js/console "registered <back> event")
    db))
+
+
+
+
+

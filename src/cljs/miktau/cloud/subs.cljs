@@ -12,7 +12,7 @@
 (refe/reg-sub :cloud/get-db-for-test-purposes get-db-for-test-purposes)
 
 (comment
-  (println (:cloud @(refe/subscribe [:cloud/get-db-for-test-purposes])))
+  (println (:calendar-selected @(refe/subscribe [:cloud/get-db-for-test-purposes])))
   (refe/dispatch [:cloud/get-app-data])
   )
 
@@ -64,7 +64,7 @@
      []
      (rest (general-tree (:tree-tag db) 0 (into #{} (keys (:cloud-can-select db))) (:cloud-selected db)))))
 
-(refe/reg-sub :cloud/general-tree general-tree-subscription)
+;; (refe/reg-sub :cloud/general-tree general-tree-subscription)
 
 (defn cloud
   "TESTED"
@@ -81,7 +81,6 @@
             :compare-name (cljs-string/lower-case (str (name tag)))
             :key-name tag
             :size     tag-size
-            :group    "root"
             :weighted-size (/ tag-size max-size)
             :disabled?      (not (contains? (:cloud-can-select db) tag))
             :selected?      (contains? (db :cloud-selected) tag)
@@ -113,20 +112,20 @@
               #(dissoc % :sort-name)
               (sorter-applicator
                (for [[tag tag-size] group]
-                 (let [parsed-name (utils/mik-parse-int  (str (name tag)) 0)
+                 (let [parsed-name tag
                        can-select? (contains? (get (:calendar-can-select db) group-name) tag)]
-                   {:name   (utils/pad (str (name tag)) 2 "0") 
+                   {:name   (utils/pad parsed-name 2 "0") 
                     :key-name tag
                     :sort-name parsed-name
                     :size     tag-size
-                    :group   group-name
+                    :group    group-name
                     :weighted-size (/ tag-size max-size)
                     :disabled?      (not can-select?)
                     :selected?      (= (get (:calendar-selected db) group-name) parsed-name)
                     :can-select?    can-select?}))))})]))
       (catch :default e
-        (println e)
         {}))))
+
 (refe/reg-sub :cloud/calendar calendar)
 
 (defn fast-access-calendar
@@ -159,7 +158,10 @@
 (defn breadcrumbs [db _]
   (if-not (meta-page? db :cloud)
     {}
-    (let [calendar-crumb #(if-let [item (% (:calendar-selected db))] {:name (str (name %) ": " (utils/pad item 2 0)) :on-click [:cloud/click-on-calendar-item % item]} nil)
+    (let [calendar-crumb (fn [field]
+                           (if-let [item (field (:calendar-selected db))]
+                             {:name (str (name field) ": " (utils/pad item 2 0))
+                              :on-click [:cloud/click-on-calendar-item field  item]} nil))
           ranker (:root (:cloud db))
           selectable-items 
           (if (and (empty? (:cloud-selected db)) (empty? (:calendar-selected db)))
@@ -171,19 +173,41 @@
         [(calendar-crumb :year)
          (calendar-crumb :month)
          (calendar-crumb :day)])
+       :show-all? (:breadcrumbs-show-all? db)
+       :can-expand? (> (count selectable-items) 8)
        :cloud-items
-       (for [item  (:cloud-selected  db)]
-         {:name (str (name item))  :on-click [:cloud/clicked-cloud-item item]})
+       (let [click-children (:cloud-selected  db)]
+         (for [[index item]  (map list  (range) (:cloud-selected  db))]
+           {:name (str (name item))  :on-click [:cloud/clicked-many-cloud-items (take (inc index) click-children)]}))
        :cloud-can-select
-       (take
-        10
-        (sort-by
-         :rank
-         (filter
-          (comp not empty?)
-          (for [item  selectable-items]
-            (if (contains? (:cloud-selected db) item)
-              {}
-              {:name (str (name item)) :rank (- (item ranker)) :on-click [:cloud/clicked-cloud-item   item]})))))})))
+       (sort-by
+        :rank
+        (filter
+         (comp not empty?)
+         (for [item  selectable-items]
+           (if (contains? (:cloud-selected db) item)
+             {}
+             {:name (str (name item)) :rank (- (item ranker)) :on-click [:cloud/clicked-cloud-item   item]}))))})))
 
 (refe/reg-sub :cloud/breadcrumbs breadcrumbs)
+
+(defn nodes-selection-editable-view
+  [db _]
+  {:amount (:total-nodes db)
+   :narrow-results {:name "Narrow results"
+                    :on-click [:cloud/redirect-to-nodes false]
+                    :disabled? false}
+   :links
+   [{:name "Edit tags on selection"
+     :on-click  [:cloud/redirect-to-edit-nodes true]
+     :disabled? false}
+    
+    ]
+   
+   
+   }
+  
+  
+  )
+
+

@@ -4,12 +4,10 @@
             [miktau.tools :as utils]
             [clojure.data :as clojure-data]
             [miktau.cloud.demo-data-test :as demo-data]
+            [miktau.test-utils :refer [with-diff]]            
             [miktau.demo-data-test :refer [demo-response]]))
 
-(defn with-diff
-  [a b]
-  (is (= a b)
-      (str (butlast (clojure-data/diff a b)))))
+
 
 
 (deftest test-existence-of-utils-namespace []
@@ -22,7 +20,7 @@
 
 (deftest test-clicking-on-disabled-calendar-item []
   (let [db (assoc demo-data/initial-db-after-load-from-server :cloud-selected #{:hem :in :dal})]
-    (is (=  (:calendar-selected (:db (miktau-events/click-on-disabled-calendar {:db  db} [nil :year :2018]))) {:year 2018}))))
+    (is (=  (:calendar-selected (:db (miktau-events/click-on-disabled-calendar {:db  db} [nil :year 2018]))) {:year 2018}))))
 
 (deftest test-getting-default-app-data []
   (with-diff
@@ -52,14 +50,19 @@
 
 (deftest test-click-on-calendar-item []
   (let [db (assoc demo-data/initial-db-after-load-from-server :calendar-selected {})]
-    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db db} [nil :year :2010]))) {:year 2010}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db db} [nil :year 2010]))) {:year 2010}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010})} [nil :year 2010]))) {}))
+    
+    
     (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db db} [nil :drozd nil]))) {}))
     (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db db} [nil :drozd -23]))) {}))
-    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010})} [nil :year :2010]))) {:year nil}))
-    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 19})} [nil :day :19]))) {:year 2010 :day nil}))
-    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 20})} [nil :day :19]))) {:year 2010 :day 19}))
-    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 20})} [nil :month :3]))) {:year 2010 :day 20 :month 3}))
-    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 20 :month 3})} [nil :month :3]))) {:year 2010 :day 20 :month nil}))))
+    
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010})} [nil :year 2010]))) {}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 19})} [nil :day 19]))) {:year 2010}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 20})} [nil :day 19]))) {:year 2010 :day 19}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 20})} [nil :month 3]))) {:year 2010 :day 20 :month 3}))
+    (is (= (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 20 :month 3})} [nil :month 3])))
+           {:year 2010 :day 20}))))
 
 (deftest test-click-on-fast-access-item []
   (let [db (assoc demo-data/initial-db-after-load-from-server :calendar-selected {})]
@@ -69,7 +72,6 @@
     (is (=  (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db db} [nil "FastAccess" {}]))) {}))
     (is (=  (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc  db :calendar-selected {:year 2018 :month 3})} [nil "FastAccess" {:year 2018 :month 3}]))) {}))
     (is (=  (:calendar-selected (:db (miktau-events/click-on-calendar-item {:db (assoc db :calendar-selected {:year 2010 :day 20 :month 3})} [nil "FastAccess" {:year 2018}]))) {:year 2018}))))
-
 
 (deftest test-click-on-cloud []
   (let [db (assoc demo-data/initial-db-after-load-from-server :cloud-selected #{})]

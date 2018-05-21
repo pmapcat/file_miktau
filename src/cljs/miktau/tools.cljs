@@ -2,11 +2,25 @@
   (:require  [ajax.core :as ajax]
              [clojure.string :as cljs-string]
              [clojure.set :as clojure-set]
-             [re-frame.core :as refe]))
+             [re-frame.core :as refe]
+             [clojure.walk :as cljs-walk]))
 
 (def in-utils-variable "BLAB")
 
+(defn mik-parse-int
+  "TESTED"
+  [input or]
+  (if (re-matches #"-?[0-9]+" (str input))
+    (js/parseInt (str input))
+    or))
 
+(defn integerize-keyword-keys
+  "Recursively transforms all map keys from keywords to integers.
+   If cannot, leaves the key as it was before, e.g. :keyword"
+  [m]
+  (let [f (fn [[k v]] (if (keyword? k) [(mik-parse-int (str (name k)) k) v] [k v]))]
+    ;; only apply to maps
+    (cljs-walk/postwalk (fn [x] (if (map? x) (into {} (map f x)) x)) m)))
 
 
 (defn server-call [api-call on-success on-error]
@@ -59,12 +73,6 @@
 
 ;; (re-matches #"^[0-9А-Яа-яA-Za-z_]+$" (count "momavali_dro"))
 
-(defn mik-parse-int
-  "TESTED"
-  [input or]
-  (if (re-matches #"-?[0-9]+" (str input))
-    (js/parseInt (str input))
-    or))
 
 (defn mik-parse-int-then-throw-error [input]
   (if (re-matches #"-?[0-9]+" (str input))
@@ -109,7 +117,7 @@
    identity
    (for [i items]
      (contains?  (i (:calendar-can-select db))
-                 (keyword (str (i (db :date-now))))))))
+                 (i (db :date-now))))))
 
 (defn is-this-datepoint-selected?
   "TESTED"

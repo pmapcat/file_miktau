@@ -7,6 +7,10 @@
    :filtering ""
    :date-now {}
    
+   :total-nodes 0
+
+   :breadcrumbs-show-all? false
+   
    
    :cloud-selected #{}
    :cloud  {}

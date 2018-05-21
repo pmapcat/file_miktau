@@ -27,21 +27,11 @@
                  (:calendar-selected db)]})
 (refe/reg-event-fx :nodes/edit-nodes edit-nodes)
 
-
-
 (defn get-app-data
   "TESTED"
   [{:keys [db]} _]
-  {:db  db
-   :http-xhrio
-   (utils/server-call
-    {:url "/api/get-app-data"
-     :params
-     {:modified (or (:calendar-selected db) {})
-      :sorted   (or (:nodes-sorted db) "")
-      :tags     (or (into [] (sort (map str (map name (:cloud-selected db))))) [])}}
-    :nodes/got-app-data :http-error)})
-
+  {:db db
+   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
 (refe/reg-event-fx :nodes/get-app-data get-app-data)
 
 (defn got-app-data
