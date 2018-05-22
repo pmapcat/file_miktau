@@ -14,8 +14,22 @@
 
 (defn set-loading-db [db is-loading?]
   (assoc-in db [:loading?] is-loading?))
+(defn set-error
+  [db error-str]
+  (assoc-in db [:meta :error] (str error-str)))
+(defn clear-error
+  [db]
+  (set-error db nil))
+(defn error? [db]
+  (not (nil? (get-in db [:meta :error]))))
+
+(defn set-arbitrary-key [db key val]
+  (assoc-in db [:meta key] val))
+(defn get-arbitrary-key [db key]
+  (get-in db [:meta key]))
 
 
 (def meta-db
   {:page :cloud
-   :loading? false})
+   :loading? false
+   :error nil})

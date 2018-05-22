@@ -25,7 +25,7 @@
   "TESTED"
   [{:keys [db]} _]
   {:db db
-   :fx-redirect [:api-handler/get-app-data :edit-nodes/got-app-data (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
+   :fx-redirect [:api-handler/get-app-data :edit-nodes/got-app-data "" (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
 (refe/reg-event-fx :edit-nodes/get-app-data get-app-data)
 
 (defn got-app-data
@@ -37,12 +37,11 @@
    (assoc :nodes (:nodes response))))
 (refe/reg-event-db :edit-nodes/got-app-data got-app-data)
 
-(defn file-operation-fx
-  "TESTED"
+(defn file-operation
   [{:keys [db]} [_ operation-name]]
   {:db db
-   :fx-redirect [:api-handler/file-op :edit-nodes/got-app-data operation-name (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
-(refe/reg-event-fx :generic/file-operation file-operation-fx)
+   :fx-redirect [:api-handler/file-operation :edit-nodes/get-app-data operation-name (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
+(refe/reg-event-fx :generic/file-operation file-operation)
 
 (defn delete-tag-from-selection
   "TESTED"
@@ -66,7 +65,6 @@
   (if (string? tag-item) (assoc db :nodes-temp-tags-to-add tag-item) db))
 (refe/reg-event-db :edit-nodes/add-tags-to-selection add-tag-to-selection)
 
-
 (defn build-updated-drilldown-on-nodes-or-cloud
   "TESTED"
   [db]
@@ -85,21 +83,17 @@
                 :nodes-temp-tags-to-add ""
                 :nodes-temp-tags-to-delete #{})
    :fx-redirect
-   [:api-handler/submit-tagging :edit-nodes/got-app-data (:nodes-temp-tags-to-add db) (:nodes-temp-tags-to-delete db)
+   [:api-handler/build-update-records :edit-nodes/get-app-data (:nodes-temp-tags-to-add db) (:nodes-temp-tags-to-delete db)
     (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
 (refe/reg-event-fx :edit-nodes/submit-tagging submit-tagging)
 
 (defn cancel-tagging
   "TESTED"
   [db _]
-  {:db
-   (assoc
-    db
-    :nodes-temp-tags-to-add ""
-    :nodes-temp-tags-to-delete #{})
+  {:db (assoc db :nodes-temp-tags-to-add "" :nodes-temp-tags-to-delete #{})
    :fx-redirect  [:edit-nodes/redirect-to-nodes]})
-
 (refe/reg-event-fx :edit-nodes/cancel-tagging cancel-tagging)
+
 
 ;; TODO implement
 (refe/reg-event-fx

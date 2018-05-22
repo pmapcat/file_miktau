@@ -1,13 +1,16 @@
 (ns miktau.generic.events
   (:require
-   [re-frame.core :as refe]))
+   [re-frame.core :as refe]
+   [miktau.meta-db :as meta-db]))
 
 (refe/reg-event-fx
- :http-error
- (fn [{:keys [db]} [_ response]]
-   {:db (assoc db :loading? false)
-    :log!  (str response)}))
-
+ :error
+ (fn [{:keys [db]} [_ error]]
+   {:db
+    (-> db
+        (meta-db/set-loading false)
+        (meta-db/set-error   error)) 
+    :log! (str  error)}))
 
 (refe/reg-event-db
  :back

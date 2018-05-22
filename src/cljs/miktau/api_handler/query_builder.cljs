@@ -2,15 +2,15 @@
   (:require [miktau.tools :as utils]
             [ajax.core :as ajax]))
 
-(defn server-call [api-call on-success on-error]
+(defn server-call-2 [api-call on-success on-error]
   {:method :post
    :uri    (:url api-call)
    :response-format (ajax/json-response-format {:keywords? true})
    :format          (ajax/json-request-format)
    :timeout         8000
    :params  (:params api-call)
-   :on-success [on-success]
-   :on-failure [on-error]})
+   :on-success on-success
+   :on-failure on-error})
 
 (defn build-core-query
   "TESTED"
@@ -64,3 +64,8 @@
        :params {:tags-to-add       tags-to-add
                 :tags-to-delete    tags-to-delete
                 :request request}})))
+
+(defn build-check-is-live
+  []
+  {:url  "/api"
+   :params {}})

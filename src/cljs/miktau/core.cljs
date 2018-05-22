@@ -1,6 +1,8 @@
 (ns miktau.core
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame]
+
+            [day8.re-frame.http-fx] 
             
             [miktau.generic.effects]
             [miktau.generic.subs]
