@@ -1,21 +1,7 @@
 (ns miktau.edit-nodes.events-test
   (:require-macros [cljs.test :refer [deftest testing is]])
   (:require [miktau.edit-nodes.events :as miktau-events]
-            [miktau.tools  :as utils]
             [miktau.edit-nodes.demo-data-test :as demo-data]))
-
-(deftest test-file-opreration []
-  (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{"*"})]
-    ;; if nothing selected
-    (is (=  (miktau-events/file-operation-fx {:db db} [nil nil]) {:db db}))
-    (is (=   (utils/clean-server-call-for-tests (:http-xhrio (miktau-events/file-operation-fx {:db db} [nil :default])))
-             {:method :post, :uri "/api/bulk-operate-on-files",
-              :timeout 8000,
-              :params {:action "default",
-                       :request {:modified {:year 2018, :day 23, :month 11}, :sorted "", :file-paths [], :tags ["blab"]}},
-              :on-success [:mutable-server-operation],
-              :on-failure [:http-error]}))))
-
 
 (deftest test-delete-tag-from-selection []
   (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{"*"})]
@@ -65,14 +51,7 @@
     (is (= (:nodes-temp-tags-to-add    (:db (miktau-events/submit-tagging {:db db} nil))) ""))
     (is (= (:nodes-temp-tags-to-delete (:db (miktau-events/submit-tagging {:db db} nil))) #{}))
     (is (= (:nodes-selected            (:db (miktau-events/submit-tagging {:db db} nil))) #{"*"}))
-    (is (= (:cloud-selected            (:db (miktau-events/submit-tagging {:db db} nil))) #{:blop :glop :hello}))
-    (is (= (utils/clean-server-call-for-tests (:http-xhrio (miktau-events/submit-tagging {:db db} nil)))
-           {:method :post,
-            :uri "/api/update-records",
-            :timeout 8000,
-            :params {:tags-to-add ["blop" "glop"], :tags-to-delete ["hom"], :request {:modified {:year 2018, :day 23, :month 11}, :sorted "", :file-paths [], :tags ["hello" "hom"]}},
-            :on-success [:edit-nodes/redirect-to-nodes],
-            :on-failure [:http-error]}))))
+    (is (= (:cloud-selected            (:db (miktau-events/submit-tagging {:db db} nil))) #{:blop :glop :hello}))))
 
 (deftest test-cancel-tagging []
   (let [db  (assoc  demo-data/initial-db-after-load-from-server :nodes-selected #{"*"}

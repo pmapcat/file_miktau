@@ -5,6 +5,7 @@
   {:tree-tag {}
    :filtering ""
    :meta (meta-db/set-page meta-db/meta-db :cloud)
+   :total-nodes 0
    
    :cloud-selected #{:blab}
    :cloud  {:VolutPatem {:blab 43 :blip 27 :blop 12}}
@@ -35,6 +36,7 @@
    :calendar {:year {2016 14, 2017 6, 2018 2},
               :month {1 1, 2 8, 3 1, 4 4, 5 4, 7 4},
               :day {14 1, 18 1, 12 1, 11 1, 24 1, 10 1, 21 1, 13 1, 4 1, 16 1, 7 1, 1 1, 8 1, 9 1, 20 1, 17 1, 19 1, 2 1, 5 2, 15 1, 3 1}},
+   :total-nodes 22
 
    :breadcrumbs-show-all? false      
    :calendar-selected   {:year 2018, :day 23, :month 11},

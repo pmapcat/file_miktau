@@ -79,6 +79,7 @@
    (assoc :tree-tag (:tree-tag response))))
 (refe/reg-event-db :cloud/got-app-data got-app-data)
 
+
 (defn click-on-fast-access-item
   "TESTED"
   [db group item]

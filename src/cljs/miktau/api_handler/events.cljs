@@ -1,5 +1,5 @@
 (ns miktau.api-handler.events
-  (:require [reframe.core :as refe]
+  (:require [re-frame.core :as refe]
             [miktau.api-handler.query-builder :as query-builder]))
 
 ;; These are the events this NS should provide

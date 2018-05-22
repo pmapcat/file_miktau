@@ -1,11 +1,10 @@
 (ns miktau.edit-nodes.events
   (:require
+   [re-frame.core :as refe]
    [miktau.tools :as utils]
-   [miktau.edit-nodes.query-building :as query-building]
    [miktau.edit-nodes.db :as miktau-db]
    [miktau.meta-db :as meta-db]
-   [clojure.set :as clojure-set]
-   [re-frame.core :as refe]))
+   [clojure.set :as clojure-set]))
 
 (defn init
   "TODO: TEST

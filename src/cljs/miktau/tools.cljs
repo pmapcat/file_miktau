@@ -1,7 +1,6 @@
 (ns miktau.tools
   (:require  [clojure.string :as cljs-string]
              [clojure.set :as clojure-set]
-             [re-frame.core :as refe]
              [clojure.walk :as cljs-walk]))
 
 (def in-utils-variable "BLAB")
@@ -120,36 +119,6 @@
      (for [[key val] date-point]
        (=  (key sel) val)))))
 
-
-
-(defn register-server-roundtrip
-  [fx-name url-params request-params before-load success-fn error-fn]
-  (let [success-name (keyword (str (name fx-name) "-success"))
-        error-name    (keyword (str (name fx-name) "-error"))]
-    (do
-      (refe/reg-event-fx
-       fx-name
-       (fn [{:keys [db]} _]
-         {:db (before-load db)
-          :http-xhrio {:method          (url-params :method)
-                       :uri             (url-params :url)
-                       :params          (request-params db)
-                       :response-format (ajax/json-response-format {:keywords? true})
-                       :timeout         8000
-                       :on-success      [success-name]
-                       :on-failure      [error-name]}}))
-      (refe/reg-event-fx
-       success-name
-       (fn [{:keys [db]} [_ bulk]]
-         (success-fn db bulk)))
-      (refe/reg-event-fx
-       error-name
-       (fn [{:keys [db]} [_ body]]
-         (error-fn db body))
-       (fn [{:keys [db]} [_ bulk]]
-         (success-fn db bulk))))))
-
-
 (defn scale-inplace
   [A B C D X]
   (+
@@ -179,8 +148,3 @@
     ((or final-fn identity) coll)
     (map-function-on-map-vals (group-by (first fs) coll)
                               #(nested-group-by (rest fs) % final-fn))))
-
-
-
-
-
