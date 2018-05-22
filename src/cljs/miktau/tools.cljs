@@ -1,6 +1,5 @@
 (ns miktau.tools
-  (:require  [ajax.core :as ajax]
-             [clojure.string :as cljs-string]
+  (:require  [clojure.string :as cljs-string]
              [clojure.set :as clojure-set]
              [re-frame.core :as refe]
              [clojure.walk :as cljs-walk]))
@@ -14,6 +13,7 @@
     (js/parseInt (str input))
     or))
 
+
 (defn integerize-keyword-keys
   "Recursively transforms all map keys from keywords to integers.
    If cannot, leaves the key as it was before, e.g. :keyword"
@@ -23,15 +23,7 @@
     (cljs-walk/postwalk (fn [x] (if (map? x) (into {} (map f x)) x)) m)))
 
 
-(defn server-call [api-call on-success on-error]
-  {:method :post
-   :uri    (:url api-call)
-   :response-format (ajax/json-response-format {:keywords? true})
-   :format          (ajax/json-request-format)
-   :timeout         8000
-   :params  (:params api-call)
-   :on-success [on-success]
-   :on-failure [on-error]})
+
 
 (defn clean-server-call-for-tests [server-call]
   (dissoc
