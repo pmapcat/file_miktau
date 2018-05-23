@@ -5,7 +5,6 @@ import (
 )
 
 const MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM = 32
-const MAX_ITEMS_IN_SEARCH_RESULT = 10
 
 type CoreNodeItemStorage struct {
 	sync.RWMutex
@@ -33,6 +32,8 @@ type SwitchFoldersRequest struct {
 type CoreQuery struct {
 	Modified  CoreDateField `json:"modified"`
 	Sorted    string        `json:"sorted"`
+	PageSize  int           `json:"page-size"`
+	Page      int           `json:"page"`
 	FilePaths []string      `json:"file-paths"`
 	Ids       []int         `json:"ids"`
 	Tags      []string      `json:"tags"`
@@ -64,15 +65,16 @@ type TreeTag struct {
 }
 
 type CoreAppDataResponse struct {
-	Error          string                    `json:"error"`
-	NodeSorting    string                    `json:"nodes-sorted"`
-	TotalNodes     uint32                    `json:"total-nodes"`
-	CoreDirectory  string                    `json:"core-directory"`
-	DateNow        CoreDateField             `json:"date-now"`
-	Nodes          []*CoreNodeItem           `json:"nodes"`
-	CloudCanSelect map[string]bool           `json:"cloud-can-select"`
-	Cloud          map[string]map[string]int `json:"cloud"`
-	TreeTag        *TreeTag                  `json:"tree-tag"`
+	Error           string                    `json:"error"`
+	NodeSorting     string                    `json:"nodes-sorted"`
+	TotalNodes      uint32                    `json:"total-nodes"`
+	TotalNodesPages int                       `json:"total-nodes-pages"`
+	CoreDirectory   string                    `json:"core-directory"`
+	DateNow         CoreDateField             `json:"date-now"`
+	Nodes           []*CoreNodeItem           `json:"nodes"`
+	CloudCanSelect  map[string]bool           `json:"cloud-can-select"`
+	Cloud           map[string]map[string]int `json:"cloud"`
+	TreeTag         *TreeTag                  `json:"tree-tag"`
 
 	CalendarCanSelect CoreDateFacet `json:"calendar-can-select"`
 	Calendar          CoreDateFacet `json:"calendar"`

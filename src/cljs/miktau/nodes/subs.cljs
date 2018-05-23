@@ -14,6 +14,21 @@
 (comment
   (println   (:meta @(refe/subscribe [:nodes/get-db-for-test-purposes]))))
 
+(defn order-by
+  [db _]
+  (let [nodes-sorted (:nodes-sorted db)]
+    {:name
+     {:name "Name"
+      :items
+      {:less {:name "a-z" :on-click [:nodes/sort "name"]  :enabled? (= nodes-sorted "name") }
+       :more {:name "z-a" :on-click [:nodes/sort "-name"] :enabled? (= nodes-sorted "-name")}}}
+     :modified
+     {:name "Modified"
+      :items {:less {:name "recent" :on-click [:nodes/sort "-modified"]  :enabled? (= nodes-sorted "-modified")}
+              :more {:name "older"  :on-click [:nodes/sort "modified"] :enabled? (= nodes-sorted "modified")}}}}))
+
+(refe/reg-sub :nodes/order-by order-by)
+
 (defn node-items
   "TESTED"
   [db _]

@@ -3,7 +3,7 @@
             [miktau.nodes.views :as nodes-views]
             [miktau.cloud.views :as cloud-views]
             [miktau.generic.views :as generic-views]
-
+            
             [day8.re-frame.http-fx]
             
             [miktau.api-handler.events]
@@ -20,7 +20,6 @@
             
             [miktau.edit-nodes.events]
             [miktau.edit-nodes.subs]
-            
             
             [re-frame.core :as refe]))
 

@@ -19,6 +19,7 @@
     (empty? nodes-selected)
     {:modified (or calendar-selected {})
      :sorted   (or sorted  "")
+     :file-paths []
      :tags     (or (into [] (sort (map str (map name cloud-selected)))) [])}
     (contains? nodes-selected "*")
     {:modified (or calendar-selected {})

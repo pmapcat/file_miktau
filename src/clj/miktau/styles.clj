@@ -74,6 +74,7 @@
    ;;   [:&>tr>td {:padding-top "0.5em"}]]
     
    ;;  [:& :td :th {:border "none !important" :padding "0 !important"}]]
+   
    ;; ;; tag input
    ;; [[:tags>:div>:input {:background "none !important"}]
    ;;  [:tags :tag :x:hover {:background "#ABABA9"}]
@@ -139,15 +140,24 @@
    [:.tag.can-select       {:color "black" :cursor "pointer" }]
    [:.tag.can-select:hover {:color (str (:light-green *apple-palette*))}]
    [:.tag.selected {:background (str (:light-green *apple-palette*) "!important;") :color (str "white !important")}]
+   
 
    [:.red-clickable {:color "red"}]
    [:.red-clickable:hover {:color "#f5c6c6"}]
    [:.green-clickable {:color "rgba(160, 195, 119, 1)"}]
    [:.green-clickable:hover {:color "rgb(216, 239, 189)"}]
+
+   [:.green-disabled {:color "rgb(216, 239, 189)" :cursor "disabled"}]
+   [:.node-selected {:background "#fdffd9"}]
+   
    [:.black-clickable {:color "black"}]
    [:.black-clickable:hover {:color "#a7a3a3"}]
    [:.blue-clickable {:color "blue"}]
    [:.blue-clickable:hover {:color "#8f8fff"}]
+   
+   [:.blue-disabled {:color "#8f8fff" :cursor "disabled"}]
+   [:.blue-disabled:hover {:color "#8f8fff" :cursor "disabled"}]
+   
    
    [:.unstyled-link {:text-decoration "none" :font-weight "900" }]
    [:.unstyled-link:hover {:text-decoration "none"}]
@@ -160,14 +170,14 @@
    
    
    
-   ;; [:.inline-tag:hover {:color (:light-green *apple-palette*)}]   
-   ;; [:.inline-tag
-   ;;  {:font-weight "600"
-   ;;   :color "black"
-   ;;   :padding "3px"
-   ;;   :border-radius "5%"
-   ;;   :margin "6px"
-   ;;   :display "inline-block"}]
+   [:.inline-tag:hover {:color (:light-green *apple-palette*)}]   
+   [:.inline-tag
+    {:font-weight "600"
+     :color "black"
+     :padding "3px"
+     :border-radius "5%"
+     :margin "6px"
+     :display "inline-block"}]
 
    
    

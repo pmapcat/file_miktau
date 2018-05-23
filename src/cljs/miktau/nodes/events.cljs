@@ -31,7 +31,7 @@
   "TESTED"
   [{:keys [db]} _]
   {:db db
-   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
+   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
 (refe/reg-event-fx :nodes/get-app-data get-app-data)
 
 (defn got-app-data

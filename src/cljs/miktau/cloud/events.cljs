@@ -29,7 +29,11 @@
    :fx-redirect [:edit-nodes/init-page (if all-nodes-selected? #{"*"} #{}) (:cloud-selected db) (:calendar-selected db)]})
 (refe/reg-event-fx :cloud/redirect-to-edit-nodes redirect-to-nodes)
 
-
+(defn file-op
+  [{:keys [db]} [_ action]]
+  {:db db
+   :fx-redirect [:api-handler/file-operation :cloud/get-app-data action #{"*"} (:cloud-selected db) (:calendar-selected db)]})
+(refe/reg-event-fx :cloud/file-op file-op)
 
 
 (defn clear
@@ -55,7 +59,7 @@
   "TESTED"
   [{:keys [db]} _]
   {:db db
-   :fx-redirect [:api-handler/get-app-data :cloud/got-app-data #{} (:cloud-selected db) (:calendar-selected db)]})
+   :fx-redirect [:api-handler/get-app-data :cloud/got-app-data "" #{} (:cloud-selected db) (:calendar-selected db)]})
 (refe/reg-event-fx :cloud/get-app-data get-app-data)
 
 

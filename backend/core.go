@@ -174,6 +174,8 @@ func (t *CoreQuery) WithFilePathes(data ...string) *CoreQuery {
 func newCoreQuery() *CoreQuery {
 	return &CoreQuery{
 		Modified: CoreDateField{},
+		PageSize: 10,
+		Page:     1,
 		Sorted:   "",
 		Ids:      []int{},
 		Tags:     []string{},
@@ -354,11 +356,12 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	// sorting nodes according to the sort parameter in a search query
 
 	total_nodes := len(nodes_list)
+
 	// this must be tested, because I have no idea what I am doing
 	// here XD
-	if total_nodes > MAX_ITEMS_IN_SEARCH_RESULT {
-		nodes_list = nodes_list[:MAX_ITEMS_IN_SEARCH_RESULT]
-	}
+	left_slice, right_slice, pages_amount := PaginatorToSlice(total_nodes, query.PageSize, query.Page)
+	nodes_list = nodes_list[left_slice:right_slice]
+
 	// Formatting for the Rest output
 	rsp := CoreAppDataResponse{}
 	rsp.NodeSorting = query.Sorted
@@ -371,6 +374,7 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	rsp.CoreDirectory = n.core_dir
 	rsp.TreeTag = mpr
 	rsp.DateNow = dateNow()
+	rsp.TotalNodesPages = pages_amount
 	return rsp
 }
 

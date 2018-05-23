@@ -3,6 +3,29 @@
              [clojure.set :as clojure-set]
              [clojure.walk :as cljs-walk]))
 
+(defn paginate [current last-item]
+  (let [delta 2
+        left (- current delta)
+        right (+ current delta 1)]
+    (->>
+     (filter #(or (= % 1) (= % last-item) (and (>= % left) (< % right))) (range 1 (inc last-item)))
+     (reduce
+      (fn [prev next]
+        (let [prev-last (last prev)
+              collapse?  (and  (number? prev-last) (> (- next prev-last) 1))]
+          (cond
+            (empty? prev)
+            [next]
+            collapse?
+            (-> prev
+                (conj "...")
+                (conj next))
+            :else
+            (conj prev next)))) [])
+     (map #(if (= % "...")
+             {:page nil :name "..." }
+             {:page %   :name (str %)})))))
+
 (def in-utils-variable "BLAB")
 
 (defn mik-parse-int

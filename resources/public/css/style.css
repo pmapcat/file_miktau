@@ -51,6 +51,15 @@
   color: rgb(216, 239, 189);
 }
 
+.green-disabled {
+  color: rgb(216, 239, 189);
+  cursor: disabled;
+}
+
+.node-selected {
+  background: #fdffd9;
+}
+
 .black-clickable {
   color: black;
 }
@@ -67,6 +76,16 @@
   color: #8f8fff;
 }
 
+.blue-disabled {
+  color: #8f8fff;
+  cursor: disabled;
+}
+
+.blue-disabled:hover {
+  color: #8f8fff;
+  cursor: disabled;
+}
+
 .unstyled-link {
   text-decoration: none;
   font-weight: 900;
@@ -74,6 +93,19 @@
 
 .unstyled-link:hover {
   text-decoration: none;
+}
+
+.inline-tag:hover {
+  color: rgb(167, 178, 77);
+}
+
+.inline-tag {
+  font-weight: 600;
+  color: black;
+  padding: 3px;
+  border-radius: 5%;
+  margin: 6px;
+  display: inline-block;
 }
 
 .light-gray {

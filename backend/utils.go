@@ -7,6 +7,34 @@ import (
 	"time"
 )
 
+// pages are from 1, to last_page
+// each page can be selected, and page 1 is a beginning of the dataset
+func PaginatorToSlice(total_amount int, page_size int, page int) (int, int, int) {
+	if page_size > total_amount {
+		return 0, total_amount, 1
+	}
+	if page_size <= 0 {
+		page_size = 100
+	}
+
+	if total_amount <= 0 {
+		return 0, 0, 0
+	}
+
+	left_offset := (page - 1) * page_size
+	right_offset := (page) * page_size
+
+	if left_offset < 0 {
+		left_offset = 0
+	}
+	if right_offset > total_amount {
+		right_offset = total_amount
+	}
+	total_pages := total_amount / (right_offset - left_offset)
+
+	return left_offset, right_offset, total_pages
+}
+
 func dateNow() CoreDateField {
 	t := time.Now()
 	return CoreDateField{

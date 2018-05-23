@@ -1,20 +1,6 @@
 (ns miktau.core
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame]
-
-            [day8.re-frame.http-fx] 
-            
-            [miktau.generic.effects]
-            [miktau.generic.subs]
-            [miktau.generic.events]
-            
-            [miktau.cloud.events]
-            [miktau.cloud.subs]
-            [miktau.nodes.events]
-            [miktau.nodes.subs]
-            [miktau.edit-nodes.events]
-            [miktau.edit-nodes.subs]
-            
             
             [miktau.core-views :as miktau-core-views]
             [miktau.config :as config]))
@@ -33,10 +19,10 @@
                   (.getElementById js/document "container")))
 
 (defn render []
-  (re-frame/dispatch-sync [:cloud/init-page #{:bibliostore}
-                           ;; {}
-                           {:year 2017 :month 4 :day 10}
-                           ])
+  ;; (re-frame/dispatch-sync [:cloud/init-page #{:bibliostore}
+  ;;                          {:year 2017 :month 4 :day 10}])
+  (re-frame/dispatch-sync [:nodes/init-page #{}  #{:bibliostore} {}])
+  
 
   (dev-setup)
   (mount-root))

@@ -12,6 +12,7 @@
    [miktau.edit-nodes.subs-test]
    
    [miktau.api-handler.query-building-test]
+   [miktau.api-handler.events-test]
    ;; [miktau.various-test]
    ))
 
@@ -28,6 +29,7 @@
  'miktau.edit-nodes.subs-test
 
  'miktau.api-handler.query-building-test
+ 'miktau.api-handler.events-test
  
  ;; 'miktau.various-test
  )

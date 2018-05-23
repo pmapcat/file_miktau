@@ -174,23 +174,27 @@
     [views-utils/icon "keyboard_arrow_left"]]])
 
 (defn nodes-selected-view []
-  [:div {:style {:font-size "0.8em" }}
-   [:div.pure-u-1-2 
-    [:h2.mik-cut-top.light-gray "Group actions on"]
-    [:span "Selected: " [:b "47"] " files"]]
-   [:div.pure-u-1-2.mik-flush-right
-    [:button.pure-button.pure-button-primary
-     "Narrow results"] [:br]
-    
-    [:a.unstyled-link.blue-clickable {:href "#"}
-     "Edit tags on selection"] [:br]
-    [:a.unstyled-link.blue-clickable {:href "#"}
-     "Open in a single folder"] [:br]
-    [:a.unstyled-link.blue-clickable {:href "#"}
-     "Open each individually"] [:br]
-    [:a.unstyled-link.blue-clickable {:href "#"}
-     "Open each in a default program"]]])
-
+  (let [nodes-selection @(refe/subscribe [:cloud/nodes-selection])]
+    [:div {:style {:font-size "0.8em" }}
+     ;; selected
+     [:div.pure-u-1-2 
+      [:h2.mik-cut-top.light-gray "Group actions on"]
+      [:span "Selected: " [:b (:amount nodes-selection)] " files"]]
+     
+     ;; node items, narrow down
+     [:div.pure-u-1-2.mik-flush-right
+      [:button.pure-button.pure-button-primary
+       {:on-click #(refe/dispatch (get-in nodes-selection [:narrow-results :on-click]))}
+       (get-in nodes-selection [:narrow-results :name])] [:br]
+      
+      ;; each file action available
+      (for [item (:links nodes-selection)]
+        ^{:key (:name item)}
+        [:span
+         (if (:disabled? item)
+           [:a.unstyled-link.blue-disaabled (:name item)]
+           [:a.unstyled-link.blue-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item )])
+         [:br]])]]))
 (defn main
   []
   [:div.pure-g {:style {:margin-bottom "200px"}}

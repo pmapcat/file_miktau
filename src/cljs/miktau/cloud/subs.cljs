@@ -193,21 +193,25 @@
 
 (defn nodes-selection-editable-view
   [db _]
-  {:amount (:total-nodes db)
-   :narrow-results {:name "Narrow results"
-                    :on-click [:cloud/redirect-to-nodes false]
-                    :disabled? false}
-   :links
-   [{:name "Edit tags on selection"
-     :on-click  [:cloud/redirect-to-edit-nodes true]
-     :disabled? false}
-    
-    ]
-   
-   
-   }
-  
-  
-  )
+  (let [amount (:total-nodes db)]
+    {:amount (:total-nodes db)
+     :narrow-results {:name "Narrow results"
+                      :on-click [:cloud/redirect-to-nodes true]
+                      :disabled? false}
+     :links
+     [{:name "Edit tags on selection"
+       :on-click  [:cloud/redirect-to-edit-nodes true]
+       :disabled? false}
+      {:name "Open in a single folder"
+       :on-click  [:cloud/file-op :symlinks]
+       :disabled? (> amount 150)}
+      {:name "Open each file individually"
+       :on-click  [:cloud/file-op :filebrowser]
+       :disabled? (> amount 20)}
+      {:name "Open each in default program"
+       :on-click  [:cloud/file-op :default]
+       :disabled? (> amount 10)}]}))
+
+(refe/reg-sub :cloud/nodes-selection nodes-selection-editable-view)
 
 

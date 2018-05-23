@@ -3,6 +3,16 @@
             [re-frame.core :as refe]
             [miktau.tools :as utils]))
 
+(defn for-every-and-last
+  [data-set]
+  (let [last-by-index (dec (count data-set))]
+    (for [[v k] (map list (range) data-set)]
+      [k {:point k
+          :index v
+          :last? (= v last-by-index)
+          :first? (= v 0)}])))
+
+
 (defn radio-button
   [text on-change selected?]
   [:label.pure-checkbox
@@ -11,88 +21,68 @@
     {:id "blab"  :style {:width "25px" :height "25px" :cursor "pointer"} :checked selected? :type "checkbox" :on-change on-change}]
    [:span {:style {:padding-bottom "5px"}}
     text]])
+(defn- sortable-header [order-by]
+  [:span
+   (:name order-by) [:br]
+   [:span {:style {:font-size "0.6em"}}
+    "[ "
+    (for [[_ point] (:items order-by)]
+      [:a.unstyled-link
+       {:href "#" :key (:name point) :on-click #(refe/dispatch (:on-click point)) :class (if (:enabled? point) " green-disabled " " black-clickable ")} (:name point) " "]) "]"]])
 
-(defn file-table-header [selection-mode? all-selected?]
-  [:div.pure-g {:style {:padding-bottom "1em"}}
+(defn file-table-header [all-selected? order-by]
+  [:tr
    ;; select all nodes button
-   [:div.pure-u-2-24
-    (views-utils/position-absolute
-     {:top "0px"}
-     [radio-button "" #(refe/dispatch [:nodes/select-all-nodes]) all-selected?])]
-   [:div.pure-u-16-24
-    [:div
-     "Name"
-     [:span {:style {:font-size "0.6em"}}
-      "["
-      [:a.unstyled-link {:href "#" :key "order-a-z"  :on-click #(refe/dispatch [:nodes/sort "name"])} "a-z"]
-      "·"
-      [:a.unstyled-link {:href "#" :key "order-z-a" :on-click #(refe/dispatch [:nodes/sort "-name"])} " z-a"] "]"]]]
-   [:div.pure-u-6-24.mik-flush-right
-    [:div
-     [:span {:style {:font-size "0.6em"}}
-      "["
-      [:a.unstyled-link {:href "#" :key "order-a-z" :on-click #(refe/dispatch [:nodes/sort "modified"])} "recent"]
-      "·"
-      [:a.unstyled-link {:href "#" :key "order-z-a" :on-click #(refe/dispatch [:nodes/sort "-modified"])} " older"] "]"]
-     "Modified"]]])
+   [:th.mik-flush-left
+    [radio-button "" #(refe/dispatch [:nodes/select-all-nodes]) all-selected?]]
+   [:th.mik-flush-left
+    [sortable-header (:name order-by)]]
+   [:th]
+   [:th.mik-flush-right
+    [sortable-header (:modified order-by)]]])
 
 (defn tagging-in-a-single-node-item
-  [tags selection-mode?]
-  [:div
-   (for [tag tags]
-     [:a.inline-tag
-      {:key (:key-name tag)
-       :on-click #(refe/dispatch [:nodes/clicked-cloud-item (tag :key-name)])
-       :class
-       (str
-        (cond (:to-delete? tag) "crossed-out"
-              (:to-add?    tag) "added-in"
-              :else "")
-        " "
-        (cond
-          (:selected? tag) "selected"
-          (:can-select? tag) "can-select"
-          :else "disabled"))
-       :style {:pointer "cursor"}}  (:name tag) " "])])
+  [tags]
+  [:span
+   (for [[tag meta-tag] (for-every-and-last tags)]
+     ^{:key (:key-name tag)}
+     [:span
+      [:a.tag
+       {:on-click #(refe/dispatch [:nodes/clicked-cloud-item (tag :key-name)])
+        :class (cond
+                 (:selected? tag) "selected"
+                 (:can-select? tag) "can-select"
+                 :else "disabled")
+        :style {:pointer "cursor"}}
+       (:name tag)] (if-not (:last? meta-tag) "»" "")])])
 
-(defn single-node-item [node selection-mode?]
+(defn single-node-item [node]
   [:tr
    {:key (str  (:id node))
     :data-fpath  (str (:file-path node) (:name node))
-    :style {:padding-bottom "10px"
-            :padding-top "10px"
-            :font-size "0.8em"
-            :border-bottom "solid 1px #e3e3e3"
-            :cursor "pointer"}}
+    :style {:font-size "0.8em" :border-bottom "solid 1px #e3e3e3" :cursor "pointer"}
+    :class (if (:selected? node) " node-selected " "")
+    }
    [:td
-    [views-utils/position-absolute
-     {:top ""}
-     [radio-button "" #(refe/dispatch [:nodes/select-node (str (node :file-path) (node :name))]) (:selected? node)]]]
+    [radio-button "" #(refe/dispatch [:nodes/select-node (str (node :file-path) (node :name))]) (:selected? node)]]
    [:td
-    [:a.unstyled-link
+    [:a.unstyled-link.black-clickable
      {:href "#" :style {:font-weight "300" :word-wrap "break-word"}}
      (:name node)]]
    [:td
-    [tagging-in-a-single-node-item (:tags node) selection-mode?]
-    (cond
-      selection-mode?
-      [:span]
-      (not  (empty? (:all-tags node)))
-      [:a.unstyled-link
+    [tagging-in-a-single-node-item (:tags node)]
+    (if (not  (empty? (:all-tags node)))
+      [:a.unstyled-link.black-clickable
        {:href "#"
-        :on-click
-        (if-not selection-mode?
-          #(refe/dispatch [:nodes/clicked-many-cloud-items (:all-tags node)])
-          identity)}
+        :on-click #(refe/dispatch [:nodes/clicked-many-cloud-items (:all-tags node)])}
        [:span
         {:style {:padding "3px" :margin "3px" :font-size "0.8em"}}
         [views-utils/icon "arrow_forward"]]]
-      :else
       [:span])]
-   [:td
-    [:a.unstyled-link {:href "#"
+   [:td.mik-flush-right
+    [:a.unstyled-link.blue-clickable {:href "#"
                        :on-click
-                       (if-not selection-mode? #(refe/dispatch  [:nodes/click-on-fast-access-item (node :modified)]) identity)
+                       #(refe/dispatch  [:nodes/click-on-fast-access-item (node :modified)])
                        :style {:font-weight "300"}}
      (str
       (utils/pad (:year   (node :modified)) 4 "0") "."
@@ -101,30 +91,33 @@
 
 (defn file-table []
   (let [node-items  @(refe/subscribe [:nodes/node-items])
-        selection-mode? @(refe/subscribe [:nodes/selection-mode?])]
-    [:div.padded-as-button.background-1
-     [file-table-header selection-mode? (:all-selected? node-items)]
-     (if selection-mode?
-       [:button.pure-button
-        {:on-click #(refe/dispatch [:nodes/edit-nodes])} "Edit tags"]
-       [:span])
-     [:table
-      [:tbody
-       (for [node (:nodes node-items)]
-         ^{:key (str (:id node))}
-         [single-node-item node selection-mode?])]]
-     (if (> (:omitted-nodes node-items) 0)
-       [:div.mik-flush-right.gray
-        "Truncated: "
-        [:b  (:omitted-nodes node-items)]]
-       [:div])]))
+        order-by    @(refe/subscribe [:nodes/order-by])]
+    ;; (if selection-mode?
+    ;;   [:button.pure-button
+    ;;    {:on-click #(refe/dispatch [:nodes/edit-nodes])} "Edit tags"]
+    ;;   [:span])
+    
+    [:table {:style {:width "100%"}}
+     [:thead
+      [file-table-header  (:all-selected? node-items) order-by]]
+     [:tbody
+      (for [node (:nodes node-items)]
+        ^{:key (str (:id node))}
+        [single-node-item node])]
+     [:tfoot
+      [:tr [:td] [:td] [:td]
+       [:td
+        (if (> (:omitted-nodes node-items) 0)
+          [:div.mik-flush-right.gray
+           "Truncated: "
+           [:b  (:omitted-nodes node-items)]]
+          [:div])]]]]))
 
 (defn main
   []
-  [:div.background-2
-   [:div.pure-g
-    [:div.pure-u-1.padded-as-button
-     [file-table]]]])
+  [:div.pure-g
+   [:div.pure-u-1.padded-as-button
+    [file-table]]])
 
 
 
