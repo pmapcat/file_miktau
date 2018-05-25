@@ -72,11 +72,10 @@
   (if-not (meta-page? db :cloud)
     []
     (try
-      (let [group (:root (:cloud db))
-            max-size (apply max (vals group))]
+      (let [max-size (apply max (vals (:cloud db)))]
         (sort-by
          :compare-name
-         (for [[tag tag-size] group]
+         (for [[tag tag-size] (:cloud db)]
            {:name    (str (name tag))
             :compare-name (cljs-string/lower-case (str (name tag)))
             :key-name tag
@@ -162,7 +161,7 @@
                            (if-let [item (field (:calendar-selected db))]
                              {:name (str (name field) ": " (utils/pad item 2 0))
                               :on-click [:cloud/click-on-calendar-item field  item]} nil))
-          ranker (:root (:cloud db))
+          ranker (:cloud db)
           selectable-items 
           (if (and (empty? (:cloud-selected db)) (empty? (:calendar-selected db)))
             (keys (:children (:tree-tag db)))

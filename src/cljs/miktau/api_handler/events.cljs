@@ -30,10 +30,11 @@
 (defn get-app-data
   "[:nodes/got-app-data \"\" (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]
    TESTED" 
-  [{:keys [db]} [_ on-success sorted-str nodes-selected-set cloud-selected-set calendar-selected-dict]]
-  (if-let [query (query-builder/build-get-app-data (or sorted-str "") (or nodes-selected-set #{}) (or cloud-selected-set #{}) (or calendar-selected-dict {}) nil)]
-    {:db db :http-xhrio (query-builder/server-call-2 query [:api-handler/got-app-data on-success] [:error])}
-    {:db db :fx-redirect [:error "Cannot build request on these params"]}))
+  [{:keys [db]} [_ on-success sorted-str nodes-selected-set cloud-selected-set calendar-selected-dict options]]
+  (let [options (merge {:page-size 10 :page 1} options)]
+    (if-let [query (query-builder/build-get-app-data (or sorted-str "") (or nodes-selected-set #{}) (or cloud-selected-set #{}) (or calendar-selected-dict {}) options nil)]
+      {:db db :http-xhrio (query-builder/server-call-2 query [:api-handler/got-app-data on-success] [:error])}
+      {:db db :fx-redirect [:error "Cannot build request on these params"]})))
 (refe/reg-event-fx :api-handler/get-app-data get-app-data)
 
 (defn got-app-data

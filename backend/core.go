@@ -143,6 +143,14 @@ func (t *CoreQuery) WithTags(tags ...string) *CoreQuery {
 	t.Tags = tags
 	return t
 }
+func (t *CoreQuery) WithPage(page int) *CoreQuery {
+	t.Page = page
+	return t
+}
+func (t *CoreQuery) WithPageSize(pagesize int) *CoreQuery {
+	t.PageSize = pagesize
+	return t
+}
 
 func (t *CoreQuery) WithIds(ids ...int) *CoreQuery {
 	t.Ids = ids
@@ -174,7 +182,7 @@ func (t *CoreQuery) WithFilePathes(data ...string) *CoreQuery {
 func newCoreQuery() *CoreQuery {
 	return &CoreQuery{
 		Modified: CoreDateField{},
-		PageSize: 10,
+		PageSize: DEFAULT_PAGE_SIZE,
 		Page:     1,
 		Sorted:   "",
 		Ids:      []int{},
@@ -315,7 +323,7 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	cloud_can_select := map[string]bool{}
 	nodes_list := []*CoreNodeItem{}
 	tag_thesaurus := n.GetThesaurus()
-	cloud := map[string]map[string]int{"root": tag_thesaurus}
+	cloud := tag_thesaurus
 	mpr := newTreeTag("root")
 
 	calendar := CoreDateFacet{Year: map[int]int{}, Month: map[int]int{}, Day: map[int]int{}}

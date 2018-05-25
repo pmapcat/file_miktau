@@ -28,9 +28,9 @@ func TestPaginatorToSlice(t *testing.T) {
 	_, _, last_page = PaginatorToSlice(len(node_items), 0, 1)
 	left, right, last_page = PaginatorToSlice(len(node_items), 0, last_page)
 	assert.Equal(t, left, 0)
-	assert.Equal(t, right, 15)
+	assert.Equal(t, right, 10)
 
-	assert.Equal(t, node_items[left:right], node_items)
+	assert.Equal(t, node_items[left:right], node_items[:10])
 
 	node_items = []int{}
 	left, right, last_page = PaginatorToSlice(len(node_items), 3, 1)

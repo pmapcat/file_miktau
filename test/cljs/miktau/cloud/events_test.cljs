@@ -2,7 +2,6 @@
   (:require-macros [cljs.test :refer [deftest testing is]])
   (:require [miktau.cloud.events :as miktau-events]
             [miktau.tools :as utils]
-            [clojure.data :as clojure-data]
             [miktau.cloud.demo-data-test :as demo-data]
             [miktau.test-utils :refer [with-diff]]            
             [miktau.demo-data-test :refer [demo-response]]))

@@ -10,11 +10,18 @@ import (
 // pages are from 1, to last_page
 // each page can be selected, and page 1 is a beginning of the dataset
 func PaginatorToSlice(total_amount int, page_size int, page int) (int, int, int) {
+	if page_size <= 0 {
+		page_size = DEFAULT_PAGE_SIZE
+	}
+	if page <= 0 {
+		page = 1
+	}
+
 	if page_size > total_amount {
 		return 0, total_amount, 1
 	}
 	if page_size <= 0 {
-		page_size = 100
+		page_size = DEFAULT_PAGE_SIZE
 	}
 
 	if total_amount <= 0 {

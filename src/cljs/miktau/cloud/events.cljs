@@ -59,7 +59,7 @@
   "TESTED"
   [{:keys [db]} _]
   {:db db
-   :fx-redirect [:api-handler/get-app-data :cloud/got-app-data "" #{} (:cloud-selected db) (:calendar-selected db)]})
+   :fx-redirect [:api-handler/get-app-data :cloud/got-app-data "" #{} (:cloud-selected db) (:calendar-selected db) {:page-size 1}]})
 (refe/reg-event-fx :cloud/get-app-data get-app-data)
 
 

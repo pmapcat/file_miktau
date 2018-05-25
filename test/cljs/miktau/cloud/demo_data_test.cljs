@@ -8,7 +8,7 @@
    :total-nodes 0
    
    :cloud-selected #{:blab}
-   :cloud  {:VolutPatem {:blab 43 :blip 27 :blop 12}}
+   :cloud   {:blab 43 :blip 27 :blop 12}
    :cloud-can-select {:blip true :blop true}
 
    :breadcrumbs-show-all? false   
@@ -27,7 +27,7 @@
 
 (def initial-db-after-load-from-server
   {:cloud-can-select {:moscow_market true, :devops true, :personal true, :usecases true, :биржа true, :amazon true, :магазины true, :wiki true, :work true, :sforim true, :согласовать true, :natan true, :работа_сделана true, :bibliostore true, :translator true, :скачка_источников true, :everybook true, :UI true, :blog true, :zeldin true},
-   :cloud {:root {:moscow_market 9, :devops 1, :personal 4, :usecases 2, :биржа 2, :amazon 2, :магазины 2, :wiki 1, :work 20, :sforim 2, :согласовать 1, :natan 13, :bibliostore 8, :translator 2, :скачка_источников 1, :everybook 1, :UI 1, :blog 1, :zeldin 2 :работа_сделана 1}},
+   :cloud  {:moscow_market 9, :devops 1, :personal 4, :usecases 2, :биржа 2, :amazon 2, :магазины 2, :wiki 1, :work 20, :sforim 2, :согласовать 1, :natan 13, :bibliostore 8, :translator 2, :скачка_источников 1, :everybook 1, :UI 1, :blog 1, :zeldin 2 :работа_сделана 1}
    :date-now {:year 2018, :month 4, :day 17},   
    :tree-tag {:name "root", :children {:work {:name "work", :children {:everybook {:name "everybook", :children {}}, :natan {:name "natan", :children {:bibliostore {:name "bibliostore", :children {:translator {:name "translator", :children {}}}}, :moscow_market {:name "moscow_market", :children {:amazon {:name "amazon", :children {}}, :bibliostore {:name "bibliostore", :children {:translator {:name "translator", :children {:amazon {:name "amazon", :children {:devops {:name "devops", :children {}}}}}}, :магазины {:name "магазины", :children {}}}}, :биржа {:name "биржа", :children {:скачка_источников {:name "скачка_источников", :children {}}}}}}, :sforim {:name "sforim", :children {:wiki {:name "wiki", :children {:согласовать {:name "согласовать", :children {}}}}}}, :биржа {:name "биржа", :children {:UI {:name "UI", :children {}}}}, :магазины {:name "магазины", :children {:sforim {:name "sforim", :children {}}}}}}, :personal {:name "personal", :children {:blog {:name "blog", :children {}}, :usecases {:name "usecases", :children {}}}}, :zeldin {:name "zeldin", :children {}}}}, :работа_сделана {:name "работа_сделана", :children {}}}}
    :filtering "",

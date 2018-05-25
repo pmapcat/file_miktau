@@ -5,6 +5,12 @@
    [miktau.nodes.db :as miktau-db]
    [re-frame.core :as refe]))
 
+;; :nodes/click-on-calendar-item
+;; :nodes/clicked-many-cloud-items
+;; :nodes/clicked-cloud-item
+;; :nodes/clear
+;; :nodes/breadcrumbs-show-all?-switch
+
 (defn init
   "TODO: TEST
    params [_ nodes-selected-set cloud-selected-set calendar-selected-dict] are *nullable*"
@@ -27,12 +33,22 @@
                  (:calendar-selected db)]})
 (refe/reg-event-fx :nodes/edit-nodes edit-nodes)
 
+
 (defn get-app-data
   "TESTED"
   [{:keys [db]} _]
-  {:db db
-   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
+  {:db (assoc db :page 1)
+   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)
+                 {:page 1 :page-size (or (:page-size db) 10)}]})
 (refe/reg-event-fx :nodes/get-app-data get-app-data)
+
+(defn to-page
+  [{:keys [db]} [_ page]]
+  {:db (assoc db :page page)
+   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)
+                 {:page page  :page-size (or (:page-size db) 10)}]})
+(refe/reg-event-fx :nodes/to-page to-page)
+
 
 (defn got-app-data
   "TESTED"
@@ -41,7 +57,9 @@
    (->
     (meta-db/set-loading db false)
     (assoc :nodes (:nodes response))
-    (assoc :total-nodes (:total-nodes response)))})
+    (assoc :total-nodes (:total-nodes response))
+    (assoc :cloud-can-select (:cloud-can-select response))
+    (assoc :total-pages (:total-nodes-pages response)))})
 
 (refe/reg-event-fx :nodes/got-app-data got-app-data)
 
@@ -76,6 +94,7 @@
      (assoc db :cloud-selected (into #{} items)))
    :fx-redirect [:nodes/get-app-data]})
 (refe/reg-event-fx :nodes/clicked-many-cloud-items  clicked-many-cloud-items)
+
 
 
 (defn click-on-cloud

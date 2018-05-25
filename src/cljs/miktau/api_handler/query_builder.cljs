@@ -43,10 +43,10 @@
       or-else)))
 
 (defn build-get-app-data
-  [sorted-str nodes-selected-set cloud-selected-set calendar-selected-dict or-else]
+  [sorted-str nodes-selected-set cloud-selected-set calendar-selected-dict options or-else]
   (if-let [q (build-core-query sorted-str nodes-selected-set cloud-selected-set calendar-selected-dict or-else)]
     {:url "/api/get-app-data"
-     :params q}
+     :params (merge q options)}
     or-else))
 
 (defn build-update-records

@@ -4,8 +4,8 @@
             [miktau.test-utils :refer [with-diff]]))
 
 (deftest test-get-app-data []
-  (with-diff (select-keys (:http-xhrio (events/get-app-data {} [nil :on-success "-name" #{"*"} #{:blab} {:year 2018, :day 23, :month 11}])) [:params :on-success :on-failure])
-    {:params {:modified {:year 2018, :day 23, :month 11}, :sorted "-name", :file-paths [], :tags ["blab"]}, :on-success [:api-handler/got-app-data :on-success], :on-failure [:error]}))
+  (with-diff (select-keys (:http-xhrio (events/get-app-data {} [nil :on-success "-name" #{"*"} #{:blab} {:year 2018, :day 23, :month 11}] {})) [:params :on-success :on-failure])
+    {:params {:modified {:year 2018, :day 23, :month 11}, :sorted "-name", :file-paths [], :tags ["blab"] :page-size 10 :page 1}, :on-success [:api-handler/got-app-data :on-success], :on-failure [:error]}))
 
 (deftest test-got-app-data []
   (with-diff (events/got-app-data {} [nil :on-success {:response true :error nil}])

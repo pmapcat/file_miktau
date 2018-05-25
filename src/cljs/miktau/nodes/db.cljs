@@ -6,8 +6,12 @@
    :nodes []
    :nodes-selected #{}
    :meta (meta-db/set-page meta-db/meta-db :nodes)
+   :page 1
+   :page-size 15
+   :total-pages 1
    
    :total-nodes 0
    
    :cloud-selected #{}
+   :cloud-can-select {}
    :calendar-selected {}})

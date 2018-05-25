@@ -13,6 +13,11 @@
     :log! (str  error)}))
 
 (refe/reg-event-db
+ :identity
+ (fn [db _]
+   db))
+
+(refe/reg-event-db
  :back
  (fn [db _]
    (.log js/console "registered <back> event")

@@ -23,8 +23,8 @@
             :else
             (conj prev next)))) [])
      (map #(if (= % "...")
-             {:page nil :name "..." }
-             {:page %   :name (str %)})))))
+             {:page nil :name "..."   :cur?  false}
+             {:page %   :name (str %) :cur? (= % current)})))))
 
 (def in-utils-variable "BLAB")
 
@@ -64,6 +64,14 @@
      (if (< (count s) c) 
          (recur (str pad-symbol s)) 
          s)))
+
+(defn pad-coll
+  "Pad collection <coll> with <pad-with> until <n> is reached
+   e.g. (pad-coll 10 [3 4] nil) => [3 4 nil nil nil nil nil nil nil nil]"
+   [n coll pad-with] 
+   (loop [s coll]  
+     (if (< (count s) n) (recur (conj s pad-with))  s)))
+
 
 (defn find-all-tags-in-string
   [string]

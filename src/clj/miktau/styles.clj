@@ -162,13 +162,11 @@
    [:.unstyled-link {:text-decoration "none" :font-weight "900" }]
    [:.unstyled-link:hover {:text-decoration "none"}]
 
+   [:.page-inactive {:cursor "default" :background "white"}]
+   [:.page-inactive:hover {:cursor "default" :background "white"}]
    
-
-   
-
-   
-   
-   
+   [:.hidden-in-plain-sight {:color "white !important" :background "white !important"}]
+   [:.almost-hidden-in-plain-sight {:color "#dedede"}]
    
    [:.inline-tag:hover {:color (:light-green *apple-palette*)}]   
    [:.inline-tag
