@@ -101,14 +101,16 @@
       (:group-name (:day calendar))
       " pure-u-1-8 tag"
       (:group (:day calendar))]]))
-
 (defn filter-input []
-  [:div.padded-as-button {:style {:position "relative" :padding-top "20px" :padding-bottom "20px"}}
-   [:input
-    {:type "text" :placeholder "Type tags in here..."
-     :style {:width "90%" :height "2em" :padding-left "3px" :background "white !important"}}]
-   [:div.pure-button.pure-button-primary {:style {:position "absolute" :right "30px" :top "20px"}}
-    [views-utils/icon "search"]]])
+  [:div.pure-g.padded-as-button
+   [:div.pure-u-23-24 
+    [:input
+     {:type "text" :placeholder "Type tags in here..." 
+      :style {:width "100%" :height "1.9em"}}]]
+   [:div.pure-u-1-24.mik-flush-right
+    [:div.pure-button.pure-button-primary  {:style {:width "100%"}}
+     [views-utils/icon "search"]]]])
+
 
 
 (defn for-every-and-last
@@ -195,15 +197,16 @@
            [:a.unstyled-link.blue-disaabled (:name item)]
            [:a.unstyled-link.blue-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item )])
          [:br]])]]))
+
 (defn main
   []
   [:div.pure-g {:style {:margin-bottom "200px"}}
    ;; header
    [:div.pure-u-1 {:style {:box-shadow "1px 1px 2px 0px gray"}}
-    [:div.pure-u-1-4
-     [:div [back-button]]]
-    [:div.pure-u-3-4
-     [filter-input]]]
+    [:div.pure-u-1
+     [filter-input]
+     [:div.padded-as-button {:style {:font-size "0.7em" :padding-bottom "1em"}}
+      [breadcrumbs]]]]
    ;; [:div.pure-u-1-8
    ;;  [:button.pure-button.default {:style {:background "blue"}}
    ;;   [views-utils/icon "search"]]]
@@ -212,12 +215,7 @@
     [:div.padded-as-button [facet-group-select-time]]]
    [:div.pure-u-3-4
     ;; header panel
-    
-
     ;; breadcrumbs
-    [:div.pure-u-1.padded-as-button {:style {:padding-bottom "30px" :font-size "0.9em"}}
-     [breadcrumbs]]
-    
     ;; cloud
     [:div.pure-u-1.padded-as-button
      [general-cloud]]

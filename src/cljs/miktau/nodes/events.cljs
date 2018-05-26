@@ -5,11 +5,24 @@
    [miktau.nodes.db :as miktau-db]
    [re-frame.core :as refe]))
 
-;; :nodes/click-on-calendar-item
-;; :nodes/clicked-many-cloud-items
-;; :nodes/clicked-cloud-item
-;; :nodes/clear
-;; :nodes/breadcrumbs-show-all?-switch
+(defn clear
+  "TESTED"
+  [{:keys [db]}  _]
+  {:db 
+   (assoc db
+          :nodes-selected #{}
+          :cloud-selected #{}
+          :calendar-selected {})
+   :fx-redirect [:nodes/get-app-data]})
+(refe/reg-event-fx :nodes/clear clear)
+
+
+
+(defn breadcrumbs-show-all?-switch
+  [db _]
+  (update-in db [:breadcrumbs :show-all?]  not))
+(refe/reg-event-db :nodes/breadcrumbs-show-all?-switch  breadcrumbs-show-all?-switch)
+
 
 (defn init
   "TODO: TEST
@@ -38,14 +51,14 @@
   "TESTED"
   [{:keys [db]} _]
   {:db (assoc db :page 1)
-   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)
+   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) #{} (:cloud-selected db) (:calendar-selected db)
                  {:page 1 :page-size (or (:page-size db) 10)}]})
 (refe/reg-event-fx :nodes/get-app-data get-app-data)
 
 (defn to-page
   [{:keys [db]} [_ page]]
   {:db (assoc db :page page)
-   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)
+   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) #{} (:cloud-selected db) (:calendar-selected db)
                  {:page page  :page-size (or (:page-size db) 10)}]})
 (refe/reg-event-fx :nodes/to-page to-page)
 
@@ -58,8 +71,11 @@
     (meta-db/set-loading db false)
     (assoc :nodes (:nodes response))
     (assoc :total-nodes (:total-nodes response))
-    (assoc :cloud-can-select (:cloud-can-select response))
-    (assoc :total-pages (:total-nodes-pages response)))})
+    (assoc :total-pages (:total-nodes-pages response))
+    (assoc :breadcrumbs {:cloud-can-select (:cloud-can-select response)
+                         :tree-tag (:tree-tag response)
+                         :cloud    (:cloud response)
+                         :show-all? (:show-all? (:breadcrumbs db))}))})
 
 (refe/reg-event-fx :nodes/got-app-data got-app-data)
 
@@ -94,6 +110,38 @@
      (assoc db :cloud-selected (into #{} items)))
    :fx-redirect [:nodes/get-app-data]})
 (refe/reg-event-fx :nodes/clicked-many-cloud-items  clicked-many-cloud-items)
+
+(defn click-on-calendar-item
+  "TESTED"
+  [{:keys [db]} [_ group item]]
+  {:db
+   (try
+     (let [already-has-item (get-in db [:calendar-selected group])]
+       (cond
+         (and  item (> item 0) (= already-has-item item))
+         (update db :calendar-selected dissoc group)
+         (and  item (> item 0))
+         (assoc-in db [:calendar-selected group] item)
+         :else
+         db))
+     (catch :default e
+       db))
+   :fx-redirect [:nodes/get-app-data]})
+(refe/reg-event-fx :nodes/click-on-calendar-item click-on-calendar-item)
+
+(defn file-op
+  [{:keys [db]} [_ action]]
+  {:db db
+   :fx-redirect [:api-handler/file-operation :nodes/get-app-data action (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
+(refe/reg-event-fx :nodes/file-op file-op)
+
+(defn redirect-to-nodes-edit
+  [{:keys [db]} _]
+  {:db  db
+   :fx-redirect [:edit-nodes/init-page (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
+(refe/reg-event-fx :nodes/redirect-to-edit-nodes redirect-to-nodes-edit)
+
+
 
 
 
@@ -138,16 +186,16 @@
 
 (defn select-node
   "TESTED"
-  [db [_ file-path]]
+  [db [_ node-id]]
   (let [nodes-selected (into #{} (or (:nodes-selected db) #{}))]
     (cond
-      (not  (string? file-path)) db
+      (not  (number? node-id)) db
       (contains? nodes-selected "*")
-      (assoc db :nodes-selected #{file-path})
-      (contains? nodes-selected file-path)
-      (assoc db :nodes-selected (disj nodes-selected file-path))
+      (assoc db :nodes-selected #{node-id})
+      (contains? nodes-selected node-id)
+      (assoc db :nodes-selected (disj nodes-selected node-id))
       :else
-      (assoc db :nodes-selected (conj nodes-selected file-path)))))
+      (assoc db :nodes-selected (conj nodes-selected node-id)))))
 
 (refe/reg-event-db :nodes/select-node select-node)
 

@@ -19,17 +19,17 @@
     (empty? nodes-selected)
     {:modified (or calendar-selected {})
      :sorted   (or sorted  "")
-     :file-paths []
+     :ids []
      :tags     (or (into [] (sort (map str (map name cloud-selected)))) [])}
     (contains? nodes-selected "*")
     {:modified (or calendar-selected {})
      :sorted   (or sorted "")
-     :file-paths []
+     :ids []
      :tags (into [] (sort (map str (map name cloud-selected))))}
     (not (empty? nodes-selected))
     {:modified {}
      :sorted   (or sorted "")
-     :file-paths (or  (into [] (sort nodes-selected)) [])
+     :ids (or  (into [] (sort nodes-selected)) [])
      :tags []}
     :else item-or))
 

@@ -11,7 +11,11 @@
    :total-pages 1
    
    :total-nodes 0
+
+   :breadcrumbs {:tree-tag {}
+                 :cloud-can-select {}
+                 :show-all? false}
    
    :cloud-selected #{}
-   :cloud-can-select {}
+   
    :calendar-selected {}})

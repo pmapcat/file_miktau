@@ -159,7 +159,7 @@
    [:.blue-disabled:hover {:color "#8f8fff" :cursor "disabled"}]
    
    
-   [:.unstyled-link {:text-decoration "none" :font-weight "900" }]
+   [:.unstyled-link {:text-decoration "none" :font-weight "900" :cursor "pointer"}]
    [:.unstyled-link:hover {:text-decoration "none"}]
 
    [:.page-inactive {:cursor "default" :background "white"}]

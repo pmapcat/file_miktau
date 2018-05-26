@@ -12,6 +12,15 @@
           :last? (= v last-by-index)
           :first? (= v 0)}])))
 
+(defn filter-input []
+  [:div.pure-g
+   [:div.pure-u-23-24
+    [:input
+     {:type "text" :placeholder "Type tags in here..." 
+      :style {:width "100%" :height "1.9em"}}]]
+   [:div.pure-u-1-24.mik-flush-right
+    [:div.pure-button.pure-button-primary  {:style {:width "100%"}}
+     [views-utils/icon "search"]]]])
 
 (defn radio-button
   [text on-change selected?]
@@ -22,9 +31,33 @@
    [:span {:style {:padding-bottom "5px"}}
     text]])
 
+(defn nodes-selected-view []
+  (let [nodes-selection @(refe/subscribe [:nodes/nodes-selection])]
+    [:div {:style {:font-size "0.8em" }}
+     ;; selected
+     [:div.pure-u-1-2 
+      [:h2.mik-cut-top.light-gray "Group actions on"]
+      [:span "Selected: " [:b (:total nodes-selection)] " files"] [:br]
+      [:div.unstyled-link.blue-clickable {:on-click #(refe/dispatch [:nodes/select-all-nodes]) :style {:cursor "pointer"}} " Select all "]]
+     
+     ;; node items, narrow down
+     [:div.pure-u-1-2.mik-flush-right
+      [:button.pure-button.pure-button-primary
+       {:on-click #(refe/dispatch (get-in nodes-selection [:narrow-results :on-click]))}
+       (get-in nodes-selection [:narrow-results :name])] [:br]
+      
+      ;; each file action available
+      (for [item (:links nodes-selection)]
+        ^{:key (:name item)}
+        [:span
+         (if (:disabled? item)
+           [:a.unstyled-link.blue-disaabled (:name item)]
+           [:a.unstyled-link.blue-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item )])
+         [:br]])]]))
+
 (defn breadcrumbs []
   (let [breadcrumbs @(refe/subscribe [:nodes/breadcrumbs])]
-    [:div 
+    [:div.mik-cut-top
      [:a.unstyled-link.red-clickable {:href "#" :on-click #(refe/dispatch [:nodes/clear]) :style {:padding-right "5px"}} "«Clear»"]
      
      [:span {:style {:padding-right "5px"}}
@@ -71,22 +104,25 @@
        {:href "#" :key (:name point) :on-click #(refe/dispatch (:on-click point)) :class (if (:enabled? point) " green-disabled " " black-clickable ")} (:name point) " "]) "]"]])
 
 (defn file-table-header [all-selected? order-by]
-  [:tr
-   ;; select all nodes button
-   [:th.mik-flush-left
-    ;; [radio-button "" #(refe/dispatch [:nodes/select-all-nodes]) all-selected?]
-    ]
-   
-   [:th.mik-flush-left
-    [sortable-header (:name order-by)]]
-   [:th.mik-flush-left.padded-as-button
-    [:span
-     "Showing: " [:b 3217 " results "] [:br]]
-    [:span {:style {:font-size "0.6em"}}
-     "Selected: " [:b 0] " "
-     [:a.unstyled-link.blue-clickable {:href "#" :on-click #(refe/dispatch [:nodes/select-all-nodes])} " Select all "]]]
-   [:th.mik-flush-right
-    [sortable-header (:modified order-by)]]])
+  (let [amount-selected @(refe/subscribe [:nodes/amount-selected])]
+    [:tr
+     ;; select all nodes button
+     [:th.mik-flush-left
+      ;; [radio-button "" #(refe/dispatch [:nodes/select-all-nodes]) all-selected?]
+      ]
+     
+     [:th.mik-flush-left
+      [sortable-header (:name order-by)]]
+     [:th.mik-flush-left.padded-as-button
+      [:span
+       "Showing: " [:b (:total amount-selected)  " results "] [:br]]
+      [:span {:style {:font-size "0.6em"}}
+       "Selected: " [:b (:amount amount-selected) ] " "
+       [:a.unstyled-link.blue-clickable {:href "#" :on-click #(refe/dispatch [:nodes/select-all-nodes])} " Select all "]]
+      
+      ]
+     [:th.mik-flush-right
+      [sortable-header (:modified order-by)]]]))
 
 (defn tagging-in-a-single-node-item
   [tags]
@@ -109,13 +145,12 @@
 (defn single-node-item [node]
   [:tr
    {:key (str  (:id node))
-    :data-fpath  (str (:file-path node) (:name node))
     :style {:font-size "0.8em" :border-bottom "solid 1px #e3e3e3" :cursor "pointer"}
     :class (if (:selected? node) " node-selected " "")
     }
    [:td
     [:div {:style { :padding-left "10px"}}
-     [radio-button "" #(refe/dispatch [:nodes/select-node (str (node :file-path) (node :name))]) (:selected? node)]]]
+     [radio-button "" #(refe/dispatch (:on-click  node)) (:selected? node)]]]
    [:td
     [:a.unstyled-link.black-clickable 
      {:href "#" :style {:font-weight "300" :word-wrap "break-word"}}
@@ -165,6 +200,7 @@
     ;;    {:on-click #(refe/dispatch [:nodes/edit-nodes])} "Edit tags"]
     ;;   [:span])
     
+    
     [:table {:style {:width "100%"}}
      [:thead
       [file-table-header  (:all-selected? node-items) order-by]]
@@ -181,8 +217,18 @@
 (defn main
   []
   [:div.pure-g
-   [:div.pure-u-1.padded-as-button
-    [file-table]]])
+   [:div.pure-u-1.padded-as-button {:style {:box-shadow "1px 0px 3px 0px gray" :padding-bottom "20px"}}
+    [:div {:style {:padding-bottom "1em"}}
+     [filter-input]]
+    [:div {:style {:font-size "0.7em"}}
+     [breadcrumbs]]]
+   [:div.pure-u-1.padded-as-button {:style {:margin-bottom "120px"}}
+    [file-table]]
+   (if (:is-selected? @(refe/subscribe [:nodes/amount-selected]))
+     [:div {:style {:position "fixed" :left "0px" :right "0px" :bottom "0px" :background "white" :padding-right "20px" :box-shadow "grey 0px -1px 5px 0px"}}
+      [:div.pure-u-1.padded-as-button 
+       [nodes-selected-view]]]
+     [:span])])
 
 
 
