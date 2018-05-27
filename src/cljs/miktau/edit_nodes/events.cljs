@@ -33,7 +33,8 @@
   (->
    (meta-db/set-loading db false)
    (assoc :cloud-can-select (:cloud-can-select response))
-   (assoc :nodes (:nodes response))))
+   (assoc :nodes (:nodes response))
+   (assoc :cloud (:cloud response))))
 (refe/reg-event-db :edit-nodes/got-app-data got-app-data)
 
 (defn file-operation
@@ -44,11 +45,11 @@
 
 (defn delete-tag-from-selection
   "TESTED"
-  [db [_ tag-item]]
-  (let [node-temp-tags (into #{} (or (:nodes-temp-tags-to-delete db) #{}))]
+  [db [_ on-set tag-item]]
+  (let [node-temp-tags (into #{} (or (on-set db) #{}))]
     (assoc
      db
-     :nodes-temp-tags-to-delete
+     on-set
      (cond
        (and (keyword? tag-item) (contains? node-temp-tags tag-item))
        (disj node-temp-tags tag-item)
@@ -56,13 +57,20 @@
        (conj node-temp-tags tag-item)
        :else
        node-temp-tags))))
-(refe/reg-event-db :edit-nodes/delete-tag-from-selection delete-tag-from-selection)
+(refe/reg-event-db
+ :edit-nodes/delete-tag-from-selection
+ (fn [db [_ tag-name]]
+   (delete-tag-from-selection db [_ :nodes-temp-tags-to-delete tag-name])))
+(refe/reg-event-db
+ :edit-nodes/add-tag-to-selection
+ (fn [db [_ tag-name]]
+   (delete-tag-from-selection db [_ :nodes-temp-tags-to-add tag-name])))
 
-(defn add-tag-to-selection
-  "TESTED"
-  [db [_ tag-item]]
-  (if (string? tag-item) (assoc db :nodes-temp-tags-to-add tag-item) db))
-(refe/reg-event-db :edit-nodes/add-tags-to-selection add-tag-to-selection)
+;; (defn add-tag-to-selection
+;;   "TESTED"
+;;   [db [_ tag-item]]
+;;   (if (string? tag-item) (assoc db :nodes-temp-tags-to-add tag-item) db))
+;; (refe/reg-event-db :edit-nodes/add-tags-to-selection add-tag-to-selection)
 
 (defn build-updated-drilldown-on-nodes-or-cloud
   "TESTED"
@@ -93,9 +101,7 @@
    :fx-redirect  [:edit-nodes/redirect-to-nodes]})
 (refe/reg-event-fx :edit-nodes/cancel-tagging cancel-tagging)
 
-
-;; TODO implement
-(refe/reg-event-fx
- :edit-nodes/redirect-to-nodes
- (fn [{:keys [db]} _]
-   {:db db}))
+(refe/reg-event-db
+ :edit-nodes/clear
+ (fn [db _]
+   (assoc db :nodes-temp-tags-to-add #{} :nodes-temp-tags-to-delete #{})))

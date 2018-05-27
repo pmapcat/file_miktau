@@ -1,6 +1,6 @@
 (ns miktau.cloud.views
   (:require [miktau.generic.views-utils :as views-utils]
-            [reagent.core :as reagent]
+            [miktau.cloud.autocomplete :as autocomplete]
             [re-frame.core :as refe]))
 
 (defn e->content
@@ -102,14 +102,16 @@
       " pure-u-1-8 tag"
       (:group (:day calendar))]]))
 (defn filter-input []
-  [:div.pure-g.padded-as-button
-   [:div.pure-u-23-24 
-    [:input
-     {:type "text" :placeholder "Type tags in here..." 
-      :style {:width "100%" :height "1.9em"}}]]
-   [:div.pure-u-1-24.mik-flush-right
-    [:div.pure-button.pure-button-primary  {:style {:width "100%"}}
-     [views-utils/icon "search"]]]])
+  (let [completions (map :name @(refe/subscribe [:cloud/cloud]))]
+    [:div.pure-g.padded-as-button
+     [:div.pure-u-23-24
+      [autocomplete/autocomplete-widget
+       completions
+       {:submit-fn (fn [data] (refe/dispatch [:cloud/clear-cloud-click (keyword (str data))]))
+        :render-fn nil}]]
+     [:div.pure-u-1-24.mik-flush-right
+      [:div.pure-button.pure-button-primary  {:style {:width "100%"}}
+       [views-utils/icon "search"]]]]))
 
 
 

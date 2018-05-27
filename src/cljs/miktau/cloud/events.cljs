@@ -47,6 +47,18 @@
    :fx-redirect [:cloud/get-app-data]})
 (refe/reg-event-fx :cloud/clear clear)
 
+(defn clear-cloud-click
+  "TESTED"
+  [{:keys [db]}  [_ cloud-item]]
+  {:db 
+   (assoc db
+       :filtering ""
+       :cloud-selected #{cloud-item}
+       :calendar-selected {})
+   :fx-redirect [:cloud/get-app-data]})
+(refe/reg-event-fx :cloud/clear-cloud-click clear-cloud-click)
+
+
 (defn filtering
   "TESTED"
   [db [_ data]]

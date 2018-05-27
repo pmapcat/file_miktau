@@ -11,26 +11,40 @@
 (comment
   (println  (:meta @(refe/subscribe [:edit-nodes/get-db-for-test-purposes]))))
 
-(defn nodes-changing
+(defn cloud
   "TESTED"
   [db _]
   (if-not (meta-page? db :edit-nodes)
-    {}
-    (let [all-selected? (contains? (db :nodes-selected) "*")
-          temp-tags-to-delete (:nodes-temp-tags-to-delete db)]
-      {:all-selected? all-selected?
-       :total-amount
-       (if all-selected? (db :total-nodes) (count (db :nodes-selected)))
-       :tags-to-add    (db :nodes-temp-tags-to-add)
-       :tags-to-delete
-       (or
+    []
+    (try
+      (let [max-size (apply max (vals (:cloud db)))]
         (sort-by
          :compare-name
-         (for [tag  (keys (:cloud-can-select db))]
-           {:name  (str (name tag))
-            :compare-name (cljs-string/lower-case (str (name  tag)))
+         (for [[tag tag-size] (:cloud db)]
+           {:name    (str (name tag))
+            :compare-name (cljs-string/lower-case (str (name tag)))
             :key-name tag
-            :selected? (contains? temp-tags-to-delete tag)
-            :can-select? true})) [])})))
+            :size     tag-size
+            :weighted-size  (/ tag-size max-size)
+            :to-delete? (contains? (:nodes-temp-tags-to-delete db) tag)
+            :to-add?    (contains? (:nodes-temp-tags-to-add db) tag)
+            
+            :disabled?      (not (contains? (:cloud-can-select db) tag))
+            :selected?      (contains? (db :cloud-selected) tag)
+            :can-select?    (contains? (:cloud-can-select db) tag)})))
+      (catch :default e []))))
+(refe/reg-sub :edit-nodes/cloud cloud)
 
-(refe/reg-sub :edit-nodes/nodes-changing nodes-changing)
+(defn breadcrumbs [db _]
+  (if-not (meta-page? db :edit-nodes)
+    {}
+    {:tags-to-add
+     (for [item (:nodes-temp-tags-to-add db)]
+       {:name item
+        :on-click [:edit-nodes/add-tag-to-selection item]})
+     :tags-to-delete
+     (for [item (:nodes-temp-tags-to-delete db)]
+       {:name item
+        :on-click [:edit-nodes/delete-tag-from-selection item]})
+     :total-records (:total-nodes db)}))
+(refe/reg-sub :edit-nodes/breadcrumbs breadcrumbs)

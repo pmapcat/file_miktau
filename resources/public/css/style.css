@@ -1,3 +1,25 @@
+.crossed-out {
+  background: HSL(22,99%,88%);
+  text-decoration: line-through !important;
+  color: black !important;
+}
+
+.crossed-out:hover {
+  background: HSL(22,99%,88%);
+  text-decoration: line-through !important;
+  color: black !important;
+}
+
+.added-in {
+  background: HSL(130,100%,92%);
+  color: black;
+}
+
+.added-in:hover {
+  background: HSL(130,100%,92%);
+  color: black;
+}
+
 .tag {
   font-family: "Source Sans Pro", sans-serif !important;
   padding: 3px;
@@ -32,6 +54,16 @@
 
 .tag.selected {
   background: rgb(167, 178, 77)!important;;
+  color: white !important;
+}
+
+.complete.selected {
+  background: rgb(167, 178, 77)!important;;
+  color: white !important;
+}
+
+.complete:hover {
+  background: #eef15b!important;;
   color: white !important;
 }
 
