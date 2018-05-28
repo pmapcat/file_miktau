@@ -10,11 +10,22 @@
     db))
 
 (refe/reg-sub :cloud/get-db-for-test-purposes get-db-for-test-purposes)
+(defn extract-chains
+  [parent-names item]
+  (let [cur-name (keyword (:name item))
+        pa (conj parent-names cur-name)]
+    [{:items pa
+      :tag cur-name}
+     (for [i (vals (:children item))]
+       (extract-chains pa i))]))
 
-(comment
-  (println (:calendar-selected @(refe/subscribe [:cloud/get-db-for-test-purposes])))
-  (refe/dispatch [:cloud/get-app-data])
-  )
+(defn cloud-with-context [db _]
+  (into
+   {}
+   (for [[k v] (group-by :tag (flatten (extract-chains #{} (:tree-tag db))))]
+     [k  (disj (:items (first v)) :root)])))
+(refe/reg-sub :cloud/cloud-with-context cloud-with-context)
+
 
 ;; the algorithm
 ;; if tag is selected, then the tree must show its children

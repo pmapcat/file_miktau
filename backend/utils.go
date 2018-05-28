@@ -3,9 +3,21 @@ package main
 import (
 	"log"
 	"math/rand"
+	"sort"
 	"strings"
 	"time"
 )
+
+func sort_slice(inverse bool, slice interface{}, less func(i, j int) bool) {
+	if inverse {
+		sort.Slice(slice, func(i, j int) bool {
+			return !less(i, j)
+		})
+		return
+	}
+	sort.Slice(slice, less)
+	return
+}
 
 // pages are from 1, to last_page
 // each page can be selected, and page 1 is a beginning of the dataset

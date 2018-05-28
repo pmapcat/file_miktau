@@ -101,19 +101,31 @@
       (:group-name (:day calendar))
       " pure-u-1-8 tag"
       (:group (:day calendar))]]))
+
+
+
 (defn filter-input []
-  (let [completions (map :name @(refe/subscribe [:cloud/cloud]))]
+  (let [completions @(refe/subscribe [:cloud/cloud-with-context])]
     [:div.pure-g.padded-as-button
-     [:div.pure-u-23-24
+     [:div.pure-u-7-8 
       [autocomplete/autocomplete-widget
-       completions
+       (map name (keys completions))
        {:submit-fn (fn [data] (refe/dispatch [:cloud/clear-cloud-click (keyword (str data))]))
-        :render-fn nil}]]
-     [:div.pure-u-1-24.mik-flush-right
-      [:div.pure-button.pure-button-primary  {:style {:width "100%"}}
+        :can-enter-new? false
+        :render-fn (fn [cur-input selected? text]
+                     [:div.unstyled-link.complete {:class  (if  selected?  " complete selected " "")
+                                                   :style {:padding "10px"}}
+                      [:span {:style {:color "green"}}
+                       cur-input]
+                      (apply str (drop (count cur-input) text))
+                      [:span {:style {:padding-left "10px" :font-weight "300"}}
+                       "[ "
+                       (for [item (take 5 ((keyword text) completions ))]
+                         [:span (name item) " "])
+                       "]"]])}]]
+     [:div.pure-u-1-8.mik-flush-right
+      [:div.pure-button.pure-button-primary  {:style {:width "80%"}}
        [views-utils/icon "search"]]]]))
-
-
 
 (defn for-every-and-last
   [data-set]
@@ -213,9 +225,10 @@
    ;;  [:button.pure-button.default {:style {:background "blue"}}
    ;;   [views-utils/icon "search"]]]
    
-   [:div.pure-u-1-4
-    [:div.padded-as-button [facet-group-select-time]]]
-   [:div.pure-u-3-4
+   ;; [:div.pure-u-1-4
+   ;;  [:div.padded-as-button [facet-group-select-time]]]
+   
+   [:div.pure-u-1
     ;; header panel
     ;; breadcrumbs
     ;; cloud

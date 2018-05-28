@@ -52,14 +52,27 @@
   [{:keys [db]} _]
   {:db (assoc db :page 1)
    :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) #{} (:cloud-selected db) (:calendar-selected db)
-                 {:page 1 :page-size (or (:page-size db) 10)}]})
+                 {:page 1 :page-size (or (:page-size db) 10)
+                  :response-fields {:nodes true
+                                    :total-nodes true
+                                    :total-nodes-pages true
+                                    :cloud-can-select true
+                                    :tree-tag true
+                                    :cloud true}}]})
 (refe/reg-event-fx :nodes/get-app-data get-app-data)
 
 (defn to-page
   [{:keys [db]} [_ page]]
   {:db (assoc db :page page)
    :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) #{} (:cloud-selected db) (:calendar-selected db)
-                 {:page page  :page-size (or (:page-size db) 10)}]})
+                 {:page page  :page-size (or (:page-size db) 10)
+                  :response-fields {:nodes                 true
+                                    :total-nodes  true
+                                    :total-nodes-pages true
+                                    :cloud-can-select true
+                                    :tree-tag true
+                                    :cloud true}
+                  }]})
 (refe/reg-event-fx :nodes/to-page to-page)
 
 

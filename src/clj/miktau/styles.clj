@@ -143,7 +143,7 @@
    [:.complete.selected
     {:background (str (:light-green *apple-palette*) "!important;") :color (str "white !important")}]
    [:.complete:hover
-    {:background (str "#eef15b" "!important;") :color (str "white !important")}]
+    {:background (str "#f4ffb3" "!important;") :color (str "black !important")}]
    
    
    

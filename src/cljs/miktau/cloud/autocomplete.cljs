@@ -16,11 +16,15 @@
 
 (defn default-render-fn
   [cur-input selected? text]
-  [:div.unstyled-link.complete {:class  (if  selected?  " complete selected " "")}
+  [:div.unstyled-link.complete {:class  (if  selected?  " complete selected " "")
+                                :style {:padding "10px"}}
    [:span {:style {:color "green" }}
     cur-input]
    (apply str (drop (count cur-input) text))])
 
+(defn default-compare-fn
+  [cur-input item]
+  (cljs-string/starts-with?   item  cur-input))
 
 (defn autocomplete-widget
   "Params are:
@@ -31,29 +35,36 @@
       \"world\"] 
      :can-enter-new? false
      :display-size 10
+     :compare-fn (fn [cur-input item] (cljs-string/starts-with?   item  cur-input))
      :render-fn (fn [now-input-str selected?-bool item-name-str])
      :submit-fn (fn [data])}"
   [completions params]
-  (let [app-state (reagent/atom {:focus? false :cur-index 0 :cur-input ""})
+  (let [app-state (reagent/atom {:cur-index 0 :cur-input ""})
         can-enter-new? (or (:can-enter-new? params) false)
+        compare-fn  (or (:compare-fn params) default-compare-fn)
         display-size (or (:display-size params) 10)
         render-fn (or (:render-fn params) default-render-fn)
         submit-fn-raw  (or (:submit-fn params) identity)
         submit-fn
         (fn [input]
-          (submit-fn-raw input)
-          (swap! app-state assoc :cur-input ""))]
+          (if-not (empty? input)
+            (do
+              (submit-fn-raw input)
+              (swap! app-state assoc :cur-input ""))
+            identity))]
     (fn [completions params]
       (let [aps @app-state
             cur-input (:cur-input aps)
             cur-index (:cur-index aps)
             filtered-items
-            (for [[index item] (map list (range) (filter (fn [item] (cljs-string/starts-with?   item  cur-input)) completions))]
-              {:selected? (= index cur-index)
-               :name   item})
+            (if-not (empty? cur-input)
+              (for [[index item] (map list (range) (take display-size (filter (partial compare-fn cur-input)  completions)))]
+                {:selected? (= index cur-index)
+                 :name   item})
+              [])
             complete-placeholder (or (:name (first (filter :selected? filtered-items))) "")]
         [:div {:style {:position "relative"}}
-         [:input {:value (:cur-input aps)
+         [:input {:value cur-input
                   :style {:width "100%" :height "1.9em" :padding-left "10px" :background "transparent"}
                   :type "text"
                   :on-change
@@ -82,10 +93,12 @@
          [:input {:style {:width "100%" :height "1.9em" :padding-left "10px" :color "gray" :position "absolute" :top "0" :right "0" :left "0" :bottom "0" :z-index "-1"
                           :background "white"} :disabled true
                   :placeholder complete-placeholder}]
-         [:div {:style {:position "absolute" :right "0" :left "0" :max-height "200px" :max-width "600px" :top "2.3em" :box-shadow "grey 1px 2px 1px 0px" :background "white" :overflow "hidden" :padding-top "10px" :padding-bottom "10px" :padding-left "10px" :border "none"}}
-          (for [item (take display-size filtered-items)]
-            ^{:key (:name item)}
-            [:div {:on-click #(submit-fn (:name item))}
-             [render-fn cur-input (:selected? item) (:name item)]])]]))))
+         (if (not (empty? filtered-items))
+           [:div {:style {:position "absolute" :right "0" :left "0"   :top "2.3em" :box-shadow "grey 1px 2px 1px 0px" :background "white" :overflow "hidden"  :border "none"}}
+            (for [item filtered-items]
+              ^{:key (:name item)}
+              [:div {:on-click #(submit-fn (:name item))}
+               [render-fn cur-input (:selected? item) (:name item)]])]
+           [:div])]))))
 
 
