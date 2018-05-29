@@ -3,6 +3,7 @@
    [miktau.tools :as utils]
    [miktau.cloud.db :as miktau-db]
    [miktau.meta-db :as meta-db]
+   [day8.re-frame.undo :refer [undoable]]
    [re-frame.core :as refe]))
 
 (defn init
@@ -15,49 +16,27 @@
           :cloud-selected (or cloud-selected-set #{})
           :calendar-selected (or  calendar-selected-dict {}))
    :fx-redirect [:cloud/get-app-data]})
-(refe/reg-event-fx :cloud/init-page init)
+(refe/reg-event-fx :cloud/init-page (undoable "init page") init)
 
 (defn redirect-to-nodes
   [{:keys [db]} [_ all-nodes-selected?]]
   {:db  db
    :fx-redirect [:nodes/init-page (if all-nodes-selected? #{"*"} #{}) (:cloud-selected db) (:calendar-selected db)]})
-(refe/reg-event-fx :cloud/redirect-to-nodes redirect-to-nodes)
+(refe/reg-event-fx :cloud/redirect-to-nodes
+                   redirect-to-nodes)
 
 (defn redirect-to-nodes-edit
   [{:keys [db]} [_ all-nodes-selected?]]
   {:db  db
    :fx-redirect [:edit-nodes/init-page (if all-nodes-selected? #{"*"} #{}) (:cloud-selected db) (:calendar-selected db)]})
-(refe/reg-event-fx :cloud/redirect-to-edit-nodes redirect-to-nodes)
+(refe/reg-event-fx :cloud/redirect-to-edit-nodes
+                   redirect-to-nodes-edit)
 
 (defn file-op
   [{:keys [db]} [_ action]]
-  {:db db
+  {:db (meta-db/set-loading db true)
    :fx-redirect [:api-handler/file-operation :cloud/get-app-data action #{"*"} (:cloud-selected db) (:calendar-selected db)]})
 (refe/reg-event-fx :cloud/file-op file-op)
-
-
-(defn clear
-  "TESTED"
-  [{:keys [db]}  _]
-  {:db 
-   (assoc db
-       :filtering ""
-       :cloud-selected #{}
-       :calendar-selected {})
-   :fx-redirect [:cloud/get-app-data]})
-(refe/reg-event-fx :cloud/clear clear)
-
-(defn clear-cloud-click
-  "TESTED"
-  [{:keys [db]}  [_ cloud-item]]
-  {:db 
-   (assoc db
-       :filtering ""
-       :cloud-selected #{cloud-item}
-       :calendar-selected {})
-   :fx-redirect [:cloud/get-app-data]})
-(refe/reg-event-fx :cloud/clear-cloud-click clear-cloud-click)
-
 
 (defn filtering
   "TESTED"
@@ -77,6 +56,7 @@
                                     :date-now true
                                     :calendar true
                                     :cloud true
+                                    :nodes true
                                     :total-nodes true
                                     :cloud-can-select true
                                     :tree-tag true}}]})
@@ -160,7 +140,6 @@
         cloud-selected))
     :cloud-can-select {})
    :fx-redirect [:cloud/get-app-data]})
-
 (refe/reg-event-fx :cloud/clicked-cloud-item click-on-cloud)
 
 (defn clicked-many-cloud-items
@@ -174,10 +153,6 @@
    :fx-redirect [:cloud/get-app-data]})
 (refe/reg-event-fx :cloud/clicked-many-cloud-items  clicked-many-cloud-items)
 
-(defn breadcrumbs-show-all?-switch
-  [db _]
-  (update db :breadcrumbs-show-all? not))
-(refe/reg-event-db :cloud/breadcrumbs-show-all?-switch  breadcrumbs-show-all?-switch)
 
 
 (defn click-on-disabled-cloud

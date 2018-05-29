@@ -1,6 +1,7 @@
 (ns miktau.cloud.views
   (:require [miktau.generic.views-utils :as views-utils]
-            [miktau.cloud.autocomplete :as autocomplete]
+            [miktau.autocomplete.views :as autocomplete-views]
+            [miktau.breadcrumbs.views :as breadcrumbs-views]
             [re-frame.core :as refe]))
 
 (defn e->content
@@ -102,92 +103,23 @@
       " pure-u-1-8 tag"
       (:group (:day calendar))]]))
 
-
-
 (defn filter-input []
-  (let [completions @(refe/subscribe [:cloud/cloud-with-context])]
-    [:div.pure-g.padded-as-button
-     [:div.pure-u-7-8 
-      [autocomplete/autocomplete-widget
-       (map name (keys completions))
-       {:submit-fn (fn [data] (refe/dispatch [:cloud/clear-cloud-click (keyword (str data))]))
-        :can-enter-new? false
-        :render-fn (fn [cur-input selected? text]
-                     [:div.unstyled-link.complete {:class  (if  selected?  " complete selected " "")
-                                                   :style {:padding "10px"}}
-                      [:span {:style {:color "green"}}
-                       cur-input]
-                      (apply str (drop (count cur-input) text))
-                      [:span {:style {:padding-left "10px" :font-weight "300"}}
-                       "[ "
-                       (for [item (take 5 ((keyword text) completions ))]
-                         [:span (name item) " "])
-                       "]"]])}]]
-     [:div.pure-u-1-8.mik-flush-right
-      [:div.pure-button.pure-button-primary  {:style {:width "80%"}}
-       [views-utils/icon "search"]]]]))
-
-(defn for-every-and-last
-  [data-set]
-  (let [last-by-index (dec (count data-set))]
-    (for [[v k] (map list (range) data-set)]
-      [k {:point k
-          :index v
-          :last? (= v last-by-index)
-          :first? (= v 0)}])))
-
-(defn breadcrumbs []
-  (let [breadcrumbs @(refe/subscribe [:cloud/breadcrumbs])]
-    [:div 
-     [:a.unstyled-link.red-clickable {:href "#" :on-click #(refe/dispatch [:cloud/clear]) :style {:padding-right "5px"}} "«Clear»"]
-     
-     [:span {:style {:padding-right "5px"}}
-      
-      ;; calendar
-      (for [[item meta-item]  (for-every-and-last (:calendar breadcrumbs))]
-        ^{:key (:name item)}
-        [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
-         (if-not (:last? meta-item) " > " " | ")])
-      
-      ;; cloud items
-      (for [[item meta-item] (for-every-and-last (:cloud-items breadcrumbs))]
-        ^{:key (:name item)}
-        [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
-         (if-not (:last? meta-item) " > " " ")])]
-     
-     ;; potential selection
-     (if-not (empty? (:cloud-can-select breadcrumbs))
-       [:span
-        "( "
-        (for [[item meta-item]  (for-every-and-last
-                                 (if (:show-all? breadcrumbs)
-                                   (:cloud-can-select breadcrumbs)
-                                   (take 10 (:cloud-can-select breadcrumbs))))]
-          
-          ^{:key (:name item)}
-          [:span
-           [:a.unstyled-link.green-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
-           (if-not (:last? meta-item) " • " " ")])
-        
-        (if (:can-expand? breadcrumbs)
-          [:a.unstyled-link.green-clickable {:href "#" :style {:padding-left "5px" } :on-click #(refe/dispatch [:cloud/breadcrumbs-show-all?-switch])} "…" ]
-          [:span])
-        " )"]
-       [:span])]))
-
-
+  [autocomplete-views/filter-input [:cloud/get-app-data] false])
 
 (defn back-button
   []
   [:div {:style {:position "relative"}}
-   [:a.unstyled-link 
-    {:href "#"
-     :on-click #(refe/dispatch [:back])
-     :style
-     {:font-size "3em", :padding-top "0.2em",
-      :position "absolute"
-      :padding-left "0.5em", :padding-right "0.5em"}}
-    [views-utils/icon "keyboard_arrow_left"]]])
+   (if-not @(refe/subscribe [:undos?])
+     [:a.unstyled-link.light-gray
+      {:style
+       {:font-size "5em" :cursor "default"}}
+      [views-utils/icon "keyboard_arrow_left"]]
+     [:a.unstyled-link.black-clickable
+      {:href "#"
+       :on-click #(refe/dispatch [:undo])
+       :style
+       {:font-size "5em"}}
+      [views-utils/icon "keyboard_arrow_left"]])])
 
 (defn nodes-selected-view []
   (let [nodes-selection @(refe/subscribe [:cloud/nodes-selection])]
@@ -217,10 +149,13 @@
   [:div.pure-g {:style {:margin-bottom "200px"}}
    ;; header
    [:div.pure-u-1 {:style {:box-shadow "1px 1px 2px 0px gray"}}
-    [:div.pure-u-1
+    [:div.pure-u-1-24
+     [back-button]]
+    [:div.pure-u-23-24
      [filter-input]
      [:div.padded-as-button {:style {:font-size "0.7em" :padding-bottom "1em"}}
-      [breadcrumbs]]]]
+      [breadcrumbs-views/breadcrumbs [:cloud/get-app-data]]]]]
+   
    ;; [:div.pure-u-1-8
    ;;  [:button.pure-button.default {:style {:background "blue"}}
    ;;   [views-utils/icon "search"]]]
@@ -235,5 +170,4 @@
     [:div.pure-u-1.padded-as-button
      [general-cloud]]
     [:div.padded-as-button {:style {:position "fixed" :left "0px" :right "0px" :bottom "0px"  :background "white" :box-shadow "2px 0px 3px 0px grey"}}
-     [nodes-selected-view]]
-    ]])
+     [nodes-selected-view]]]])

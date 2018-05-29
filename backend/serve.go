@@ -54,7 +54,7 @@ func (s *serve_) BulkFileWorkage(w rest.ResponseWriter, r *rest.Request) {
 	// lock main structure
 	// read lock (will not require changing of the main structure)
 	CNIS.RLock()
-	defer CNIS.Unlock()
+	defer CNIS.RUnlock()
 	enq := FileActionRequest{}
 	err := r.DecodeJsonPayload(&enq)
 	if err != nil {

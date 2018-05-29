@@ -37,7 +37,7 @@
   "TESTED"
   [action nodes-selected cloud-selected calendar-selected or-else]
   (let [request (build-core-query "" nodes-selected cloud-selected calendar-selected nil)]
-    (if (and (contains?  #{:symlinks :default-program :filebrowser} action) (not (nil? request)))
+    (if (and (contains?  #{:symlinks :default :filebrowser} action) (not (nil? request)))
       {:url "/api/bulk-operate-on-files"
        :params {:action (str (name action)) :request request}}
       or-else)))
@@ -53,7 +53,7 @@
   "TESTED"
   [tags-to-add tags-to-delete nodes-selected cloud-selected calendar-selected or-else]
   (let [request (build-core-query "" nodes-selected cloud-selected calendar-selected nil)
-        tags-to-add    (into [] (sort (utils/find-all-tags-in-string tags-to-add)))
+        tags-to-add    (into [] (sort (map (comp str name) tags-to-add)))
         tags-to-delete (into [] (sort (map (comp str name) tags-to-delete)))]
     (cond
       (nil? request)

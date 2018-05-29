@@ -1,5 +1,7 @@
 (ns miktau.nodes.views
   (:require [miktau.generic.views-utils :as views-utils]
+            [miktau.breadcrumbs.views :as breadcrumbs-views]
+            [miktau.autocomplete.views :as autocomplete-views]            
             [re-frame.core :as refe]
             [miktau.tools :as utils]))
 
@@ -12,15 +14,24 @@
           :last? (= v last-by-index)
           :first? (= v 0)}])))
 
+(defn back-button
+  []
+  [:div {:style {:position "relative"}}
+   (if-not @(refe/subscribe [:undos?])
+     [:a.unstyled-link.light-gray
+      {:style
+       {:font-size "5em" :cursor "default"}}
+      [views-utils/icon "keyboard_arrow_left"]]
+     [:a.unstyled-link.black-clickable
+      {:href "#"
+       :on-click #(refe/dispatch [:undo])
+       :style
+       {:font-size "5em"}}
+      [views-utils/icon "keyboard_arrow_left"]])])
 (defn filter-input []
-  [:div.pure-g
-   [:div.pure-u-23-24
-    [:input
-     {:type "text" :placeholder "Type tags in here..." 
-      :style {:width "100%" :height "1.9em"}}]]
-   [:div.pure-u-1-24.mik-flush-right
-    [:div.pure-button.pure-button-primary  {:style {:width "100%"}}
-     [views-utils/icon "search"]]]])
+  [autocomplete-views/filter-input [:nodes/get-app-data] false])
+
+
 
 (defn radio-button
   [text on-change selected?]
@@ -56,43 +67,7 @@
          [:br]])]]))
 
 (defn breadcrumbs []
-  (let [breadcrumbs @(refe/subscribe [:nodes/breadcrumbs])]
-    [:div.mik-cut-top
-     [:a.unstyled-link.red-clickable {:href "#" :on-click #(refe/dispatch [:nodes/clear]) :style {:padding-right "5px"}} "«Clear»"]
-     
-     [:span {:style {:padding-right "5px"}}
-      
-      ;; calendar
-      (for [[item meta-item]  (for-every-and-last (:calendar breadcrumbs))]
-        ^{:key (:name item)}
-        [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
-         (if-not (:last? meta-item) " > " " | ")])
-      
-      ;; cloud items
-      (for [[item meta-item] (for-every-and-last (:cloud-items breadcrumbs))]
-        ^{:key (:name item)}
-        [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
-         (if-not (:last? meta-item) " > " " ")])]
-     
-     ;; potential selection
-     (if-not (empty? (:cloud-can-select breadcrumbs))
-       [:span
-        "( "
-        (for [[item meta-item]  (for-every-and-last
-                                 (if (:show-all? breadcrumbs)
-                                   (:cloud-can-select breadcrumbs)
-                                   (take 10 (:cloud-can-select breadcrumbs))))]
-          
-          ^{:key (:name item)}
-          [:span
-           [:a.unstyled-link.green-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
-           (if-not (:last? meta-item) " • " " ")])
-        
-        (if (:can-expand? breadcrumbs)
-          [:a.unstyled-link.green-clickable {:href "#" :style {:padding-left "5px" } :on-click #(refe/dispatch [:nodes/breadcrumbs-show-all?-switch])} "…" ]
-          [:span])
-        " )"]
-       [:span])]))
+  [breadcrumbs-views/breadcrumbs [:nodes/get-app-data]])
 
 (defn- sortable-header [order-by]
   [:span
@@ -107,10 +82,7 @@
   (let [amount-selected @(refe/subscribe [:nodes/amount-selected])]
     [:tr
      ;; select all nodes button
-     [:th.mik-flush-left
-      ;; [radio-button "" #(refe/dispatch [:nodes/select-all-nodes]) all-selected?]
-      ]
-     
+     [:th.mik-flush-left]
      [:th.mik-flush-left
       [sortable-header (:name order-by)]]
      [:th.mik-flush-left.padded-as-button
@@ -217,11 +189,15 @@
 (defn main
   []
   [:div.pure-g
-   [:div.pure-u-1.padded-as-button {:style {:box-shadow "1px 0px 3px 0px gray" :padding-bottom "20px"}}
-    [:div {:style {:padding-bottom "1em"}}
-     [filter-input]]
-    [:div {:style {:font-size "0.7em"}}
-     [breadcrumbs]]]
+   [:div.pure-u-1 {:style {:box-shadow "1px 1px 2px 0px gray"}}
+    [:div.pure-u-1-24
+     [back-button]]
+    [:div.pure-u-23-24
+     [filter-input]
+     [:div.padded-as-button {:style {:font-size "0.7em" :padding-bottom "1em"}}
+      [breadcrumbs-views/breadcrumbs [:nodes/get-app-data]]]]]
+
+   
    [:div.pure-u-1.padded-as-button {:style {:margin-bottom "120px"}}
     [file-table]]
    (if (:is-selected? @(refe/subscribe [:nodes/amount-selected]))

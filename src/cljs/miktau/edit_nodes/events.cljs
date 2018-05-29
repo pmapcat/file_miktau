@@ -4,6 +4,7 @@
    [miktau.tools :as utils]
    [miktau.edit-nodes.db :as miktau-db]
    [miktau.meta-db :as meta-db]
+   [day8.re-frame.undo :refer [undoable]]
    [clojure.set :as clojure-set]))
 
 (defn init
@@ -18,7 +19,7 @@
           :calendar-selected (or  calendar-selected-dict {})
           :nodes-selected    (or  nodes-selected-set {}))
    :fx-redirect [:edit-nodes/get-app-data]})
-(refe/reg-event-fx :edit-nodes/init-page init)
+(refe/reg-event-fx :edit-nodes/init-page (undoable "init edit nodes page") init)
 
 (defn get-app-data
   "TESTED"
@@ -90,7 +91,7 @@
   "TESTED"
   [{:keys [db]} _]
   {:db  (assoc  db :cloud-selected (:cloud-selected (build-updated-drilldown-on-nodes-or-cloud db))
-                :nodes-temp-tags-to-add ""
+                :nodes-temp-tags-to-add #{}
                 :nodes-temp-tags-to-delete #{})
    :fx-redirect
    [:api-handler/build-update-records :edit-nodes/get-app-data (:nodes-temp-tags-to-add db) (:nodes-temp-tags-to-delete db)

@@ -29,41 +29,6 @@
 
 (refe/reg-sub :nodes/order-by order-by)
 
-(defn breadcrumbs [db _]
-  (if-not (meta-page? db :nodes)
-    {}
-    (let [calendar-crumb (fn [field]
-                           (if-let [item (field (:calendar-selected db))]
-                             {:name (str (name field) ": " (utils/pad item 2 0))
-                              :on-click [:nodes/click-on-calendar-item field  item]} nil))
-          ranker (:cloud (:breadcrumbs db))
-          selectable-items 
-          (if (and (empty? (:cloud-selected db)) (empty? (:calendar-selected db)))
-            (keys (:children (:tree-tag (:breadcrumbs db))))
-            (keys (:cloud-can-select  (:breadcrumbs db))))]
-      {:calendar
-       (filter
-        (comp not nil?)
-        [(calendar-crumb :year)
-         (calendar-crumb :month)
-         (calendar-crumb :day)])
-       :show-all? (:show-all? (:breadcrumbs db))
-       :can-expand? (> (count selectable-items) 8)
-       :cloud-items
-       (let [click-children (:cloud-selected  db)]
-         (for [[index item]  (map list  (range) (:cloud-selected  db))]
-           {:name (str (name item))  :on-click [:nodes/clicked-many-cloud-items (take (inc index) click-children)]}))
-       :cloud-can-select
-       (sort-by
-        :rank
-        (filter
-         (comp not empty?)
-         (for [item  selectable-items]
-           (if (contains? (:cloud-selected db) item)
-             {}
-             {:name (str (name item)) :rank (- (item ranker)) :on-click [:nodes/clicked-cloud-item   item]}))))})))
-(refe/reg-sub :nodes/breadcrumbs breadcrumbs)
-
 (defn pagination
   [db _]
   (let [first? (atom true)]
@@ -83,6 +48,7 @@
           [:identity])})}))
 
 (refe/reg-sub :nodes/pagination pagination)
+
 (defn single-node-item
   [cloud-selected nodes-selected all-selected? node-prev node-next]
   (let [selected?
@@ -161,6 +127,3 @@
          :on-click  [:nodes/file-op :default]
          :disabled? (> amount 10)}]})))
 (refe/reg-sub :nodes/nodes-selection nodes-selection-view)
-
-
-

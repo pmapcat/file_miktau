@@ -57,8 +57,8 @@
 (defn build-update-records
   ":edit-nodes/success-redirect (:nodes-temp-tags-to-add db) (:nodes-temp-tags-to-delete db) (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)
    TESTED"
-  [{:keys [db]} [_ on-success-keyword add-tags-string delete-tags-set nodes-selected-set cloud-selected-set calendar-selected-dict]]
-  (if-let [api-call (query-builder/build-update-records add-tags-string delete-tags-set nodes-selected-set cloud-selected-set calendar-selected-dict nil)]
+  [{:keys [db]} [_ on-success-keyword add-tags-set delete-tags-set nodes-selected-set cloud-selected-set calendar-selected-dict]]
+  (if-let [api-call (query-builder/build-update-records add-tags-set delete-tags-set nodes-selected-set cloud-selected-set calendar-selected-dict nil)]
     {:db db :http-xhrio (query-builder/server-call-2 api-call [:api-handler/got-app-data on-success-keyword] [:error])}
     {:db db :fx-redirect [:error "Cannot build request on these params"]}))
 (refe/reg-event-fx :api-handler/build-update-records build-update-records)

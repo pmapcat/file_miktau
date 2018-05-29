@@ -23,6 +23,7 @@
                            {:year 2017 :month 4 :day 10}])
   
   ;; (re-frame/dispatch-sync [:nodes/init-page #{}  #{:bibliostore} {}])
+  
   ;; (re-frame/dispatch-sync [:nodes/init-page #{}  #{} {}])
   ;; (re-frame/dispatch-sync [:edit-nodes/init-page #{"*"}  #{:bibliostore} {}])
   

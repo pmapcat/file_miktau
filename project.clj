@@ -20,13 +20,10 @@
                  [day8.re-frame/re-frame-10x "0.3.3-react16"]                 
                  [com.stuartsierra/component "0.3.2"]
                  [org.danielsz/system "0.4.1"]
+                 [day8.re-frame/undo "0.3.2"]
                  [org.clojure/tools.namespace "0.2.11"]
                  [re-frame "0.10.5"]
-                 [lambdaisland/garden-watcher "0.3.2"]
-
-                 [cljsjs/jquery "2.2.2-0"]
-                 [cljsjs/typeahead-bundle "0.11.1-1"]]
-
+                 [lambdaisland/garden-watcher "0.3.2"]]
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-environ "1.1.0"]
             [cider/cider-nrepl "0.17.0"]]

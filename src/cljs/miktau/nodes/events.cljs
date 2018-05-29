@@ -3,26 +3,8 @@
    [miktau.tools :as utils]
    [miktau.meta-db :as meta-db]   
    [miktau.nodes.db :as miktau-db]
+   [day8.re-frame.undo :refer [undoable]]
    [re-frame.core :as refe]))
-
-(defn clear
-  "TESTED"
-  [{:keys [db]}  _]
-  {:db 
-   (assoc db
-          :nodes-selected #{}
-          :cloud-selected #{}
-          :calendar-selected {})
-   :fx-redirect [:nodes/get-app-data]})
-(refe/reg-event-fx :nodes/clear clear)
-
-
-
-(defn breadcrumbs-show-all?-switch
-  [db _]
-  (update-in db [:breadcrumbs :show-all?]  not))
-(refe/reg-event-db :nodes/breadcrumbs-show-all?-switch  breadcrumbs-show-all?-switch)
-
 
 (defn init
   "TODO: TEST
@@ -35,7 +17,7 @@
           :calendar-selected (or  calendar-selected-dict {})
           :nodes-selected    (or  nodes-selected-set {}))
    :fx-redirect [:nodes/get-app-data]})
-(refe/reg-event-fx :nodes/init-page init)
+(refe/reg-event-fx :nodes/init-page (undoable "init nodes page") init)
 
 (defn edit-nodes
   [{:keys [db]} _]
@@ -80,15 +62,15 @@
   "TESTED"
   [{:keys [db]} [_ response]]
   {:db
-   (->
+   (assoc
     (meta-db/set-loading db false)
-    (assoc :nodes (:nodes response))
-    (assoc :total-nodes (:total-nodes response))
-    (assoc :total-pages (:total-nodes-pages response))
-    (assoc :breadcrumbs {:cloud-can-select (:cloud-can-select response)
-                         :tree-tag (:tree-tag response)
-                         :cloud    (:cloud response)
-                         :show-all? (:show-all? (:breadcrumbs db))}))})
+    :nodes (:nodes response)
+    :total-nodes (:total-nodes response)
+    :total-pages (:total-nodes-pages response)
+    :cloud-can-select (:cloud-can-select response)
+    :tree-tag (:tree-tag response)
+    :cloud    (:cloud response))})
+
 
 (refe/reg-event-fx :nodes/got-app-data got-app-data)
 
@@ -124,24 +106,6 @@
    :fx-redirect [:nodes/get-app-data]})
 (refe/reg-event-fx :nodes/clicked-many-cloud-items  clicked-many-cloud-items)
 
-(defn click-on-calendar-item
-  "TESTED"
-  [{:keys [db]} [_ group item]]
-  {:db
-   (try
-     (let [already-has-item (get-in db [:calendar-selected group])]
-       (cond
-         (and  item (> item 0) (= already-has-item item))
-         (update db :calendar-selected dissoc group)
-         (and  item (> item 0))
-         (assoc-in db [:calendar-selected group] item)
-         :else
-         db))
-     (catch :default e
-       db))
-   :fx-redirect [:nodes/get-app-data]})
-(refe/reg-event-fx :nodes/click-on-calendar-item click-on-calendar-item)
-
 (defn file-op
   [{:keys [db]} [_ action]]
   {:db db
@@ -153,10 +117,6 @@
   {:db  db
    :fx-redirect [:edit-nodes/init-page (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
 (refe/reg-event-fx :nodes/redirect-to-edit-nodes redirect-to-nodes-edit)
-
-
-
-
 
 (defn click-on-cloud
   "TESTED"
@@ -174,7 +134,6 @@
         :else
         cloud-selected)))
    :fx-redirect [:nodes/get-app-data]})
-
 (refe/reg-event-fx :nodes/clicked-cloud-item click-on-cloud)
 
 (defn select-all-nodes

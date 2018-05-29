@@ -14,12 +14,20 @@
             
             [miktau.cloud.events]
             [miktau.cloud.subs]
+
+            [miktau.autocomplete.events]
+            [miktau.autocomplete.subs]
+            
+            [miktau.breadcrumbs.events]
+            [miktau.breadcrumbs.subs]
             
             [miktau.nodes.events]
             [miktau.nodes.subs]
             
             [miktau.edit-nodes.events]
             [miktau.edit-nodes.subs]
+
+            
             
             [re-frame.core :as refe]))
 
