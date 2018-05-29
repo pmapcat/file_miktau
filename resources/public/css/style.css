@@ -75,6 +75,10 @@
   color: #f5c6c6;
 }
 
+.red {
+  color: red;
+}
+
 .green-clickable {
   color: rgba(160, 195, 119, 1);
 }
@@ -89,6 +93,10 @@
 }
 
 .node-selected {
+  background: #fdffd9;
+}
+
+.top-drawer {
   background: #fdffd9;
 }
 

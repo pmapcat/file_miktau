@@ -28,10 +28,18 @@
        :style
        {:font-size "5em"}}
       [views-utils/icon "keyboard_arrow_left"]])])
+(defn top-drawer-chroot []
+  
+  
+  )
+
 (defn filter-input []
-  [autocomplete-views/filter-input [:nodes/get-app-data] false])
-
-
+  [:div.pure-g.padded-as-button
+   [:div.pure-u-7-8
+    [autocomplete-views/filter-input [:nodes/get-app-data] false]]
+     [:div.pure-u-1-8.mik-flush-right
+      [:div.pure-button.pure-button-primary  {:style {:width "80%"}}
+       [:div {:on-click #(refe/dispatch [:nodes/open-file-selecting-dialog])} "Add files"]]]])
 
 (defn radio-button
   [text on-change selected?]
@@ -139,12 +147,12 @@
         [views-utils/icon "arrow_forward"]]]
       [:span])]
    [:td.mik-flush-right
-    [:a.unstyled-link.blue-clickable
+    [:a.unstyled-link.
      {:href "#"
       :class (if (:modified-as-prev? node)
                " almost-hidden-in-plain-sight "
                "")
-      :style {:font-weight "300"}}
+      :style {:font-weight "300" :color "black"}}
      
      (str
       (utils/pad (:year   (node :modified)) 4 "0") "."

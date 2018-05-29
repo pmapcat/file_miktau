@@ -61,7 +61,22 @@
       " "(:name tag) ])])
 
 (defn filter-input []
-  [autocomplete-views/filter-input [:cloud/get-app-data] false])
+  [:div.pure-g.padded-as-button
+   [:div.pure-u-7-8
+    [autocomplete-views/filter-input [:cloud/get-app-data] false]]
+     [:div.pure-u-1-8.mik-flush-right
+      [:div.pure-button.pure-button-primary  {:style {:width "80%"}}
+       [:div {:on-click #(refe/dispatch [:cloud/open-file-selecting-dialog])} "Add files"]]]])
+(defn top-drawer []
+  [:div.top-drawer.padded-as-button {:style {:font-size "0.7em"}}
+   [:div.pure-u-1-24]
+   [:div.pure-u-23-24
+    [:span.unstyled-link "Current root is: "]
+    [:a.red-clickable.unstyled-link {:href "#" } "[../some-current-root-dir/]"]
+    [:div.pure-button.pure-button-primary.mik-flush-right {:style {:font-size "0.7em" :display "inline-block" :margin-left "10px"}} [:b "Change root"]]
+    [:input.pure-button.pure-button-primary.mik-flush-right {:style {:font-size "0.7em" :display "inline-block" :margin-left "10px"} :type "file" }]
+    ]])
+
 
 (defn back-button
   []
@@ -106,6 +121,7 @@
   [:div.pure-g {:style {:margin-bottom "200px"}}
    ;; header
    [:div.pure-u-1 {:style {:box-shadow "1px 1px 2px 0px gray"}}
+    [top-drawer]
     [:div.pure-u-1-24
      [back-button]]
     [:div.pure-u-23-24

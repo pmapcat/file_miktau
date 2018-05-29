@@ -5,7 +5,7 @@
   [on]
   [(str ".mik-cut-" on)  { (str "padding-" on) "0"
                           (str "margin-" on) "0"}])
-(def *apple-palette*
+(def ^:dynamic *apple-palette*
   {:gray "rgb(238, 229, 213)"
    :red "rgb(128, 21, 29)"
    :pink "rgb(214, 96, 83)"
@@ -134,7 +134,7 @@
               :display "inline-block"
               :text-decoration "none"}]
    
-   [:.tag:hover {:color (str (:light-green *apple-palette*))}]
+   [:.tag:hover         {:color (str (:light-green *apple-palette*))}]
    [:.tag.disabled       {:color "HSL(123,1%,84%)" :cursor "default" }]
    [:.tag.disabled:hover {:color "HSL(123,1%,84%) !important" :cursor "default"}]
    [:.tag.can-select       {:color "black" :cursor "pointer" }]
@@ -151,11 +151,14 @@
 
    [:.red-clickable {:color "red"}]
    [:.red-clickable:hover {:color "#f5c6c6"}]
+   [:.red {:color "red"}]
+   
    [:.green-clickable {:color "rgba(160, 195, 119, 1)"}]
    [:.green-clickable:hover {:color "rgb(216, 239, 189)"}]
 
    [:.green-disabled {:color "rgb(216, 239, 189)" :cursor "disabled"}]
    [:.node-selected {:background "#fdffd9"}]
+   [:.top-drawer {:background "#fdffd9"}]
    
    [:.black-clickable {:color "black"}]
    [:.black-clickable:hover {:color "#a7a3a3"}]
