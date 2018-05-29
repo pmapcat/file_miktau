@@ -9,14 +9,13 @@
 
 (defn init
   "TODO: TEST
-   params [_ nodes-selected-set cloud-selected-set calendar-selected-dict] are *nullable*"
-  [_ [_ nodes-selected-set cloud-selected-set calendar-selected-dict]]
+   params [_ nodes-selected-set cloud-selected-set ] are *nullable*"
+  [_ [_ nodes-selected-set cloud-selected-set]]
   {:db
    (assoc miktau-db/default-db
           :meta
           (meta-db/set-loading-db (meta-db/set-page meta-db/meta-db :edit-nodes) true)
           :cloud-selected (or cloud-selected-set #{})
-          :calendar-selected (or  calendar-selected-dict {})
           :nodes-selected    (or  nodes-selected-set {}))
    :fx-redirect [:edit-nodes/get-app-data]})
 (refe/reg-event-fx :edit-nodes/init-page (undoable "init edit nodes page") init)
@@ -25,7 +24,7 @@
   "TESTED"
   [{:keys [db]} _]
   {:db db
-   :fx-redirect [:api-handler/get-app-data :edit-nodes/got-app-data "" (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)
+   :fx-redirect [:api-handler/get-app-data :edit-nodes/got-app-data "" (:nodes-selected db) (:cloud-selected db)
                  {:response-fields {:cloud-can-select true
                                     :nodes true
                                     :cloud true}}]})
@@ -44,7 +43,7 @@
 (defn file-operation
   [{:keys [db]} [_ operation-name]]
   {:db db
-   :fx-redirect [:api-handler/file-operation :edit-nodes/get-app-data operation-name (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
+   :fx-redirect [:api-handler/file-operation :edit-nodes/get-app-data operation-name (:nodes-selected db) (:cloud-selected db)]})
 (refe/reg-event-fx :generic/file-operation file-operation)
 
 (defn delete-tag-from-selection
@@ -95,7 +94,7 @@
                 :nodes-temp-tags-to-delete #{})
    :fx-redirect
    [:api-handler/build-update-records :edit-nodes/get-app-data (:nodes-temp-tags-to-add db) (:nodes-temp-tags-to-delete db)
-    (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
+    (:nodes-selected db) (:cloud-selected db) ]})
 (refe/reg-event-fx :edit-nodes/submit-tagging submit-tagging)
 
 (defn cancel-tagging

@@ -30,12 +30,6 @@
      
      [:span {:style {:padding-right "5px"}}
       
-      ;; calendar
-      (for [[item meta-item]  (for-every-and-last (:calendar breadcrumbs))]
-        ^{:key (:name item)}
-        [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (inject-event redirector (:on-click item)))} (:name item)]
-         (if-not (:last? meta-item) " > " " | ")])
-      
       ;; cloud items
       (for [[item meta-item] (for-every-and-last (:cloud-items breadcrumbs))]
         ^{:key (:name item)}

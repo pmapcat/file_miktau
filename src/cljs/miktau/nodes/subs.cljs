@@ -1,6 +1,5 @@
 (ns miktau.nodes.subs
   (:require [re-frame.core :as refe]
-            [clojure.string :as cljs-string]
             [miktau.tools :as utils]
             [miktau.meta-db :refer [meta-page?]]))
 

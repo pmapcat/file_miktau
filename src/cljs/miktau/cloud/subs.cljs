@@ -1,8 +1,7 @@
 (ns miktau.cloud.subs
   (:require [re-frame.core :as refe]
             [clojure.string :as cljs-string]
-            [miktau.meta-db :refer [meta-page?]]
-            [miktau.tools :as utils]))
+            [miktau.meta-db :refer [meta-page?]]))
 
 (defn get-db-for-test-purposes [db _]
   (if-not (meta-page? db :cloud)
@@ -82,72 +81,6 @@
       (catch :default e []))))
 
 (refe/reg-sub :cloud/cloud cloud)
-
-(defn calendar
-  "TESTED"
-  [db _]
-  (if-not (meta-page? db :cloud)
-    {}
-    (try
-      (into
-       {}
-       (for [[group-name group] (:calendar db)]
-         [group-name
-          (let [max-size (apply max (vals group))
-                sorter-applicator
-                (fn [data]
-                  (if (= group-name :year)
-                    (reverse (sort-by :sort-name data))
-                    (sort-by :sort-name data)))]
-            {:group-name (str (name group-name))
-             :max-size max-size
-             :group
-             (map
-              #(dissoc % :sort-name)
-              (sorter-applicator
-               (for [[tag tag-size] group]
-                 (let [parsed-name tag
-                       can-select? (contains? (get (:calendar-can-select db) group-name) tag)]
-                   {:name   (utils/pad parsed-name 2 "0") 
-                    :key-name tag
-                    :sort-name parsed-name
-                    :size     tag-size
-                    :group    group-name
-                    :weighted-size (/ tag-size max-size)
-                    :disabled?      (not can-select?)
-                    :selected?      (= (get (:calendar-selected db) group-name) parsed-name)
-                    :can-select?    can-select?}))))})]))
-      (catch :default e
-        {}))))
-
-(refe/reg-sub :cloud/calendar calendar)
-
-(defn fast-access-calendar
-  "TESTED"
-  [db _]
-  (if-not (meta-page? db :cloud)
-    []
-    (try
-      (if (:date-now db)
-        [{:name "Today"
-          :group "FastAccess"
-          :can-select? (utils/is-it-today? db [:day :month :year])
-          :key-name      (:date-now db)
-          :selected? false}
-         {:name "This month"
-          :group "FastAccess"
-          :can-select? (utils/is-it-today? db [:month :year])
-          :key-name      (dissoc (:date-now db) :day)
-          :selected? false}
-         {:name "This year"
-          :group "FastAccess"
-          :can-select? (utils/is-it-today? db [:year])
-          :key-name      {:year (:year (:date-now db))}
-          :selected? false}]
-        [])
-      (catch :default e []))))
-
-(refe/reg-sub :cloud/fast-access-calendar fast-access-calendar)
 
 (defn nodes-selection-editable-view
   [db _]

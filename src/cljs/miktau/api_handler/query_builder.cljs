@@ -14,45 +14,42 @@
 
 (defn build-core-query
   "TESTED"
-  [sorted nodes-selected cloud-selected calendar-selected item-or]
+  [sorted nodes-selected cloud-selected item-or]
   (cond
     (empty? nodes-selected)
-    {:modified (or calendar-selected {})
-     :sorted   (or sorted  "")
+    {:sorted   (or sorted  "")
      :ids []
      :tags     (or (into [] (sort (map str (map name cloud-selected)))) [])}
     (contains? nodes-selected "*")
-    {:modified (or calendar-selected {})
-     :sorted   (or sorted "")
+    {:sorted   (or sorted "")
      :ids []
      :tags (into [] (sort (map str (map name cloud-selected))))}
     (not (empty? nodes-selected))
-    {:modified {}
-     :sorted   (or sorted "")
+    {:sorted   (or sorted "")
      :ids (or  (into [] (sort nodes-selected)) [])
      :tags []}
     :else item-or))
 
 (defn build-bulk-operate-on-files
   "TESTED"
-  [action nodes-selected cloud-selected calendar-selected or-else]
-  (let [request (build-core-query "" nodes-selected cloud-selected calendar-selected nil)]
+  [action nodes-selected cloud-selected or-else]
+  (let [request (build-core-query "" nodes-selected cloud-selected nil)]
     (if (and (contains?  #{:symlinks :default :filebrowser} action) (not (nil? request)))
       {:url "/api/bulk-operate-on-files"
        :params {:action (str (name action)) :request request}}
       or-else)))
 
 (defn build-get-app-data
-  [sorted-str nodes-selected-set cloud-selected-set calendar-selected-dict options or-else]
-  (if-let [q (build-core-query sorted-str nodes-selected-set cloud-selected-set calendar-selected-dict or-else)]
+  [sorted-str nodes-selected-set cloud-selected-set options or-else]
+  (if-let [q (build-core-query sorted-str nodes-selected-set cloud-selected-set or-else)]
     {:url "/api/get-app-data"
      :params (merge q options)}
     or-else))
 
 (defn build-update-records
   "TESTED"
-  [tags-to-add tags-to-delete nodes-selected cloud-selected calendar-selected or-else]
-  (let [request (build-core-query "" nodes-selected cloud-selected calendar-selected nil)
+  [tags-to-add tags-to-delete nodes-selected cloud-selected or-else]
+  (let [request (build-core-query "" nodes-selected cloud-selected nil)
         tags-to-add    (into [] (sort (map (comp str name) tags-to-add)))
         tags-to-delete (into [] (sort (map (comp str name) tags-to-delete)))]
     (cond

@@ -16,6 +16,4 @@
                  :cloud-can-select {}
                  :show-all? false}
    
-   :cloud-selected #{}
-   
-   :calendar-selected {}})
+   :cloud-selected #{}})

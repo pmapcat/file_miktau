@@ -6,7 +6,7 @@
   "TESTED"
   [{:keys [db]}  [_ redirector]]
   {:db 
-   (assoc db :cloud-selected #{} :calendar-selected {})
+   (assoc db :cloud-selected #{})
    :fx-redirect redirector})
 (refe/reg-event-fx :breadcrumbs/clear clear)
 
@@ -15,24 +15,6 @@
   (update db :breadcrumbs-show-all? not))
 (refe/reg-event-db :breadcrumbs/breadcrumbs-show-all?-switch  breadcrumbs-show-all?-switch)
 
-
-(defn click-on-calendar-item
-  "TESTED"
-  [{:keys [db]} [_ redirector group item]]
-  {:db
-   (try
-     (let [already-has-item (get-in db [:calendar-selected group])]
-       (cond
-         (and  item (> item 0) (= already-has-item item))
-         (update db :calendar-selected dissoc group)
-         (and  item (> item 0))
-         (assoc-in db [:calendar-selected group] item)
-         :else
-         db))
-     (catch :default e
-       db))
-   :fx-redirect redirector})
-(refe/reg-event-fx :breadcrumbs/click-on-calendar-item  click-on-calendar-item)
 
 (defn click-on-cloud
   "TESTED"

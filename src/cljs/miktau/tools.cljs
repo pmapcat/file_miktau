@@ -133,24 +133,6 @@
   [month-number]
   (get ["January" "February" "March"  "April"  "May"  "June" "July" "August" "September" "October" "November" "December"] (dec month-number)))
 
-(defn is-it-today?
-  "TESTED"
-  [db items]
-  (every?
-   identity
-   (for [i items]
-     (contains?  (i (:calendar-can-select db))
-                 (i (db :date-now))))))
-
-(defn is-this-datepoint-selected?
-  "TESTED"
-  [db date-point]
-  (every?
-   identity
-   (let [sel (:calendar-selected db)]
-     (for [[key val] date-point]
-       (=  (key sel) val)))))
-
 (defn scale-inplace
   [A B C D X]
   (+

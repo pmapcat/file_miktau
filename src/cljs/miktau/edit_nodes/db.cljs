@@ -9,8 +9,6 @@
    :nodes-temp-tags-to-add    #{}
    
    :total-nodes 0
-   
-   :calendar-selected {}
    :nodes-selected #{}
    :cloud-selected #{}
    

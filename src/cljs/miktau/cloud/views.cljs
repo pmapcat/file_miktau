@@ -60,49 +60,6 @@
         :margin-left (str (:pad-level tag) "em")}}
       " "(:name tag) ])])
 
-(defn facet-group-select-time-subwidget
-  [icon-name group-name additional-item-classes items]
-  [:div.pure-g {:role "group"}
-   [:h2.pure-u-1.mik-cut-bottom.mik-cut-top.padded-as-button.light-gray.header-font
-    [views-utils/icon icon-name] group-name]
-   [:div.pure-u-1
-    (for [item items]
-      [:a.mik-flush-center {:key   (str (item :key-name))
-           :style {:cursor "pointer" :display "inline-block"}
-           :on-click
-           (if (:disabled? item)
-             #(refe/dispatch [:cloud/clicked-disabled-calendar-item (:group item) (item :key-name)])
-             #(refe/dispatch [:cloud/click-on-calendar-item (:group item) (item :key-name)]))
-           :class
-           (str
-            (cond (:selected? item) "selected"
-                  (:can-select? item) "can-select"
-                  :else "disabled")
-            " " additional-item-classes)}
-       (:name item)])]])
-
-(defn  facet-group-select-time []
-  (let [calendar @(refe/subscribe [:cloud/calendar])]
-    [:div.pure-g {:style {:font-size "1em"}}
-     ;; year      
-     [facet-group-select-time-subwidget
-      "line_style"
-      (:group-name (:year calendar))
-      " pure-u-1-5 tag "
-      (:group (:year calendar))]
-     ;; month
-     [facet-group-select-time-subwidget
-      "date_range"
-      (:group-name (:month calendar))
-      " pure-u-1-8 tag "
-      (:group (:month calendar))]
-     ;; day
-     [facet-group-select-time-subwidget
-      "date_range"
-      (:group-name (:day calendar))
-      " pure-u-1-8 tag"
-      (:group (:day calendar))]]))
-
 (defn filter-input []
   [autocomplete-views/filter-input [:cloud/get-app-data] false])
 
@@ -155,13 +112,6 @@
      [filter-input]
      [:div.padded-as-button {:style {:font-size "0.7em" :padding-bottom "1em"}}
       [breadcrumbs-views/breadcrumbs [:cloud/get-app-data]]]]]
-   
-   ;; [:div.pure-u-1-8
-   ;;  [:button.pure-button.default {:style {:background "blue"}}
-   ;;   [views-utils/icon "search"]]]
-   
-   ;; [:div.pure-u-1-4
-   ;;  [:div.padded-as-button [facet-group-select-time]]]
    
    [:div.pure-u-1
     ;; header panel

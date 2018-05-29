@@ -5,10 +5,7 @@
   "TESTED"
   [{:keys [db]}  [_ redirector cloud-item]]
   {:db 
-   (assoc db
-       :filtering ""
-       :cloud-selected #{cloud-item}
-       :calendar-selected {})
+   (assoc db :cloud-selected #{cloud-item})
    :fx-redirect redirector})
 
 (refe/reg-event-fx :autocomplete/clear-cloud-click clear-cloud-click)

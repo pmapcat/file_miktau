@@ -8,13 +8,12 @@
 
 (defn init
   "TODO: TEST
-   params [_ nodes-selected-set cloud-selected-set calendar-selected-dict] are *nullable*"
-  [_ [_ nodes-selected-set cloud-selected-set calendar-selected-dict]]
+   params [_ nodes-selected-set cloud-selected-set] are *nullable*"
+  [_ [_ nodes-selected-set cloud-selected-set]]
   {:db
    (assoc miktau-db/default-db
           :meta (meta-db/set-loading-db (meta-db/set-page meta-db/meta-db :nodes) true)
           :cloud-selected (or cloud-selected-set #{})
-          :calendar-selected (or  calendar-selected-dict {})
           :nodes-selected    (or  nodes-selected-set {}))
    :fx-redirect [:nodes/get-app-data]})
 (refe/reg-event-fx :nodes/init-page (undoable "init nodes page") init)
@@ -24,8 +23,7 @@
   {:db (meta-db/set-loading db true)
    :fx-redirect [:edit-nodes/init-page
                  (:nodes-selected db)
-                 (:cloud-selected db)
-                 (:calendar-selected db)]})
+                 (:cloud-selected db)]})
 (refe/reg-event-fx :nodes/edit-nodes edit-nodes)
 
 
@@ -33,7 +31,7 @@
   "TESTED"
   [{:keys [db]} _]
   {:db (assoc db :page 1)
-   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) #{} (:cloud-selected db) (:calendar-selected db)
+   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) #{} (:cloud-selected db) 
                  {:page 1 :page-size (or (:page-size db) 10)
                   :response-fields {:nodes true
                                     :total-nodes true
@@ -46,7 +44,7 @@
 (defn to-page
   [{:keys [db]} [_ page]]
   {:db (assoc db :page page)
-   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) #{} (:cloud-selected db) (:calendar-selected db)
+   :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) #{} (:cloud-selected db) 
                  {:page page  :page-size (or (:page-size db) 10)
                   :response-fields {:nodes                 true
                                     :total-nodes  true
@@ -74,20 +72,6 @@
 
 (refe/reg-event-fx :nodes/got-app-data got-app-data)
 
-(defn click-on-fast-access-item
-  "TESTED"
-  [{:keys [db]} [_ item]]
-  {:db
-   (let [already-selected (:calendar-selected db)]
-     (cond
-       (nil? item) db
-       (= already-selected item)
-       (assoc db :calendar-selected {})
-       :else
-       (assoc db :calendar-selected item)))
-   :fx-redirect [:nodes/get-app-data]})
-
-(refe/reg-event-fx :nodes/click-on-fast-access-item  click-on-fast-access-item)
 
 (defn discard-selection
   [db]
@@ -109,13 +93,13 @@
 (defn file-op
   [{:keys [db]} [_ action]]
   {:db db
-   :fx-redirect [:api-handler/file-operation :nodes/get-app-data action (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
+   :fx-redirect [:api-handler/file-operation :nodes/get-app-data action (:nodes-selected db) (:cloud-selected db)]})
 (refe/reg-event-fx :nodes/file-op file-op)
 
 (defn redirect-to-nodes-edit
   [{:keys [db]} _]
   {:db  db
-   :fx-redirect [:edit-nodes/init-page (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]})
+   :fx-redirect [:edit-nodes/init-page (:nodes-selected db) (:cloud-selected db)]})
 (refe/reg-event-fx :nodes/redirect-to-edit-nodes redirect-to-nodes-edit)
 
 (defn click-on-cloud

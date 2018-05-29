@@ -11,11 +11,6 @@
 
    :breadcrumbs-show-all? false
    
-   
    :cloud-selected #{}
    :cloud  {}
-   :cloud-can-select {}
-   
-   :calendar-selected {}
-   :calendar   {:year {} :month {} :day   {}}
-   :calendar-can-select {:year {} :month {} :day   {}}})
+   :cloud-can-select {}})

@@ -4,9 +4,9 @@
 
 ;; These are the events this NS should provide
 ;; 
-;; [:api-handler/file-op :edit-nodes/got-app-data operation-name (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]
+;; [:api-handler/file-op :edit-nodes/got-app-data operation-name (:nodes-selected db) (:cloud-selected db)]
 ;; [:api-handler/submit-tagging :edit-nodes/got-app-data (:nodes-temp-tags-to-add db) (:nodes-temp-tags-to-delete db)
-;;  (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]
+;;  (:nodes-selected db) (:cloud-selected db)]
 
 ;; First parameter, is where to redirect, if request is successful
 ;; It should also provide error handling:
@@ -28,11 +28,11 @@
 ;; Added this into work
 
 (defn get-app-data
-  "[:nodes/got-app-data \"\" (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]
+  "[:nodes/got-app-data \"\" (:nodes-selected db) (:cloud-selected db)]
    TESTED" 
-  [{:keys [db]} [_ on-success sorted-str nodes-selected-set cloud-selected-set calendar-selected-dict options]]
+  [{:keys [db]} [_ on-success sorted-str nodes-selected-set cloud-selected-set options]]
   (let [options (merge {:page-size 10 :page 1} options)]
-    (if-let [query (query-builder/build-get-app-data (or sorted-str "") (or nodes-selected-set #{}) (or cloud-selected-set #{}) (or calendar-selected-dict {}) options nil)]
+    (if-let [query (query-builder/build-get-app-data (or sorted-str "") (or nodes-selected-set #{}) (or cloud-selected-set #{})  options nil)]
       {:db db :http-xhrio (query-builder/server-call-2 query [:api-handler/got-app-data on-success] [:error])}
       {:db db :fx-redirect [:error "Cannot build request on these params"]})))
 (refe/reg-event-fx :api-handler/get-app-data get-app-data)
@@ -46,19 +46,19 @@
 (refe/reg-event-fx :api-handler/got-app-data got-app-data)
 
 (defn file-operation
-  "[:edit-nodes/on-fs-op-success <:symlinks | :default | :filebrowser> (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)]
+  "[:edit-nodes/on-fs-op-success <:symlinks | :default | :filebrowser> (:nodes-selected db) (:cloud-selected db)]
    TESTED"
-  [{:keys [db]} [_ on-success action-keyword nodes-selected-set cloud-selected-set calendar-selected-dict]]
-  (if-let [api-call (query-builder/build-bulk-operate-on-files action-keyword nodes-selected-set cloud-selected-set calendar-selected-dict nil)]
+  [{:keys [db]} [_ on-success action-keyword nodes-selected-set cloud-selected-set]]
+  (if-let [api-call (query-builder/build-bulk-operate-on-files action-keyword nodes-selected-set cloud-selected-set nil)]
     {:db db :http-xhrio (query-builder/server-call-2 api-call [:api-handler/got-app-data on-success] [:error])}
     {:db db :fx-redirect [:error "Cannot build request on these params"]}))
 (refe/reg-event-fx :api-handler/file-operation file-operation)
 
 (defn build-update-records
-  ":edit-nodes/success-redirect (:nodes-temp-tags-to-add db) (:nodes-temp-tags-to-delete db) (:nodes-selected db) (:cloud-selected db) (:calendar-selected db)
+  ":edit-nodes/success-redirect (:nodes-temp-tags-to-add db) (:nodes-temp-tags-to-delete db) (:nodes-selected db) (:cloud-selected db)
    TESTED"
-  [{:keys [db]} [_ on-success-keyword add-tags-set delete-tags-set nodes-selected-set cloud-selected-set calendar-selected-dict]]
-  (if-let [api-call (query-builder/build-update-records add-tags-set delete-tags-set nodes-selected-set cloud-selected-set calendar-selected-dict nil)]
+  [{:keys [db]} [_ on-success-keyword add-tags-set delete-tags-set nodes-selected-set cloud-selected-set]]
+  (if-let [api-call (query-builder/build-update-records add-tags-set delete-tags-set nodes-selected-set cloud-selected-set nil)]
     {:db db :http-xhrio (query-builder/server-call-2 api-call [:api-handler/got-app-data on-success-keyword] [:error])}
     {:db db :fx-redirect [:error "Cannot build request on these params"]}))
 (refe/reg-event-fx :api-handler/build-update-records build-update-records)

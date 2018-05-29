@@ -144,8 +144,6 @@
       :class (if (:modified-as-prev? node)
                " almost-hidden-in-plain-sight "
                "")
-      :on-click
-      #(refe/dispatch  [:nodes/click-on-fast-access-item (node :modified)])
       :style {:font-weight "300"}}
      
      (str

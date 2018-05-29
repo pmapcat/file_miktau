@@ -3,7 +3,6 @@
 (def default-db
   {:filtering ""
    :cloud-selected #{}
-   :calendar-selected {}
    :tree-tag {}})
 
 
