@@ -37,31 +37,28 @@ func (a *apply_filter_) FilterByIds(n *CoreNodeItem, c *CoreQuery) (bool, bool) 
 	return false, false
 }
 
-func (a *apply_filter_) FilterByModifiedDate(n *CoreNodeItem, c *CoreQuery) (bool, bool) {
-	// if year is not specified, than skip.
-	// if year is specified and not matched, then the rest of the checking is meaningless
-	// log.Println("Checking for year equivavalency")
-	if c.Modified.Year > 0 && !(n.Modified.Year == c.Modified.Year) {
-		return false, true
-	}
-	// the same for the month
-	// log.Println("Checking for month equivavalency")
-	if c.Modified.Month > 0 && !(n.Modified.Month == c.Modified.Month) {
-		return false, true
-	}
-
-	// and the same for the day
-	// log.Println("Checking for day equivavalency")
-	if c.Modified.Day > 0 && !(n.Modified.Day == c.Modified.Day) {
-		return false, true
-	}
-	return false, false
-}
-
 // match all tags
 func (a *apply_filter_) MatchEmpty(n *CoreNodeItem, c *CoreQuery) (bool, bool) {
 	if len(c.Tags) == 0 {
 		return true, true
+	}
+	return false, false
+}
+
+// perform @meta match
+func (a *apply_filter_) IsMetaSubSet(n *CoreNodeItem, c *CoreQuery) (bool, bool) {
+	for _, query_tag := range c.Tags {
+		has_node_tag := false
+		for _, this_node_tag := range n.MetaTags {
+			if query_tag == this_node_tag {
+				has_node_tag = true
+				break
+			}
+		}
+		if !has_node_tag {
+			return false, true
+		}
+		has_node_tag = false
 	}
 	return false, false
 }

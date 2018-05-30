@@ -20,18 +20,16 @@ func newCoreQueryWithFullResponse() *CoreQuery {
 
 func (t *CoreQuery) WithFullResponse() *CoreQuery {
 	t.WithResponseFields = WithCoreAppDataResponseFields{
-		NodeSorting:       true,
-		TotalNodes:        true,
-		TotalNodesPages:   true,
-		CoreDirectory:     true,
-		DateNow:           true,
-		Nodes:             true,
-		CloudCanSelect:    true,
-		Cloud:             true,
-		CloudContext:      true,
-		TreeTag:           true,
-		CalendarCanSelect: true,
-		Calendar:          true,
+		NodeSorting:     true,
+		TotalNodes:      true,
+		TotalNodesPages: true,
+		CoreDirectory:   true,
+		DateNow:         true,
+		Nodes:           true,
+		CloudCanSelect:  true,
+		Cloud:           true,
+		CloudContext:    true,
+		TreeTag:         true,
 	}
 	return t
 }

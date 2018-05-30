@@ -8,6 +8,15 @@ import (
 	"time"
 )
 
+func withExt(ext_name, ext_list []string, meta_list []string, ext string) {
+	for _, v := range ext_list {
+		if v == ext {
+			meta_list = append(meta_list, ext_name)
+			return
+		}
+	}
+}
+
 func sort_slice(inverse bool, slice interface{}, less func(i, j int) bool) {
 	if inverse {
 		sort.Slice(slice, func(i, j int) bool {
@@ -54,33 +63,11 @@ func PaginatorToSlice(total_amount int, page_size int, page int) (int, int, int)
 	return left_offset, right_offset, total_pages
 }
 
-func dateNow() CoreDateField {
-	t := time.Now()
-	return CoreDateField{
-		Year:  t.Year(),
-		Day:   t.Day(),
-		Month: int(t.Month()),
-	}
-
-}
 func timeEval(perfname string, cb func()) {
 	start := time.Now()
 	cb()
 	elapsed := time.Since(start)
 	log.Printf("%s took: %s", perfname, elapsed)
-}
-
-func undublicate_list(list []string) []string {
-	checker := map[string]bool{}
-	result := []string{}
-	for _, v := range list {
-		if checker[v] {
-			continue
-		}
-		result = append(result, v)
-		checker[v] = true
-	}
-	return result
 }
 
 func randomDateField() CoreDateField {

@@ -1,15 +1,35 @@
 package main
-
 import (
-	"sort"
+	"os"
 )
 
 func (n *CoreNodeItem) ModifiedInDays() uint32 {
-	if n._modified_days > 0 {
-		return n._modified_days
-	}
-	n._modified_days = uint32(n.Modified.Day + n.Modified.Month*30 + n.Modified.Year*365)
-	return n._modified_days
+	return uint32(n.Modified.Unix() / 86400)
+}
+
+func newCoreNodeItemFromStat(filepath string, stat os.FileInfo) *CoreNodeItem{
+	stat.ModTime()
+	
+	stat.Size()
+	stat.IsDir()
+	
+	return &CoreNodeItem{
+		Id: -1,
+		Name: stat.Name(),
+		FilePath: filepath,
+		MetaTags: []string{},
+		Tags: tags,
+		FileSizeInMb: 
+		
+		
+	}	Name                    string    `json:"name"`
+	FilePath                string    `json:"file-path"`
+	MetaTags                []string  `json:"meta-tags"`
+	Tags                    []string  `json:"tags"`
+	FileSizeInMb            int       `json:"file-size-in-mb"`
+	FileExtensionLowerCased string    `json:"file-extension-lower-cased"`
+	Modified                time.Time `json:"modified"`
+
 }
 
 // will have to call only on mutable actions
@@ -20,10 +40,10 @@ func (n *CoreNodeItem) ApplyFilter(c *CoreQuery) bool {
 	if result, whether_applicable := apply_filter.FilterByIds(n, c); whether_applicable {
 		return result
 	}
-	if result, whether_applicable := apply_filter.FilterByModifiedDate(n, c); whether_applicable {
+	if result, whether_applicable := apply_filter.MatchEmpty(n, c); whether_applicable {
 		return result
 	}
-	if result, whether_applicable := apply_filter.MatchEmpty(n, c); whether_applicable {
+	if result, whether_applicable := apply_filter.IsMetaSubSet(n, c); whether_applicable {
 		return result
 	}
 	if result, whether_applicable := apply_filter.IsSubSet(n, c); whether_applicable {
@@ -42,13 +62,6 @@ func (n *CoreNodeItem) TagRoot(thesaurus map[string]int) string {
 		}
 	}
 	return max_tag
-}
-
-func (m *CoreNodeItem) MostProminentDrill(the_thesaurus map[string]int) []string {
-	sort.Slice(m.Tags, func(i int, j int) bool {
-		return the_thesaurus[m.Tags[i]] > the_thesaurus[m.Tags[j]]
-	})
-	return m.Tags
 }
 
 func (n *CoreNodeItem) AddTags(tags []string) {

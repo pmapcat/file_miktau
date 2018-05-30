@@ -2,6 +2,7 @@ package main
 
 import (
 	"sync"
+	"time"
 )
 
 const MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM = 32
@@ -10,8 +11,10 @@ const TAG_CONTEXT_MAX_SIZE = 5
 
 type CoreNodeItemStorage struct {
 	sync.RWMutex
-	nodes    []*CoreNodeItem
-	core_dir string
+	sorting_aggregator  ThesaurusAndSortingAggregator
+	nodes               []*CoreNodeItem
+	core_dir            string
+	_transact_happening bool
 }
 
 type ModifyRecordsRequest struct {
@@ -32,70 +35,39 @@ type SwitchFoldersRequest struct {
 }
 
 type CoreQuery struct {
-	Modified           CoreDateField                 `json:"modified"`
-	Sorted             string                        `json:"sorted"`
-	PageSize           int                           `json:"page-size"`
-	Page               int                           `json:"page"`
-	FilePaths          []string                      `json:"file-paths"`
-	Ids                []int                         `json:"ids"`
-	Tags               []string                      `json:"tags"`
-	WithResponseFields WithCoreAppDataResponseFields `json:"response-fields"`
-}
-
-type CoreDateField struct {
-	Year  int `json:"year"`
-	Month int `json:"month"`
-	Day   int `json:"day"`
-}
-type CoreDateFacet struct {
-	Year  map[int]int `json:"year"`
-	Month map[int]int `json:"month"`
-	Day   map[int]int `json:"day"`
+	Sorted    string   `json:"sorted"`
+	PageSize  int      `json:"page-size"`
+	Page      int      `json:"page"`
+	FilePaths []string `json:"file-paths"`
+	Ids       []int    `json:"ids"`
+	Tags      []string `json:"tags"`
 }
 
 type CoreNodeItem struct {
-	Id             int           `json:"id"`
-	Name           string        `json:"name"`
-	FilePath       string        `json:"file-path"`
-	Tags           []string      `json:"tags"`
-	Modified       CoreDateField `json:"modified"`
-	_modified_days uint32
+	Id                      int       `json:"id"`
+	Name                    string    `json:"name"`
+	FilePath                string    `json:"file-path"`
+	MetaTags                []string  `json:"meta-tags"`
+	Tags                    []string  `json:"tags"`
+	FileSizeInMb            int       `json:"file-size-in-mb"`
+	FileExtensionLowerCased string    `json:"file-extension-lower-cased"`
+	Modified                time.Time `json:"modified"`
 }
 
-type TreeTag struct {
-	Name     string              `json:"name"`
-	Children map[string]*TreeTag `json:"children"`
-}
-type CloudItemWithContext struct {
-	Item    string   `json:"item"`
-	Context []string `json:"context"`
-}
-type WithCoreAppDataResponseFields struct {
-	NodeSorting       bool `json:"nodes-sorted"`
-	TotalNodes        bool `json:"total-nodes"`
-	TotalNodesPages   bool `json:"total-nodes-pages"`
-	CoreDirectory     bool `json:"core-directory"`
-	DateNow           bool `json:"date-now"`
-	Nodes             bool `json:"nodes"`
-	CloudCanSelect    bool `json:"cloud-can-select"`
-	Cloud             bool `json:"cloud"`
-	CloudContext      bool `json:"cloud-context"`
-	TreeTag           bool `json:"tree-tag"`
-	CalendarCanSelect bool `json:"calendar-can-select"`
-	Calendar          bool `json:"calendar"`
-}
 type CoreAppDataResponse struct {
-	Error             string                 `json:"error"`
-	NodeSorting       string                 `json:"nodes-sorted"`
-	TotalNodes        uint32                 `json:"total-nodes"`
-	TotalNodesPages   int                    `json:"total-nodes-pages"`
-	CoreDirectory     string                 `json:"core-directory"`
-	DateNow           CoreDateField          `json:"date-now"`
-	Nodes             []*CoreNodeItem        `json:"nodes"`
-	CloudCanSelect    map[string]bool        `json:"cloud-can-select"`
-	Cloud             map[string]int         `json:"cloud"`
-	CloudContext      []CloudItemWithContext `json:"cloud-context"`
-	TreeTag           *TreeTag               `json:"tree-tag"`
-	CalendarCanSelect CoreDateFacet          `json:"calendar-can-select"`
-	Calendar          CoreDateFacet          `json:"calendar"`
+	Error           string              `json:"error"`
+	NodeSorting     string              `json:"nodes-sorted"`
+	TotalNodes      uint32              `json:"total-nodes"`
+	TotalNodesPages int                 `json:"total-nodes-pages"`
+	CoreDirectory   string              `json:"core-directory"`
+	Nodes           []*CoreNodeItem     `json:"nodes"`
+	Patriarchs      []string            `json:"patriarchs"`
+	CloudCanSelect  map[string]bool     `json:"cloud-can-select"`
+	Cloud           map[string]int      `json:"cloud"`
+	CloudContext    map[string][]string `json:"cloud-context"`
+}
+
+type Aggregator interface {
+	Accumulate(n *CoreNodeItem)
+	Aggregate(n *CoreNodeItem)
 }
