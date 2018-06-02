@@ -1,35 +1,31 @@
 package main
+
 import (
-	"os"
+	fp "path/filepath"
+	"strconv"
+	"strings"
+	"time"
 )
 
 func (n *CoreNodeItem) ModifiedInDays() uint32 {
 	return uint32(n.Modified.Unix() / 86400)
 }
 
-func newCoreNodeItemFromStat(filepath string, stat os.FileInfo) *CoreNodeItem{
-	stat.ModTime()
-	
-	stat.Size()
-	stat.IsDir()
-	
+func newCoreNodeItemFromDemoDataSet(fsize, fpath, tags, fname string, date time.Time) *CoreNodeItem {
+	fsize_in_mb, err := strconv.Atoi(fsize)
+	if err != nil {
+		panic(err)
+	}
 	return &CoreNodeItem{
-		Id: -1,
-		Name: stat.Name(),
-		FilePath: filepath,
-		MetaTags: []string{},
-		Tags: tags,
-		FileSizeInMb: 
-		
-		
-	}	Name                    string    `json:"name"`
-	FilePath                string    `json:"file-path"`
-	MetaTags                []string  `json:"meta-tags"`
-	Tags                    []string  `json:"tags"`
-	FileSizeInMb            int       `json:"file-size-in-mb"`
-	FileExtensionLowerCased string    `json:"file-extension-lower-cased"`
-	Modified                time.Time `json:"modified"`
-
+		Id:                      -1,
+		Name:                    strings.TrimSpace(fname),
+		FilePath:                fpath,
+		MetaTags:                []string{},
+		Tags:                    strings.Split(strings.TrimSpace(tags), " "),
+		FileSizeInMb:            fsize_in_mb,
+		FileExtensionLowerCased: strings.ToLower(fp.Ext(fname)),
+		Modified:                date,
+	}
 }
 
 // will have to call only on mutable actions
@@ -43,10 +39,11 @@ func (n *CoreNodeItem) ApplyFilter(c *CoreQuery) bool {
 	if result, whether_applicable := apply_filter.MatchEmpty(n, c); whether_applicable {
 		return result
 	}
-	if result, whether_applicable := apply_filter.IsMetaSubSet(n, c); whether_applicable {
+
+	if result, whether_applicable := apply_filter.IsSubSet(n.Tags, c.Tags); whether_applicable {
 		return result
 	}
-	if result, whether_applicable := apply_filter.IsSubSet(n, c); whether_applicable {
+	if result, whether_applicable := apply_filter.IsSubSet(n.MetaTags, c.MetaTags); whether_applicable {
 		return result
 	}
 	return true

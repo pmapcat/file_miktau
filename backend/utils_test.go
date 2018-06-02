@@ -6,6 +6,16 @@ import (
 	"testing"
 )
 
+func TestIsSubset(t *testing.T) {
+	assert.Equal(t, is_subset([]string{"a", "b", "c"}, []string{"a", "b"}), true)
+	assert.Equal(t, is_subset([]string{"a", "c"}, []string{"a", "b"}), false)
+	assert.Equal(t, is_subset([]string{"a", "c"}, []string{"a", "c"}), true)
+	assert.Equal(t, is_subset([]string{"a", "c"}, []string{"a"}), true)
+	assert.Equal(t, is_subset([]string{"a", "c"}, []string{}), true)
+	assert.Equal(t, is_subset([]string{}, []string{}), true)
+	assert.Equal(t, is_subset([]string{}, []string{"a"}), false)
+}
+
 func TestPaginatorToSlice(t *testing.T) {
 	node_items := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
 	left, right, last_page := PaginatorToSlice(len(node_items), 3, 1)

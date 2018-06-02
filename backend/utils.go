@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func withExt(ext_name, ext_list []string, meta_list []string, ext string) {
+func withExt(ext_name string, ext_list []string, meta_list []string, ext string) {
 	for _, v := range ext_list {
 		if v == ext {
 			meta_list = append(meta_list, ext_name)
@@ -69,13 +69,53 @@ func timeEval(perfname string, cb func()) {
 	elapsed := time.Since(start)
 	log.Printf("%s took: %s", perfname, elapsed)
 }
-
-func randomDateField() CoreDateField {
-	return CoreDateField{
-		Month: rand.Intn(12-1) + 1,
-		Year:  rand.Intn(2018-2010) + 2010,
-		Day:   rand.Intn(31-1) + 1,
+func randomTime() time.Time {
+	return time.Unix(rand.Int63(), rand.Int63())
+}
+func str(data ...string) string {
+	return strings.Join(data, "")
+}
+func split_meta_tags(tags []string) ([]string, []string) {
+	a := []string{}
+	b := []string{}
+	for _, tag := range tags {
+		if strings.HasPrefix(tag, "@") {
+			a = append(a, tag)
+		} else {
+			b = append(b, tag)
+		}
 	}
+	return a, b
+}
+
+func pivot_on(items []string, pivot_fn func(string) bool) ([]string, []string) {
+	a := []string{}
+	b := []string{}
+	for _, v := range items {
+		if pivot_fn(v) {
+			b = append(b, v)
+		} else {
+			a = append(a, v)
+		}
+	}
+	return a, b
+}
+
+func is_subset(subset, set []string) bool {
+	for _, set_item := range set {
+		has_item := false
+		for _, subset_item := range subset {
+			if set_item == subset_item {
+				has_item = true
+				break
+			}
+		}
+		if !has_item {
+			return false
+		}
+		has_item = false
+	}
+	return true
 }
 
 // will generate random (lorem ipsum) text based on

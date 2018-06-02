@@ -45,38 +45,6 @@ func (a *apply_filter_) MatchEmpty(n *CoreNodeItem, c *CoreQuery) (bool, bool) {
 	return false, false
 }
 
-// perform @meta match
-func (a *apply_filter_) IsMetaSubSet(n *CoreNodeItem, c *CoreQuery) (bool, bool) {
-	for _, query_tag := range c.Tags {
-		has_node_tag := false
-		for _, this_node_tag := range n.MetaTags {
-			if query_tag == this_node_tag {
-				has_node_tag = true
-				break
-			}
-		}
-		if !has_node_tag {
-			return false, true
-		}
-		has_node_tag = false
-	}
-	return false, false
-}
-
-// and perform is_subset on tags
-func (a *apply_filter_) IsSubSet(n *CoreNodeItem, c *CoreQuery) (bool, bool) {
-	for _, query_tag := range c.Tags {
-		has_node_tag := false
-		for _, this_node_tag := range n.Tags {
-			if query_tag == this_node_tag {
-				has_node_tag = true
-				break
-			}
-		}
-		if !has_node_tag {
-			return false, true
-		}
-		has_node_tag = false
-	}
-	return false, false
+func (a *apply_filter_) IsSubSet(node_tags, query_tags []string) (bool, bool) {
+	return is_subset(node_tags, query_tags), true
 }

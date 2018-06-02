@@ -1,7 +1,8 @@
 package main
 
 import (
-	"strconv"
+	// "fmt"
+	// "strconv"
 	"time"
 )
 
@@ -26,8 +27,8 @@ func HookOnAfterChange(m *CoreNodeItem) {
 	m.Tags = undublicate_list(m.Tags)
 
 	// empty tags set has the tendency to look like this [""]
-	if len(tags) == 1 && tags[0] == "" {
-		tags = []string{}
+	if len(m.Tags) == 1 && m.Tags[0] == "" {
+		m.Tags = []string{}
 	}
 
 	m.MetaTags = []string{}
@@ -36,14 +37,9 @@ func HookOnAfterChange(m *CoreNodeItem) {
 		m.MetaTags = append(m.MetaTags, "@empty")
 	}
 
-	// year modified
-	m.MetaTags = append(m.MetaTags, "@modified:year:"+strconv.Itoa(m.Modified.Year()))
-	// month modified
-	m.MetaTags = append(m.MetaTags, "@modified:month:"+strconv.Itoa(m.Modified.Month()))
-
 	// recency
 	date := time.Now()
-	delta := date.Sub(n.ModTime())
+	delta := date.Sub(m.Modified)
 	deltaHours := delta.Hours()
 
 	if deltaHours < 24 {
@@ -55,6 +51,15 @@ func HookOnAfterChange(m *CoreNodeItem) {
 	if deltaHours < 672 {
 		m.MetaTags = append(m.MetaTags, "@modified:this-month")
 	}
+	// how can I do smth. like: @modified:100-oldest-files
+	//   * fill element into list of 100 (if not full)
+	//   * if full, I would add current and pop smallest
+	//   * then, it will automatically become what I need
+	//   * thus, priority queue it is. With methods:
+	//     * .pop() => "blab"
+	//     * .add(item,rank) => nil
+	//     * .count() => 23
+	//     * .into_list() => []string{}
 
 	if deltaHours < 8064 {
 		m.MetaTags = append(m.MetaTags, "@modified:this-year")
@@ -85,27 +90,27 @@ func HookOnAfterChange(m *CoreNodeItem) {
 		m.MetaTags = append(m.MetaTags, "@file-size:more than 1000mb")
 	}
 	// file type (a.k.a. extension)
-	f.withExt("@file-type:image", []string{".tif", ".tiff", ".gif", ".jpeg", ".jpg", ".nef", ".png", ".psd", ".bmp"}, m.MetaTags, m.FileExtensionLowerCased)
-	f.withExt("@file-type:video", []string{".avi", ".mkv", ".mp4", ".wmv"}, m.MetaTags, m.FileExtensionLowerCased)
-	f.withExt("@file-type:audio", []string{".mp3", ".m3u"}, m.MetaTags, m.FileExtensionLowerCased)
-	f.withExt("@file-type:document", []string{".txt", ".doc", ".docx", ".html", ".rtf", ".odt", ".pdf", ".djvu", ".xls", ".xlsx", ".doc", ".docx", ".ppt", ".pptx"},
+	withExt("@file-type:image", []string{".tif", ".tiff", ".gif", ".jpeg", ".jpg", ".nef", ".png", ".psd", ".bmp"}, m.MetaTags, m.FileExtensionLowerCased)
+	withExt("@file-type:video", []string{".avi", ".mkv", ".mp4", ".wmv"}, m.MetaTags, m.FileExtensionLowerCased)
+	withExt("@file-type:audio", []string{".mp3", ".m3u"}, m.MetaTags, m.FileExtensionLowerCased)
+	withExt("@file-type:document", []string{".txt", ".doc", ".docx", ".html", ".rtf", ".odt", ".pdf", ".djvu", ".xls", ".xlsx", ".doc", ".docx", ".ppt", ".pptx"},
 		m.MetaTags, m.FileExtensionLowerCased)
-	f.withExt("@file-type:microsfot-office-document",
+	withExt("@file-type:microsfot-office-document",
 		[]string{".xls", ".xlsx", ".doc", ".docx", ".ppt", ".pptx"},
 		m.MetaTags, m.FileExtensionLowerCased)
-	f.withExt("@file-type:presentation",
+	withExt("@file-type:presentation",
 		[]string{".ppt", ".pptx"},
 		m.MetaTags, m.FileExtensionLowerCased)
-	f.withExt("@file-type:spreadsheet",
+	withExt("@file-type:spreadsheet",
 		[]string{".csv", ".xls", ".xlsx", ".ods"},
 		m.MetaTags, m.FileExtensionLowerCased)
-	f.withExt("@file-type:archive",
+	withExt("@file-type:archive",
 		[]string{".tar", ".tar.gz", ".gz", ".rar", ".zip", ".bz", ".tar.bz"},
 		m.MetaTags, m.FileExtensionLowerCased)
-	f.withExt("@file-type:ebook",
+	withExt("@file-type:ebook",
 		[]string{".pdf", ".djvu", ".fb2", ".epub", ".maff"},
 		m.MetaTags, m.FileExtensionLowerCased)
-	f.withExt("@file-type:programming",
+	withExt("@file-type:programming",
 		[]string{".rb", ".clj", ".cljs", ".py", ".sh", ".conf", ".go", ".json", ".c"},
 		m.MetaTags, m.FileExtensionLowerCased)
 }

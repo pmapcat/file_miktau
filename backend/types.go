@@ -11,10 +11,11 @@ const TAG_CONTEXT_MAX_SIZE = 5
 
 type CoreNodeItemStorage struct {
 	sync.RWMutex
-	sorting_aggregator  ThesaurusAndSortingAggregator
-	nodes               []*CoreNodeItem
-	core_dir            string
-	_transact_happening bool
+	sorting_aggregator      ThesaurusAndSortingAggregator
+	sorting_meta_aggregator MetaThesaurusAndSortingAggregator
+	nodes                   []*CoreNodeItem
+	core_dir                string
+	_transact_happening     bool
 }
 
 type ModifyRecordsRequest struct {
@@ -41,6 +42,7 @@ type CoreQuery struct {
 	FilePaths []string `json:"file-paths"`
 	Ids       []int    `json:"ids"`
 	Tags      []string `json:"tags"`
+	MetaTags  []string `json:"meta-tags"`
 }
 
 type CoreNodeItem struct {
@@ -55,16 +57,18 @@ type CoreNodeItem struct {
 }
 
 type CoreAppDataResponse struct {
-	Error           string              `json:"error"`
-	NodeSorting     string              `json:"nodes-sorted"`
-	TotalNodes      uint32              `json:"total-nodes"`
-	TotalNodesPages int                 `json:"total-nodes-pages"`
-	CoreDirectory   string              `json:"core-directory"`
-	Nodes           []*CoreNodeItem     `json:"nodes"`
-	Patriarchs      []string            `json:"patriarchs"`
-	CloudCanSelect  map[string]bool     `json:"cloud-can-select"`
-	Cloud           map[string]int      `json:"cloud"`
-	CloudContext    map[string][]string `json:"cloud-context"`
+	Error            string                    `json:"error"`
+	NodeSorting      string                    `json:"nodes-sorted"`
+	TotalNodes       int                       `json:"total-nodes"`
+	TotalNodesPages  int                       `json:"total-nodes-pages"`
+	CoreDirectory    string                    `json:"core-directory"`
+	Nodes            []*CoreNodeItem           `json:"nodes"`
+	Patriarchs       []string                  `json:"patriarchs"`
+	CloudCanSelect   map[string]bool           `json:"cloud-can-select"`
+	Cloud            map[string]int            `json:"cloud"`
+	CloudContext     map[string]map[string]int `json:"cloud-context"`
+	MetaCloud        map[string]int            `json:"meta-cloud"`
+	MetaCloudContext map[string]map[string]int `json:"meta-cloud-context"`
 }
 
 type Aggregator interface {

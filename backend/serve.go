@@ -86,7 +86,8 @@ func (s *serve_) SwitchFolders(w rest.ResponseWriter, r *rest.Request) {
 		w.WriteJson(newErrorSwitchFoldersRequest(err))
 		return
 	}
-	CNIS.RebirthWithNewData(nodes)
+	CNIS.MutableDrop()
+	CNIS.MutableCreate(nodes)
 	w.WriteJson(enq)
 }
 func (s *serve_) CheckIsLive(w rest.ResponseWriter, r *rest.Request) {

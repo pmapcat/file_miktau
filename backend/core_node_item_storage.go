@@ -5,10 +5,6 @@ import (
 	"strings"
 )
 
-func newCoreNodeItemStorage(core_dir string) CoreNodeItemStorage {
-	return CoreNodeItemStorage{nodes: []*CoreNodeItem{}, core_dir: core_dir}
-}
-
 func (n *CoreNodeItemStorage) GetNodesSorted(field string) []*CoreNodeItem {
 	// if no sort order was specified
 	if field == "" {
@@ -21,20 +17,22 @@ func (n *CoreNodeItemStorage) GetNodesSorted(field string) []*CoreNodeItem {
 		inverse = true
 		sfield = field[1:]
 	}
-
-	new_sortable := make([]*CoreNodeItem, len(n.nodes))
-	copy(new_sortable, n.nodes)
+	// why I should preserve sorting order of default dataset?
+	// because of getting by id/a.k.a. getting by node?
+	// well, there was no usecase for it, as of yet.
+	// only by id getting is for mutable operations,
+	// and I, as well, can just do it in a fullscan fashion
 	switch sfield {
 	case "name":
-		sort_slice(inverse, new_sortable, func(i, j int) bool {
-			return new_sortable[i].Name < new_sortable[j].Name
+		sort_slice(inverse, n.nodes, func(i, j int) bool {
+			return n.nodes[i].Name < n.nodes[j].Name
 		})
 	case "modified":
-		sort_slice(inverse, new_sortable, func(i, j int) bool {
-			return new_sortable[i].ModifiedInDays() > new_sortable[j].ModifiedInDays()
+		sort_slice(inverse, n.nodes, func(i, j int) bool {
+			return n.nodes[i].ModifiedInDays() > n.nodes[j].ModifiedInDays()
 		})
 	}
-	return new_sortable
+	return n.nodes
 }
 
 func (n *CoreNodeItemStorage) FSActionOnAListOfFiles(query CoreQuery, action string) error {
@@ -89,8 +87,11 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	rsp.Cloud = n.sorting_aggregator.GetThesaurus()
 	rsp.CloudContext = n.sorting_aggregator.GetTagContext()
 
+	rsp.MetaCloudContext = n.sorting_meta_aggregator.GetTagContext()
+	rsp.MetaCloud = n.sorting_meta_aggregator.GetThesaurus()
+
 	rsp.NodeSorting = query.Sorted
-	rsp.TotalNodes = uint32(total_nodes)
+	rsp.TotalNodes = total_nodes
 	rsp.Nodes = nodes_list
 	rsp.CloudCanSelect = cloud_can_select
 	rsp.CoreDirectory = n.core_dir
