@@ -4,14 +4,26 @@ import (
 	"log"
 	"math/rand"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
 
-func withExt(ext_name string, ext_list []string, meta_list []string, ext string) {
+// panics if can't convert
+// (useful when 100% sure that result returns int, as in tests,for example)
+func forTestingStringToInt(item string) int {
+	a, err := strconv.Atoi(item)
+	if err != nil {
+		panic(err)
+		return 0
+	}
+	return a
+}
+
+func withExt(ext_name string, ext_list []string, meta_list *[]string, ext string) {
 	for _, v := range ext_list {
 		if v == ext {
-			meta_list = append(meta_list, ext_name)
+			*meta_list = append(*meta_list, ext_name)
 			return
 		}
 	}

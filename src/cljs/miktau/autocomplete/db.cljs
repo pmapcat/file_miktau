@@ -1,9 +1,11 @@
 (ns miktau.autocomplete.db)
 
 (def default-db
-  {:filtering ""
-   :cloud-selected #{}
-   :tree-tag {}})
+  {:cloud-selected #{}
+   :cloud-context {}
+   
+   :meta-cloud-selected #{}
+   :meta-cloud-context {}})
 
 
 

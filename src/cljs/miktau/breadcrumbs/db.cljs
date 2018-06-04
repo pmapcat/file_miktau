@@ -1,10 +1,14 @@
 (ns miktau.breadcrumbs.db)
 
+
 (def default-db
-  {:cloud-selected #{}
+  {:cloud-can-select {}
+   :cloud-selected #{}
    :cloud {}
-   :tree-tag {}
+   
+   :patriarchs {}
    :breadcrumbs-show-all? false
-   :cloud-can-select {}})
+   
+   :meta-cloud-selected #{}})
 
 

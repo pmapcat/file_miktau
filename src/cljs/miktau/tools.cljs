@@ -1,8 +1,11 @@
 (ns miktau.tools
   (:require  [clojure.string :as cljs-string]
              [clojure.set :as clojure-set]
-             [clojure.walk :as cljs-walk]
-             [day8.re-frame.undo :as undo]))
+             [clojure.walk :as cljs-walk]))
+
+(defn is-meta-tag?
+  [tag]
+  (cljs-string/starts-with? (str (name tag)) "@"))
 
 (defn paginate [current last-item]
   (let [delta 2

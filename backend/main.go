@@ -6,7 +6,7 @@ func main() {
 
 	// add dacha dataset
 	reso := []*CoreNodeItem{}
-	for i := 0; i <= 1000; i++ {
+	for i := 0; i <= 1; i++ {
 		reso = append(reso, buildDachaDataset()...)
 	}
 	CNIS.MutableCreate(reso)

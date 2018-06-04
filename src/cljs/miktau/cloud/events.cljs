@@ -50,13 +50,7 @@
   [{:keys [db]} _]
   {:db db
    :fx-redirect [:api-handler/get-app-data :cloud/got-app-data "" #{} (:cloud-selected db)
-                 {:page-size 1
-                  :response-fields {:date-now true
-                                    :cloud true
-                                    :nodes true
-                                    :total-nodes true
-                                    :cloud-can-select true
-                                    :tree-tag true}}]})
+                 {:page-size 1}]})
 (refe/reg-event-fx :cloud/get-app-data get-app-data)
 
 (defn got-app-data
@@ -67,7 +61,15 @@
    (assoc :cloud (:cloud response))
    (assoc :total-nodes (:total-nodes response))
    (assoc :cloud-can-select (:cloud-can-select response))
-   (assoc :tree-tag (:tree-tag response))))
+   (assoc :patriarchs (:patriarchs response))
+   (assoc :cloud-context (:cloud-context response))
+   
+   (assoc :meta-cloud            (:meta-cloud response))
+   (assoc :meta-cloud-context    (:meta-cloud-context response))
+   (assoc :meta-cloud-can-select (:meta-cloud-can-select response))
+   
+
+   ))
 (refe/reg-event-db :cloud/got-app-data got-app-data)
 
 

@@ -32,29 +32,15 @@
   [{:keys [db]} _]
   {:db (assoc db :page 1)
    :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) #{} (:cloud-selected db) 
-                 {:page 1 :page-size (or (:page-size db) 10)
-                  :response-fields {:nodes true
-                                    :total-nodes true
-                                    :total-nodes-pages true
-                                    :cloud-can-select true
-                                    :tree-tag true
-                                    :cloud true}}]})
+                 {:page 1 :page-size (or (:page-size db) 10)}]})
 (refe/reg-event-fx :nodes/get-app-data get-app-data)
 
 (defn to-page
   [{:keys [db]} [_ page]]
   {:db (assoc db :page page)
    :fx-redirect [:api-handler/get-app-data :nodes/got-app-data (:nodes-sorted db) #{} (:cloud-selected db) 
-                 {:page page  :page-size (or (:page-size db) 10)
-                  :response-fields {:nodes                 true
-                                    :total-nodes  true
-                                    :total-nodes-pages true
-                                    :cloud-can-select true
-                                    :tree-tag true
-                                    :cloud true}
-                  }]})
+                 {:page page  :page-size (or (:page-size db) 10)}]})
 (refe/reg-event-fx :nodes/to-page to-page)
-
 
 (defn got-app-data
   "TESTED"
@@ -66,9 +52,15 @@
     :total-nodes (:total-nodes response)
     :total-pages (:total-nodes-pages response)
     :cloud-can-select (:cloud-can-select response)
-    :tree-tag (:tree-tag response)
-    :cloud    (:cloud response))})
-
+    :cloud    (:cloud response)
+    :cloud-context (:cloud-context response)
+    :patriarchs         (:patriarchs response)
+    
+    :meta-cloud         (:meta-cloud response)
+    :meta-cloud-context (:meta-cloud-context response)
+    :meta-cloud-can-select (:meta-cloud-can-select response)
+    
+    )})
 
 (refe/reg-event-fx :nodes/got-app-data got-app-data)
 

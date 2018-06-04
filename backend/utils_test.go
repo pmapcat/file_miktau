@@ -6,6 +6,13 @@ import (
 	"testing"
 )
 
+// it seems that path/filepath .Ext method doesn't work as I expected
+func TestWithExt(t *testing.T) {
+	zin := []string{"other", "meta", "tags", "of", "a", "file"}
+	withExt("@super", []string{".hello"}, &zin, ".hello")
+	assert.Equal(t, zin, []string{"other", "meta", "tags", "of", "a", "file", "@super"})
+}
+
 func TestIsSubset(t *testing.T) {
 	assert.Equal(t, is_subset([]string{"a", "b", "c"}, []string{"a", "b"}), true)
 	assert.Equal(t, is_subset([]string{"a", "c"}, []string{"a", "b"}), false)

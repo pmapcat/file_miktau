@@ -11,8 +11,10 @@ func (c *CoreNodeItemStorage) _transact(worker func()) {
 	}
 	c._transact_happening = true
 	worker()
+
 	c.sorting_aggregator.OnBeforeRun()
 	c.sorting_meta_aggregator.OnBeforeRun()
+
 	for _, v := range c.nodes {
 		c.sorting_aggregator.Accumulate(v)
 		c.sorting_meta_aggregator.Accumulate(v)
@@ -21,6 +23,7 @@ func (c *CoreNodeItemStorage) _transact(worker func()) {
 		c.sorting_aggregator.Aggregate(v)
 		c.sorting_meta_aggregator.Aggregate(v)
 	}
+
 	c._transact_happening = false
 }
 func (n *CoreNodeItemStorage) MutableDrop() {

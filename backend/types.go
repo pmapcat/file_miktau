@@ -2,7 +2,6 @@ package main
 
 import (
 	"sync"
-	"time"
 )
 
 const MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM = 32
@@ -46,32 +45,28 @@ type CoreQuery struct {
 }
 
 type CoreNodeItem struct {
-	Id                      int       `json:"id"`
-	Name                    string    `json:"name"`
-	FilePath                string    `json:"file-path"`
-	MetaTags                []string  `json:"meta-tags"`
-	Tags                    []string  `json:"tags"`
-	FileSizeInMb            int       `json:"file-size-in-mb"`
-	FileExtensionLowerCased string    `json:"file-extension-lower-cased"`
-	Modified                time.Time `json:"modified"`
+	Id                      int      `json:"id"`
+	Name                    string   `json:"name"`
+	FilePath                string   `json:"file-path"`
+	MetaTags                []string `json:"meta-tags"`
+	Tags                    []string `json:"tags"`
+	FileSizeInMb            int      `json:"file-size-in-mb"`
+	FileExtensionLowerCased string   `json:"file-extension-lower-cased"`
+	Modified                JSONTime `json:"modified"`
 }
 
 type CoreAppDataResponse struct {
-	Error            string                    `json:"error"`
-	NodeSorting      string                    `json:"nodes-sorted"`
-	TotalNodes       int                       `json:"total-nodes"`
-	TotalNodesPages  int                       `json:"total-nodes-pages"`
-	CoreDirectory    string                    `json:"core-directory"`
-	Nodes            []*CoreNodeItem           `json:"nodes"`
-	Patriarchs       []string                  `json:"patriarchs"`
-	CloudCanSelect   map[string]bool           `json:"cloud-can-select"`
-	Cloud            map[string]int            `json:"cloud"`
-	CloudContext     map[string]map[string]int `json:"cloud-context"`
-	MetaCloud        map[string]int            `json:"meta-cloud"`
-	MetaCloudContext map[string]map[string]int `json:"meta-cloud-context"`
-}
-
-type Aggregator interface {
-	Accumulate(n *CoreNodeItem)
-	Aggregate(n *CoreNodeItem)
+	Error              string                    `json:"error"`
+	NodeSorting        string                    `json:"nodes-sorted"`
+	TotalNodes         int                       `json:"total-nodes"`
+	TotalNodesPages    int                       `json:"total-nodes-pages"`
+	CoreDirectory      string                    `json:"core-directory"`
+	Nodes              []*CoreNodeItem           `json:"nodes"`
+	Patriarchs         []string                  `json:"patriarchs"`
+	CloudCanSelect     map[string]bool           `json:"cloud-can-select"`
+	MetaCloudCanSelect map[string]bool           `json:"meta-cloud-can-select"`
+	Cloud              map[string]int            `json:"cloud"`
+	CloudContext       map[string]map[string]int `json:"cloud-context"`
+	MetaCloud          map[string]int            `json:"meta-cloud"`
+	MetaCloudContext   map[string]map[string]int `json:"meta-cloud-context"`
 }

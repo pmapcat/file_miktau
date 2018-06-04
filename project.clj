@@ -23,6 +23,7 @@
                  [day8.re-frame/undo "0.3.2"]
                  [org.clojure/tools.namespace "0.2.11"]
                  [re-frame "0.10.5"]
+                 [com.andrewmcveigh/cljs-time "0.5.2"]
                  [lambdaisland/garden-watcher "0.3.2"]]
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-environ "1.1.0"]

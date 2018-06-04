@@ -11,7 +11,7 @@
 
 (refe/reg-sub :nodes/get-db-for-test-purposes (fn [db _] db))
 (comment
-  (println   (:cloud-can-select (:breadcrumbs @(refe/subscribe [:nodes/get-db-for-test-purposes])))))
+  @(refe/subscribe [:nodes/get-db-for-test-purposes]))
 
 (defn order-by
   [db _]
@@ -23,8 +23,8 @@
        :more {:name "z-a" :on-click [:nodes/sort "-name"] :enabled? (= nodes-sorted "-name")}}}
      :modified
      {:name "Modified"
-      :items {:less {:name "recent" :on-click [:nodes/sort "modified"]  :enabled? (= nodes-sorted "-modified")}
-              :more {:name "older"  :on-click [:nodes/sort "-modified"]   :enabled? (= nodes-sorted "modified")}}}}))
+      :items {:less {:name "recent"   :on-click [:nodes/sort "modified"]  :enabled? (= nodes-sorted "modified")}
+              :more {:name "older"  :on-click [:nodes/sort "-modified"] :enabled? (= nodes-sorted "-modified")}}}}))
 
 (refe/reg-sub :nodes/order-by order-by)
 

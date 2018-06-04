@@ -15,5 +15,7 @@
    :breadcrumbs {:tree-tag {}
                  :cloud-can-select {}
                  :show-all? false}
+   :meta-cloud {}
+   :meta-cloud-context {}
    
    :cloud-selected #{}})

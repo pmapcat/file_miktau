@@ -37,7 +37,7 @@ func newCoreNodeItemFromStat(filepath string, stat os.FileInfo) *CoreNodeItem {
 		Tags:                    []string{},
 		FileSizeInMb:            int(stat.Size() / 1048576),
 		FileExtensionLowerCased: strings.ToLower(fp.Ext(stat.Name())),
-		Modified:                stat.ModTime(),
+		Modified:                newJSONTime(stat.ModTime()),
 	}
 }
 

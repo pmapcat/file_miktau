@@ -61,6 +61,7 @@ func (n *CoreNodeItemStorage) GetInBulk(query CoreQuery, cb func(*CoreNodeItem))
 
 func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	cloud_can_select := map[string]bool{}
+	meta_cloud_can_select := map[string]bool{}
 	nodes_list := []*CoreNodeItem{}
 
 	// Gathering and processing
@@ -71,6 +72,9 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 			for _, tag := range node.Tags {
 				cloud_can_select[tag] = true
 			}
+			for _, tag := range node.MetaTags {
+				meta_cloud_can_select[tag] = true
+			}
 			nodes_list = append(nodes_list, node)
 		}
 	}
@@ -79,21 +83,27 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	// pagination
 	left_slice, right_slice, pages_amount := PaginatorToSlice(total_nodes, query.PageSize, query.Page)
 	nodes_list = nodes_list[left_slice:right_slice]
+	// for _,node := range nodes_list {
+	// 	node.ModifiedJson
+	// }
 
 	// Formatting for the Rest output
 	rsp := CoreAppDataResponse{}
 
 	rsp.Patriarchs = n.sorting_aggregator.GetPatriarchs()
+
 	rsp.Cloud = n.sorting_aggregator.GetThesaurus()
 	rsp.CloudContext = n.sorting_aggregator.GetTagContext()
+	rsp.CloudCanSelect = cloud_can_select
 
 	rsp.MetaCloudContext = n.sorting_meta_aggregator.GetTagContext()
 	rsp.MetaCloud = n.sorting_meta_aggregator.GetThesaurus()
+	rsp.MetaCloudCanSelect = meta_cloud_can_select
 
 	rsp.NodeSorting = query.Sorted
 	rsp.TotalNodes = total_nodes
 	rsp.Nodes = nodes_list
-	rsp.CloudCanSelect = cloud_can_select
+
 	rsp.CoreDirectory = n.core_dir
 	rsp.TotalNodesPages = pages_amount
 	return rsp

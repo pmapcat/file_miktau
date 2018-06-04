@@ -3,7 +3,7 @@
 
 (def default-db
   {:meta (meta-db/set-page meta-db/meta-db :cloud)
-   :tree-tag {}
+   
    :filtering ""
    :date-now {}
    
@@ -13,4 +13,6 @@
    
    :cloud-selected #{}
    :cloud  {}
-   :cloud-can-select {}})
+   :cloud-can-select {}
+   :cloud-context  {}
+   :patriarchs []})

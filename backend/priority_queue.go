@@ -68,13 +68,14 @@ func newFacetCollector() FacetCollector {
 	return pq
 }
 
-func (pq FacetCollector) UserAdd(term string, val int) {
-	heap.Push(&pq, FacetCollectorItem{value: term, priority: val})
+func (pq *FacetCollector) UserAdd(term string, val int) {
+	// pq.Push(x interface{})
+	heap.Push(pq, &FacetCollectorItem{value: term, priority: val})
 }
 
 // eiteher add, if collected lower than given limit
 // or, remove smallest, and add new, if its priority is larger than given
-func (pq FacetCollector) UserAddWithLimit(max int, new_term string, new_priority int) {
+func (pq *FacetCollector) UserAddWithLimit(max int, new_term string, new_priority int) {
 	// max bucket size is 0, nothing to do here
 	if max == 0 {
 		return
@@ -98,18 +99,18 @@ func (pq FacetCollector) UserAddWithLimit(max int, new_term string, new_priority
 	// otherwise (not fully filled bucket), just add whatever comes in
 	pq.UserAdd(new_term, new_priority)
 }
-func (pq FacetCollector) UserPop() (string, int, error) {
+func (pq *FacetCollector) UserPop() (string, int, error) {
 	if pq.Len() > 0 {
-		item := heap.Pop(&pq).(*FacetCollectorItem)
+		item := heap.Pop(pq).(*FacetCollectorItem)
 		return item.value, item.priority, nil
 	}
 	return "", 0, errors.New("Empty Priority Queue")
 }
 
-func (pq FacetCollector) UserToList() []string {
+func (pq *FacetCollector) UserToList() []string {
 	result := []string{}
 	for pq.Len() > 0 {
-		item := heap.Pop(&pq).(*FacetCollectorItem)
+		item := heap.Pop(pq).(*FacetCollectorItem)
 		result = append(result, item.value)
 	}
 	return result

@@ -3,11 +3,19 @@ package main
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"github.com/willf/bitset"
 	"log"
 	"strings"
 	"testing"
-	"time"
 )
+
+func TestPlayingWithBits(t *testing.T) {
+	so := bitset.New(10)
+	so.Set(580)
+	so.Test(580)
+	so.SetTo(12, true)
+	// assert.Equal(t, so.DumpAsBits(), "b")
+}
 
 func TestLoremGenerator(t *testing.T) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -35,6 +43,7 @@ func TestPerformance(t *testing.T) {
 	timeEval(fmt.Sprintf("Baseline get_app_data on %v", perfsize), func() {
 		res.GetAppData(*newCoreQuery())
 	})
+
 	timeEval(fmt.Sprintf("With sorting get_app_data on %v", perfsize), func() {
 		res.GetAppData(*newCoreQuery().OrderBy("-modified"))
 	})
@@ -79,19 +88,6 @@ func TestApplyFilter(t *testing.T) {
 	// check select by id mechanics
 	assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithIds(1)), true)
 	assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithIds(0, 2)), false)
-
-	// // check choose by date mechanics
-	// assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithDate(2017, 0, 0)), true)
-	// assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithDate(2016, 0, 0)), false)
-	// assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithDate(0, 7, 0)), true)
-	// assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithDate(0, 8, 0)), false)
-	// assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithDate(0, 0, 20)), true)
-	// assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQuery().WithDate(0, 0, 21)), false)
-
-	// choose by date combined mechanics
-	// assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQueryWithFullResponse().WithDate(2017, 7, 20)), true)
-	// assert.Equal(t, cnis.nodes[1].ApplyFilter(newCoreQueryWithFullResponse().WithDate(2016, 7, 20)), false)
-	// choose by file path mechanics
 
 }
 func TestAllNodesShouldHaveDifferentId(t *testing.T) {
@@ -147,8 +143,8 @@ func TestGettingStationaryAppData(t *testing.T) {
 		map[string]bool{"bibliostore": true, "wiki": true, "биржа": true, "personal": true, "work": true, "moscow_market": true, "translator": true, "sforim": true, "скачка_источников": true, "работа_сделана": true, "магазины": true, "UI": true, "blog": true, "zeldin": true, "natan": true, "amazon": true, "devops": true, "согласовать": true, "usecases": true, "everybook": true})
 
 	// test sorted results
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery().OrderBy("modified")).Nodes[0].Modified.String(), "2018-07-19 00:00:00 +0000 UTC")
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery().OrderBy("-modified")).Nodes[0].Modified.String(), "2016-02-05 00:00:00 +0000 UTC")
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery().OrderBy("modified")).Nodes[0].Modified.Time().String(), "2018-07-19 00:00:00 +0000 UTC")
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery().OrderBy("-modified")).Nodes[0].Modified.Time().String(), "2016-02-05 00:00:00 +0000 UTC")
 
 	assert.Equal(t, cnis.GetAppData(*newCoreQuery().OrderBy("name")).Nodes[0].Name, "blab.mp4")
 	assert.Equal(t, cnis.GetAppData(*newCoreQuery().OrderBy("-name")).Nodes[0].Name, "zlop.mp4")
@@ -216,11 +212,33 @@ func TestGettingNodesByFilePaths(t *testing.T) {
 	assert.Equal(t, counter, 3)
 }
 func TestMetaGetAppData(t *testing.T) {
+	on_time.WithWhateverTime(on_time.OnDate(2003, 02, 17), func() {
+		cnis := newCoreNodeItemStorage("testing")
+		cnis.MutableCreate(buildDemoDataset())
+		assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloud,
+			map[string]int{"@empty": 1, "@modified:month:4": 4, "@modified:month:5": 4, "@modified:year:2016": 14, "@file-size:10—50mb": 5, "@file-size:100—500mb": 4, "@modified:month:2": 8, "@modified:month:1": 1, "@modified:year:2017": 6, "@modified:year:2018": 2, "@file-size:1—10mb": 12, "@modified:month:7": 4, "@modified:in-future": 22, "@file-size:50—100mb": 1, "@file-type:video": 22, "@modified:month:3": 1})
+	})
 
 	cnis := newCoreNodeItemStorage("testing")
 	cnis.MutableCreate(buildDemoDataset())
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloud, "blab")
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloudContext, "blab")
+	// meta-cloud-context should be in ordinary taxonomies/tags
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloudContext["@file-type:video"],
+		map[string]int{"natan": 4, "work": 4, "bibliostore": 4, "moscow_market": 3, "translator": 1})
+
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloudContext["@file-type:video"],
+		map[string]int{"natan": 4, "work": 4, "bibliostore": 4, "moscow_market": 3, "translator": 1})
+
+	on_time.WithWhateverTime(on_time.OnDate(2016, 8, 02), func() {
+		cnis := newCoreNodeItemStorage("testing")
+		cnis.MutableCreate(buildDemoDataset())
+		assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloud,
+			map[string]int{"@modified:year:2018": 2, "@modified:year:2016": 14,
+				"@file-type:video": 22, "@modified:in-future": 8, "@file-size:10—50mb": 5,
+				"@modified:month:2": 8, "@modified:this-year": 12,
+				"@empty": 1, "@modified:month:7": 4, "@modified:month:3": 1,
+				"@file-size:100—500mb": 4, "@modified:month:5": 4, "@modified:year:2017": 6,
+				"@file-size:1—10mb": 12, "@modified:month:4": 4, "@modified:month:1": 1, "@modified:this-month": 2, "@file-size:50—100mb": 1})
+	})
 }
 
 func TestDachaBaselineDataset(t *testing.T) {

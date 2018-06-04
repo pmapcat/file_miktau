@@ -148,16 +148,11 @@
       [:span])]
    [:td.mik-flush-right
     [:a.unstyled-link.
-     {:href "#"
-      :class (if (:modified-as-prev? node)
+     {:class (if (:modified-as-prev? node)
                " almost-hidden-in-plain-sight "
                "")
-      :style {:font-weight "300" :color "black"}}
-     
-     (str
-      (utils/pad (:year   (node :modified)) 4 "0") "."
-      (utils/pad (:month  (node :modified)) 2 "0") "."
-      (utils/pad (:day    (node :modified)) 2 "0"))]]])
+      :style {:font-weight "300" :color "black" :cursor "default"}}
+     (node :modified)]]])
 (defn pagination
   [paginator]
   [:div.mik-flush-right {:style {:font-size "0.5em"}}

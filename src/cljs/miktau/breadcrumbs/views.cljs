@@ -27,10 +27,18 @@
      
      
      [:a.unstyled-link.red-clickable {:href "#" :on-click #(refe/dispatch [:breadcrumbs/clear redirector]) :style {:padding-right "5px"}} "[Clear]"]
-     
+
+     ;; meta-cloud-items
      [:span {:style {:padding-right "5px"}}
       
-      ;; cloud items
+      (for [[item meta-item] (for-every-and-last (:meta-cloud-items breadcrumbs))]
+        ^{:key (:name item)}
+        [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (inject-event redirector (:on-click item)))} (:name item)]
+         (if-not (:last? meta-item) " > " " ")])]
+     
+     ;; cloud items
+     [:span {:style {:padding-right "5px"}}
+      
       (for [[item meta-item] (for-every-and-last (:cloud-items breadcrumbs))]
         ^{:key (:name item)}
         [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (inject-event redirector (:on-click item)))} (:name item)]

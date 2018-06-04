@@ -8,7 +8,7 @@ import (
 )
 
 func (n *CoreNodeItem) ModifiedInDays() uint32 {
-	return uint32(n.Modified.Unix() / 86400)
+	return uint32(n.Modified.Time().Unix() / 86400)
 }
 
 func newCoreNodeItemFromDemoDataSet(fsize, fpath, tags, fname string, date time.Time) *CoreNodeItem {
@@ -24,7 +24,7 @@ func newCoreNodeItemFromDemoDataSet(fsize, fpath, tags, fname string, date time.
 		Tags:                    strings.Split(strings.TrimSpace(tags), " "),
 		FileSizeInMb:            fsize_in_mb,
 		FileExtensionLowerCased: strings.ToLower(fp.Ext(fname)),
-		Modified:                date,
+		Modified:                newJSONTime(date),
 	}
 }
 
@@ -46,6 +46,7 @@ func (n *CoreNodeItem) ApplyFilter(c *CoreQuery) bool {
 	if result, whether_applicable := apply_filter.IsSubSet(n.MetaTags, c.MetaTags); whether_applicable {
 		return result
 	}
+
 	return true
 }
 
