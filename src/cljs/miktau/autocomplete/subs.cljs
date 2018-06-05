@@ -17,7 +17,7 @@
     (if (:cloud-context db)
       (into
        {}
-       (for [[k v] (concat  (:cloud-context db) (:meta-cloud-context db))]
+       (for [[k v]  (:cloud-context db)]
          [k  (keys v)])) {})))
 (refe/reg-sub :autocomplete/cloud-with-context cloud-with-context)
 

@@ -186,6 +186,7 @@
      :border-radius "5%"
      :margin "6px"
      :display "inline-block"}]
+   [:a {:cursor "pointer"}]
 
    
    

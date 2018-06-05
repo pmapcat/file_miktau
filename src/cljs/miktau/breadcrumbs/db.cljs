@@ -7,8 +7,6 @@
    :cloud {}
    
    :patriarchs {}
-   :breadcrumbs-show-all? false
-   
-   :meta-cloud-selected #{}})
+   :breadcrumbs-show-all? false})
 
 

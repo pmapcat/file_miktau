@@ -61,7 +61,6 @@ func (n *CoreNodeItemStorage) GetInBulk(query CoreQuery, cb func(*CoreNodeItem))
 
 func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 	cloud_can_select := map[string]bool{}
-	meta_cloud_can_select := map[string]bool{}
 	nodes_list := []*CoreNodeItem{}
 
 	// Gathering and processing
@@ -73,7 +72,7 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 				cloud_can_select[tag] = true
 			}
 			for _, tag := range node.MetaTags {
-				meta_cloud_can_select[tag] = true
+				cloud_can_select[tag] = true
 			}
 			nodes_list = append(nodes_list, node)
 		}
@@ -92,13 +91,9 @@ func (n *CoreNodeItemStorage) GetAppData(query CoreQuery) CoreAppDataResponse {
 
 	rsp.Patriarchs = n.sorting_aggregator.GetPatriarchs()
 
-	rsp.Cloud = n.sorting_aggregator.GetThesaurus()
-	rsp.CloudContext = n.sorting_aggregator.GetTagContext()
+	rsp.Cloud = mergers.MergeThesaurus(n.sorting_aggregator.GetThesaurus(), n.sorting_meta_aggregator.GetThesaurus())
+	rsp.CloudContext = mergers.MergeTagContexts(n.sorting_aggregator.GetTagContext(), n.sorting_meta_aggregator.GetTagContext())
 	rsp.CloudCanSelect = cloud_can_select
-
-	rsp.MetaCloudContext = n.sorting_meta_aggregator.GetTagContext()
-	rsp.MetaCloud = n.sorting_meta_aggregator.GetThesaurus()
-	rsp.MetaCloudCanSelect = meta_cloud_can_select
 
 	rsp.NodeSorting = query.Sorted
 	rsp.TotalNodes = total_nodes

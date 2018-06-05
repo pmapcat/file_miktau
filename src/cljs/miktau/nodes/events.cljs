@@ -54,13 +54,7 @@
     :cloud-can-select (:cloud-can-select response)
     :cloud    (:cloud response)
     :cloud-context (:cloud-context response)
-    :patriarchs         (:patriarchs response)
-    
-    :meta-cloud         (:meta-cloud response)
-    :meta-cloud-context (:meta-cloud-context response)
-    :meta-cloud-can-select (:meta-cloud-can-select response)
-    
-    )})
+    :patriarchs         (:patriarchs response))})
 
 (refe/reg-event-fx :nodes/got-app-data got-app-data)
 

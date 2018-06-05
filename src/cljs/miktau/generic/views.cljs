@@ -6,7 +6,7 @@
   [:div.mik-flush-center.background-1
    {:style {:padding "5em" :margin-top "1em" :margin-bottom "1em"
             :border "dashed 1px gray"}}
-   [:a.pure-button {:href "#"}
+   [:a.pure-button 
     [views-utils/icon "file_upload"]
     "Drop files here"]])
 
@@ -15,12 +15,12 @@
   [:div
    {:style {:padding "5em", :border "dashed 1px gray"}}
    [:div.mik-flush-center.background-1
-    [:a.padded-as-button.unstyled-link  {:href "#" :style {:font-size "4em"}}
+    [:a.padded-as-button.unstyled-link  { :style {:font-size "4em"}}
      "Choose root directory"]
     [:div.mik-flush-center.background-1
      {:style
       {:padding "5em", :margin-top "1em", :margin-bottom "1em", :border "dashed 1px gray"}}
-     [:a {:href "#"}
+     [:a
       [views-utils/icon "file_upload"]
       "Or Drop it here"]]]])
 

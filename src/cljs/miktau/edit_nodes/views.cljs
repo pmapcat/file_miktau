@@ -24,7 +24,7 @@
 (defn breadcrumbs []
   (let [breadcrumbs @(refe/subscribe [:edit-nodes/breadcrumbs])]
     [:div.mik-cut-top
-     [:a.unstyled-link.red-clickable {:href "#" :on-click #(refe/dispatch [:edit-nodes/clear]) :style {:padding-right "5px"}} "«Clear»"]
+     [:a.unstyled-link.red-clickable {:on-click #(refe/dispatch [:edit-nodes/clear]) :style {:padding-right "5px"}} "«Clear»"]
      [:span {:style {:padding-right "5px"}}]
      [:span.unstyled-link
       "| Influence on: "   (:total-records breadcrumbs) " |"]
@@ -35,7 +35,7 @@
         (for [[item meta-item]  (for-every-and-last (:tags-to-add breadcrumbs))]
           ^{:key (:name item)}
           [:span
-           [:a.unstyled-link.green-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
+           [:a.unstyled-link.green-clickable {:on-click #(refe/dispatch (:on-click item))} (:name item)]
            (if-not (:last? meta-item) " • " " ")])
         " )"]
        [:span])
@@ -47,7 +47,7 @@
         (for [[item meta-item]  (for-every-and-last (:tags-to-delete breadcrumbs))]
           ^{:key (:name item)}
           [:span
-           [:a.unstyled-link.green-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item)]
+           [:a.unstyled-link.green-clickable {:on-click #(refe/dispatch (:on-click item))} (:name item)]
            (if-not (:last? meta-item) " • " " ")])
         " )"]
        [:span])]))
@@ -55,7 +55,6 @@
 (defn general-cloud-tag-item [tag]
   [:a.tag
    {:key  (:key-name tag)
-    :href "#"
     :on-click
     (if (:disabled? tag)
       #(refe/dispatch [:edit-nodes/add-tag-to-selection      (tag :key-name)])
@@ -91,5 +90,5 @@
    
    ;; changes to submit
    [:div.mik-flush-right.padded-as-button {:style {:margin-top "5em"}}
-    [:a.pure-button {:href "#" :on-click #(refe/dispatch [:edit-nodes/cancel-tagging])} [views-utils/icon "cancel"] " Cancel"]
-    [:a.pure-button.pure-button-primary {:href "#" :on-click #(refe/dispatch [:edit-nodes/submit-tagging])} [views-utils/icon "save"]   " Save"]]])
+    [:a.pure-button {:on-click #(refe/dispatch [:edit-nodes/cancel-tagging])} [views-utils/icon "cancel"] " Cancel"]
+    [:a.pure-button.pure-button-primary {:on-click #(refe/dispatch [:edit-nodes/submit-tagging])} [views-utils/icon "save"]   " Save"]]])

@@ -2,10 +2,7 @@
 
 (def default-db
   {:cloud-selected #{}
-   :cloud-context {}
-   
-   :meta-cloud-selected #{}
-   :meta-cloud-context {}})
+   :cloud-context {}})
 
 
 

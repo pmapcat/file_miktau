@@ -211,12 +211,18 @@ func TestGettingNodesByFilePaths(t *testing.T) {
 	})
 	assert.Equal(t, counter, 3)
 }
+
 func TestMetaGetAppData(t *testing.T) {
 	on_time.WithWhateverTime(on_time.OnDate(2003, 02, 17), func() {
 		cnis := newCoreNodeItemStorage("testing")
 		cnis.MutableCreate(buildDemoDataset())
 		assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloud,
 			map[string]int{"@empty": 1, "@modified:month:4": 4, "@modified:month:5": 4, "@modified:year:2016": 14, "@file-size:10—50mb": 5, "@file-size:100—500mb": 4, "@modified:month:2": 8, "@modified:month:1": 1, "@modified:year:2017": 6, "@modified:year:2018": 2, "@file-size:1—10mb": 12, "@modified:month:7": 4, "@modified:in-future": 22, "@file-size:50—100mb": 1, "@file-type:video": 22, "@modified:month:3": 1})
+
+		assert.Equal(t, len(cnis.GetAppData(*newCoreQuery().WithTags("@modified:year:2018")).MetaCloudCanSelect), 0)
+		assert.Equal(t, len(cnis.GetAppData(*newCoreQuery().WithMetaTags("@modified:year:2016")).MetaCloudCanSelect), 13)
+		assert.Equal(t, len(cnis.GetAppData(*newCoreQuery().WithMetaTags("@modified:year:2017")).MetaCloudCanSelect), 10)
+
 	})
 
 	cnis := newCoreNodeItemStorage("testing")

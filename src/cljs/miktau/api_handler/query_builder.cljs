@@ -1,6 +1,5 @@
 (ns miktau.api-handler.query-builder
-  (:require [miktau.tools :as utils]
-            [ajax.core :as ajax]))
+  (:require [ajax.core :as ajax]))
 
 (defn server-call-2 [api-call on-success on-error]
   {:method :post

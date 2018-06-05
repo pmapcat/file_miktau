@@ -10,13 +10,9 @@
    (aget e "target" "value" )))
 
 (defn general-cloud-tag-item [tag]
-  [:a.tag
+  [:div.tag
    {:key  (:key-name tag)
-    :href "#"
-    :on-click
-    (if (:disabled? tag)
-      #(refe/dispatch [:cloud/clicked-disabled-cloud-item (tag :key-name)])
-      #(refe/dispatch [:cloud/clicked-cloud-item (tag :key-name)]))
+    :on-click #(refe/dispatch  (:on-click tag))
     :class
     (str
      (cond (:selected? tag) "selected"
@@ -33,32 +29,24 @@
      [:span {:key (:key-name tag)}
       [general-cloud-tag-item tag]])])
 
-
-(defn general-tree []
+(defn general-meta-panel []
   [:div
-   (for [tag @(refe/subscribe [:cloud/general-tree])]
-     [:a.tag
-      {:key  (str  (:key-name tag) (:pad-level tag))
-       :href "#"
-       :on-click
-       (if (:disabled? tag)
-         #(refe/dispatch [:cloud/clicked-disabled-cloud-item (tag :key-name)])
-         #(refe/dispatch [:cloud/clicked-cloud-item (tag :key-name)]))
-       :class
-       (str
-        (cond (:selected? tag) " selected "
-              (:can-select? tag) " can-select "
-              (:disabled? tag) " disabled ")
-        (if (:header? tag)
-          " padded-as-button mik-cut-bottom mik-cut-top header-font "
-          " ")
-        " " (:pad-background-class tag))
-       :style
-       {:font-size "1em" :display "block"
-        :margin-top "3px"
-        :margin-bottom "3px"
-        :margin-left (str (:pad-level tag) "em")}}
-      " "(:name tag) ])])
+   (for [[group items] @(refe/subscribe [:cloud/meta-cloud])]
+     ^{:key group}
+     [:div
+      [:h3.mik-cut-bottom.light-gray {:style {:font-size "0.5em"}} group]
+      (for [item items]
+        ^{:key (:name item)}
+        [:div.tag
+         {:key (:name item)
+          :on-click #(refe/dispatch (:on-click item))
+          :style {:display "block" :font-size "0.6em" :padding-left "10px"}
+          :class
+          (str
+           (cond (:selected? item) "selected"
+                 (:can-select? item) "can-select"
+                 (:disabled? item) "disabled"))}
+         (:name item) " " [:span {:style {:font-weight "900"}} "[" (:size item ) "]"]])])])
 
 (defn filter-input []
   [:div.pure-g.padded-as-button
@@ -67,15 +55,15 @@
      [:div.pure-u-1-8.mik-flush-right
       [:div.pure-button.pure-button-primary  {:style {:width "80%"}}
        [:div {:on-click #(refe/dispatch [:cloud/open-file-selecting-dialog])} "Add files"]]]])
+
 (defn top-drawer []
   [:div.top-drawer.padded-as-button {:style {:font-size "0.7em"}}
    [:div.pure-u-1-24]
    [:div.pure-u-23-24
     [:span.unstyled-link "Current root is: "]
-    [:a.red-clickable.unstyled-link {:href "#" } "[../some-current-root-dir/]"]
+    [:a.red-clickable.unstyled-link  "[../some-current-root-dir/]"]
     [:div.pure-button.pure-button-primary.mik-flush-right {:style {:font-size "0.7em" :display "inline-block" :margin-left "10px"}} [:b "Change root"]]
-    [:input.pure-button.pure-button-primary.mik-flush-right {:style {:font-size "0.7em" :display "inline-block" :margin-left "10px"} :type "file" }]
-    ]])
+    [:input.pure-button.pure-button-primary.mik-flush-right {:style {:font-size "0.7em" :display "inline-block" :margin-left "10px"} :type "file" }]]])
 
 
 (defn back-button
@@ -87,8 +75,7 @@
        {:font-size "5em" :cursor "default"}}
       [views-utils/icon "keyboard_arrow_left"]]
      [:a.unstyled-link.black-clickable
-      {:href "#"
-       :on-click #(refe/dispatch [:undo])
+      {:on-click #(refe/dispatch [:undo])
        :style
        {:font-size "5em"}}
       [views-utils/icon "keyboard_arrow_left"]])])
@@ -98,7 +85,7 @@
     [:div {:style {:font-size "0.8em" }}
      ;; selected
      [:div.pure-u-1-2 
-      [:h2.mik-cut-top.light-gray "Group actions on"]
+      [:h2.mik-cut-top.light-gray  "Group actions on"]
       [:span "Selected: " [:b (:amount nodes-selection)] " files"]]
      
      ;; node items, narrow down
@@ -113,7 +100,7 @@
         [:span
          (if (:disabled? item)
            [:a.unstyled-link.blue-disaabled (:name item)]
-           [:a.unstyled-link.blue-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item )])
+           [:a.unstyled-link.blue-clickable {:on-click #(refe/dispatch (:on-click item))} (:name item )])
          [:br]])]]))
 
 (defn main
@@ -130,10 +117,13 @@
       [breadcrumbs-views/breadcrumbs [:cloud/get-app-data]]]]]
    
    [:div.pure-u-1
-    ;; header panel
-    ;; breadcrumbs
-    ;; cloud
-    [:div.pure-u-1.padded-as-button
-     [general-cloud]]
+    [:div.pure-u-1-8
+     [:div.padded-as-button
+      [general-meta-panel]]]
+    [:div.pure-u-7-8
+     [:div.padded-as-button
+      [general-cloud]]]
+    
+    
     [:div.padded-as-button {:style {:position "fixed" :left "0px" :right "0px" :bottom "0px"  :background "white" :box-shadow "2px 0px 3px 0px grey"}}
      [nodes-selected-view]]]])

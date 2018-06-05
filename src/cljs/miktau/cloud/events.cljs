@@ -62,14 +62,7 @@
    (assoc :total-nodes (:total-nodes response))
    (assoc :cloud-can-select (:cloud-can-select response))
    (assoc :patriarchs (:patriarchs response))
-   (assoc :cloud-context (:cloud-context response))
-   
-   (assoc :meta-cloud            (:meta-cloud response))
-   (assoc :meta-cloud-context    (:meta-cloud-context response))
-   (assoc :meta-cloud-can-select (:meta-cloud-can-select response))
-   
-
-   ))
+   (assoc :cloud-context (:cloud-context response))))
 (refe/reg-event-db :cloud/got-app-data got-app-data)
 
 

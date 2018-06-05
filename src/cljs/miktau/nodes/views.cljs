@@ -23,8 +23,7 @@
        {:font-size "5em" :cursor "default"}}
       [views-utils/icon "keyboard_arrow_left"]]
      [:a.unstyled-link.black-clickable
-      {:href "#"
-       :on-click #(refe/dispatch [:undo])
+      {:on-click #(refe/dispatch [:undo])
        :style
        {:font-size "5em"}}
       [views-utils/icon "keyboard_arrow_left"]])])
@@ -71,7 +70,7 @@
         [:span
          (if (:disabled? item)
            [:a.unstyled-link.blue-disaabled (:name item)]
-           [:a.unstyled-link.blue-clickable {:href "#" :on-click #(refe/dispatch (:on-click item))} (:name item )])
+           [:a.unstyled-link.blue-clickable {:on-click #(refe/dispatch (:on-click item))} (:name item )])
          [:br]])]]))
 
 (defn breadcrumbs []
@@ -84,7 +83,7 @@
     "[ "
     (for [[_ point] (:items order-by)]
       [:a.unstyled-link
-       {:href "#" :key (:name point) :on-click #(refe/dispatch (:on-click point)) :class (if (:enabled? point) " green-disabled " " black-clickable ")} (:name point) " "]) "]"]])
+       {:key (:name point) :on-click #(refe/dispatch (:on-click point)) :class (if (:enabled? point) " green-disabled " " black-clickable ")} (:name point) " "]) "]"]])
 
 (defn file-table-header [all-selected? order-by]
   (let [amount-selected @(refe/subscribe [:nodes/amount-selected])]
@@ -98,7 +97,7 @@
        "Showing: " [:b (:total amount-selected)  " results "] [:br]]
       [:span {:style {:font-size "0.6em"}}
        "Selected: " [:b (:amount amount-selected) ] " "
-       [:a.unstyled-link.blue-clickable {:href "#" :on-click #(refe/dispatch [:nodes/select-all-nodes])} " Select all "]]
+       [:a.unstyled-link.blue-clickable {:on-click #(refe/dispatch [:nodes/select-all-nodes])} " Select all "]]
       
       ]
      [:th.mik-flush-right
@@ -133,14 +132,13 @@
      [radio-button "" #(refe/dispatch (:on-click  node)) (:selected? node)]]]
    [:td
     [:a.unstyled-link.black-clickable 
-     {:href "#" :style {:font-weight "300" :word-wrap "break-word"}}
+     {:style {:font-weight "300" :word-wrap "break-word"}}
      (:name node)]]
    [:td
     [tagging-in-a-single-node-item (:tags node)]
     (if (and  (not  (empty? (:all-tags node))) )
       [:a.unstyled-link.black-clickable
-       {:href "#"
-        :class (if  (:all-tags-repeat-as-prev? node) " almost-hidden-in-plain-sight " "")
+       {:class (if  (:all-tags-repeat-as-prev? node) " almost-hidden-in-plain-sight " "")
         :on-click #(refe/dispatch [:nodes/clicked-many-cloud-items (:all-tags node)])}
        [:span
         {:style {:padding "3px" :margin "3px" :font-size "0.8em"}}

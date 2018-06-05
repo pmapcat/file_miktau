@@ -6,6 +6,39 @@
 (defn is-meta-tag?
   [tag]
   (cljs-string/starts-with? (str (name tag)) "@"))
+(defn filter-map-on-val
+  [filter-fn some-map]
+  (into
+   {}
+   (filter
+    (fn [[_ val] & item]
+      (filter-fn val))
+    some-map)))
+
+(defn filter-map-on-key
+  [filter-fn some-map]
+  (into
+   {}
+   (filter
+    (fn [[key _] & item]
+      (filter-fn key))
+    some-map)))
+
+(defn  map-val
+  [map-fn some-map]
+  (for [[k v ] some-map]
+    [k (map-fn v)]))
+
+
+(defn filter-map-on-val
+  [filter-fn some-map]
+  (into
+   {}
+   (filter
+    (fn [[_ val] & item]
+      (filter-fn val))
+    some-map)))
+
 
 (defn paginate [current last-item]
   (let [delta 2

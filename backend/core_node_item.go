@@ -36,14 +36,11 @@ func (n *CoreNodeItem) ApplyFilter(c *CoreQuery) bool {
 	if result, whether_applicable := apply_filter.FilterByIds(n, c); whether_applicable {
 		return result
 	}
-	if result, whether_applicable := apply_filter.MatchEmpty(n, c); whether_applicable {
-		return result
-	}
 
-	if result, whether_applicable := apply_filter.IsSubSet(n.Tags, c.Tags); whether_applicable {
+	if result, whether_applicable := apply_filter.IsSubSet(n.Tags, c.GetTags()); whether_applicable {
 		return result
 	}
-	if result, whether_applicable := apply_filter.IsSubSet(n.MetaTags, c.MetaTags); whether_applicable {
+	if result, whether_applicable := apply_filter.IsSubSet(n.MetaTags, c.GetMetaTags()); whether_applicable {
 		return result
 	}
 

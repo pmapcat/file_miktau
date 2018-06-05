@@ -6,9 +6,9 @@
   "TESTED"
   [{:keys [db]}  [_ redirector]]
   {:db 
-   (assoc db :cloud-selected #{}
-          :meta-cloud-selected #{})
+   (assoc db :cloud-selected #{})
    :fx-redirect redirector})
+
 (refe/reg-event-fx :breadcrumbs/clear clear)
 
 (defn breadcrumbs-show-all?-switch
@@ -47,15 +47,4 @@
      (assoc db :cloud-selected (into #{} items)))
    :fx-redirect redirector})
 (refe/reg-event-fx :breadcrumbs/clicked-many-cloud-items  clicked-many-cloud-items)
-
-(defn clicked-many-meta-cloud-items
-  "TESTED"
-  [{:keys [db]} [_ redirector items]]
-  {:db
-   (cond
-     (not (utils/seq-of-predicate? items keyword?)) db
-     :else
-     (assoc db :meta-cloud-selected (into #{} items)))
-   :fx-redirect redirector})
-(refe/reg-event-fx :breadcrumbs/clicked-many-meta-cloud-items  clicked-many-meta-cloud-items)
 

@@ -47,6 +47,6 @@ func newCoreQuery() *CoreQuery {
 		Page:     1,
 		Sorted:   "",
 		Ids:      []int{},
-		Tags:     []string{},
+		BaseTags: []string{},
 	}
 }

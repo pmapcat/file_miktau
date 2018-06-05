@@ -26,22 +26,14 @@
       "]"] 
      
      
-     [:a.unstyled-link.red-clickable {:href "#" :on-click #(refe/dispatch [:breadcrumbs/clear redirector]) :style {:padding-right "5px"}} "[Clear]"]
+     [:a.unstyled-link.red-clickable {:on-click #(refe/dispatch [:breadcrumbs/clear redirector]) :style {:padding-right "5px"}} "[Clear]"]
 
-     ;; meta-cloud-items
-     [:span {:style {:padding-right "5px"}}
-      
-      (for [[item meta-item] (for-every-and-last (:meta-cloud-items breadcrumbs))]
-        ^{:key (:name item)}
-        [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (inject-event redirector (:on-click item)))} (:name item)]
-         (if-not (:last? meta-item) " > " " ")])]
-     
      ;; cloud items
      [:span {:style {:padding-right "5px"}}
       
       (for [[item meta-item] (for-every-and-last (:cloud-items breadcrumbs))]
         ^{:key (:name item)}
-        [:span [:a.unstyled-link.black-clickable {:href "#" :on-click #(refe/dispatch (inject-event redirector (:on-click item)))} (:name item)]
+        [:span [:a.unstyled-link.black-clickable {:on-click #(refe/dispatch (inject-event redirector (:on-click item)))} (:name item)]
          (if-not (:last? meta-item) " > " " ")])]
      
      ;; potential selection
@@ -54,9 +46,9 @@
                                    (take 10 (:cloud-can-select breadcrumbs))))]
           ^{:key (:name item)}
           [:span
-           [:a.unstyled-link.green-clickable {:href "#" :on-click #(refe/dispatch (inject-event redirector (:on-click item)))} (:name item)]
+           [:a.unstyled-link.green-clickable {:on-click #(refe/dispatch (inject-event redirector (:on-click item)))} (:name item)]
            (if-not (:last? meta-item) " • " " ")])
         (if (:can-expand? breadcrumbs)
-          [:a.unstyled-link.green-clickable {:href "#" :style {:padding-left "5px" } :on-click #(refe/dispatch [:breadcrumbs/breadcrumbs-show-all?-switch])} "…" ]
+          [:a.unstyled-link.green-clickable {:style {:padding-left "5px" } :on-click #(refe/dispatch [:breadcrumbs/breadcrumbs-show-all?-switch])} "…" ]
           [:span]) " )"]
        [:span])]))

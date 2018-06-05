@@ -32,11 +32,11 @@ func HookOnAfterChange(m *CoreNodeItem) {
 	m.MetaTags = []string{}
 	// add empty
 	if len(m.Tags) == 0 {
-		m.MetaTags = append(m.MetaTags, "@empty")
+		m.MetaTags = append(m.MetaTags, "@empty:is-empty?")
 	}
 
-	m.MetaTags = append(m.MetaTags, "@modified:month:"+strconv.Itoa(int(m.Modified.Time().Month())))
-	m.MetaTags = append(m.MetaTags, "@modified:year:"+strconv.Itoa(m.Modified.Time().Year()))
+	m.MetaTags = append(m.MetaTags, "@modified-month:"+strconv.Itoa(int(m.Modified.Time().Month())))
+	m.MetaTags = append(m.MetaTags, "@modified-year:"+strconv.Itoa(m.Modified.Time().Year()))
 	// m.MetaTags = append(m.MetaTags, "@modified:day:"+strconv.Itoa(m.Modified.Day()))
 
 	// recency
@@ -58,7 +58,7 @@ func HookOnAfterChange(m *CoreNodeItem) {
 		m.MetaTags = append(m.MetaTags, "@modified:this-year")
 	}
 	if deltaHours > 8064 {
-		m.MetaTags = append(m.MetaTags, "@modifed:long-ago")
+		m.MetaTags = append(m.MetaTags, "@modified:long-ago")
 	}
 
 	// how can I do smth. like: @modified:100-oldest-files

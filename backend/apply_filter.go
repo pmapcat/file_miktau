@@ -37,14 +37,9 @@ func (a *apply_filter_) FilterByIds(n *CoreNodeItem, c *CoreQuery) (bool, bool) 
 	return false, false
 }
 
-// match all tags
-func (a *apply_filter_) MatchEmpty(n *CoreNodeItem, c *CoreQuery) (bool, bool) {
-	if len(c.Tags) == 0 {
-		return true, true
-	}
-	return false, false
-}
-
 func (a *apply_filter_) IsSubSet(node_tags, query_tags []string) (bool, bool) {
+	if len(query_tags) == 0 {
+		return false, false
+	}
 	return is_subset(node_tags, query_tags), true
 }

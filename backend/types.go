@@ -35,13 +35,15 @@ type SwitchFoldersRequest struct {
 }
 
 type CoreQuery struct {
-	Sorted    string   `json:"sorted"`
-	PageSize  int      `json:"page-size"`
-	Page      int      `json:"page"`
-	FilePaths []string `json:"file-paths"`
-	Ids       []int    `json:"ids"`
-	Tags      []string `json:"tags"`
-	MetaTags  []string `json:"meta-tags"`
+	Sorted                            string   `json:"sorted"`
+	PageSize                          int      `json:"page-size"`
+	Page                              int      `json:"page"`
+	FilePaths                         []string `json:"file-paths"`
+	Ids                               []int    `json:"ids"`
+	BaseTags                          []string `json:"tags"`
+	_getter_on_tags_is_already_called bool
+	_standart_tags                    []string `json:"-"`
+	_meta_tags                        []string `json:"-"`
 }
 
 type CoreNodeItem struct {
@@ -56,17 +58,14 @@ type CoreNodeItem struct {
 }
 
 type CoreAppDataResponse struct {
-	Error              string                    `json:"error"`
-	NodeSorting        string                    `json:"nodes-sorted"`
-	TotalNodes         int                       `json:"total-nodes"`
-	TotalNodesPages    int                       `json:"total-nodes-pages"`
-	CoreDirectory      string                    `json:"core-directory"`
-	Nodes              []*CoreNodeItem           `json:"nodes"`
-	Patriarchs         []string                  `json:"patriarchs"`
-	CloudCanSelect     map[string]bool           `json:"cloud-can-select"`
-	MetaCloudCanSelect map[string]bool           `json:"meta-cloud-can-select"`
-	Cloud              map[string]int            `json:"cloud"`
-	CloudContext       map[string]map[string]int `json:"cloud-context"`
-	MetaCloud          map[string]int            `json:"meta-cloud"`
-	MetaCloudContext   map[string]map[string]int `json:"meta-cloud-context"`
+	Error           string                    `json:"error"`
+	NodeSorting     string                    `json:"nodes-sorted"`
+	TotalNodes      int                       `json:"total-nodes"`
+	TotalNodesPages int                       `json:"total-nodes-pages"`
+	CoreDirectory   string                    `json:"core-directory"`
+	Nodes           []*CoreNodeItem           `json:"nodes"`
+	Patriarchs      []string                  `json:"patriarchs"`
+	CloudCanSelect  map[string]bool           `json:"cloud-can-select"`
+	Cloud           map[string]int            `json:"cloud"`
+	CloudContext    map[string]map[string]int `json:"cloud-context"`
 }
