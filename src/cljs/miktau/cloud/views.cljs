@@ -46,7 +46,7 @@
            (cond (:selected? item) "selected"
                  (:can-select? item) "can-select"
                  (:disabled? item) "disabled"))}
-         (:name item) " " [:span {:style {:font-weight "900"}} "[" (:size item ) "]"]])])])
+         (:name item) " " [:span.mik-float-right   (:size item )]])])])
 
 (defn filter-input []
   [:div.pure-g.padded-as-button
