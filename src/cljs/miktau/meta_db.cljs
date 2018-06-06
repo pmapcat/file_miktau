@@ -2,6 +2,9 @@
 
 (defn meta-page? [db page-name]
   (= (get-in db [:meta :page]) page-name))
+(defn it-is-meta-page= [db]
+  (get-in db [:meta :page]))
+
 
 (defn set-page [meta-db page-name]
   (assoc meta-db  :page page-name))

@@ -1,6 +1,5 @@
 (ns miktau.autocomplete.events
-  (:require [re-frame.core :as refe]
-            [miktau.tools :as utils]))
+  (:require [re-frame.core :as refe]))
 
 (defn clear-cloud-click
   "TESTED"

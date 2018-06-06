@@ -115,11 +115,10 @@
    ;; [:.black  {:color "#000000"}]
    ;; [:.orange {:color "#4d4d4d"}]
    
-
    [:.crossed-out {:background "HSL(22,99%,88%)" :text-decoration "line-through !important" :color "black !important"}]
    [:.crossed-out:hover {:background "HSL(22,99%,88%)" :text-decoration "line-through !important" :color "black !important"}]
-   [:.added-in {:background "HSL(130,100%,92%)" :color "black"}]
-   [:.added-in:hover {:background "HSL(130,100%,92%)" :color "black"}]
+   [:.added-in {:background "HSL(130,100%,92%)" :color "black !important"}]
+   [:.added-in:hover {:background "HSL(130,100%,92%)" :color "black !important"}]
    
    
    ;; [:.disabled {:color "HSL(123,1%,84%)" :cursor "default" }]
@@ -129,17 +128,16 @@
    
    [:.tag    {:font-family (:body fonts)
               :padding "3px"
-              :margin "3px"
-              :font-weight "600"
+              :font-weight "300"
               :display "inline-block"
               :text-decoration "none"}]
-   
-   [:.tag:hover         {:color (str (:light-green *apple-palette*))}]
-   [:.tag.disabled       {:color "HSL(123,1%,84%)" :cursor "default" }]
-   [:.tag.disabled:hover {:color "HSL(123,1%,84%) !important" :cursor "default"}]
+   [:.tag:hover            {:color (str (:light-green *apple-palette*))}]
+   [:.tag.disabled         {:color "HSL(123,1%,84%)" :cursor "default" }]
+   [:.tag.disabled:hover   {:color "HSL(123,1%,84%) !important" :cursor "default"}]
    [:.tag.can-select       {:color "black" :cursor "pointer" }]
    [:.tag.can-select:hover {:color (str (:light-green *apple-palette*))}]
-   [:.tag.selected {:background (str (:light-green *apple-palette*) "!important;") :color (str "white !important")}]
+   [:.tag.selected         {:background (str (:light-green *apple-palette*) "!important;") :color (str "white !important")}]
+   
    [:.complete.selected
     {:background (str (:light-green *apple-palette*) "!important;") :color (str "white !important")}]
    [:.complete:hover

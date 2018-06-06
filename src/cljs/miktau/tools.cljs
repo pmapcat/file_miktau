@@ -3,9 +3,24 @@
              [clojure.set :as clojure-set]
              [clojure.walk :as cljs-walk]))
 
+(defn set-timeout!
+  [cb time]
+  (.call
+   (aget js/window "setTimeout") js/window cb time))
+
+
+(defn is-valid-user-tag?
+  "1. alphanumeric
+   2. lower cased
+   3. 3..20 symbols
+   4. _ as a delimiter"
+  [tag]
+  (and  (string? tag) (not (nil? (re-matches  #"[a-zа-я0-9\_]{3,20}" tag)))))
+
 (defn is-meta-tag?
   [tag]
   (cljs-string/starts-with? (str (name tag)) "@"))
+
 (defn filter-map-on-val
   [filter-fn some-map]
   (into
@@ -28,17 +43,6 @@
   [map-fn some-map]
   (for [[k v ] some-map]
     [k (map-fn v)]))
-
-
-(defn filter-map-on-val
-  [filter-fn some-map]
-  (into
-   {}
-   (filter
-    (fn [[_ val] & item]
-      (filter-fn val))
-    some-map)))
-
 
 (defn paginate [current last-item]
   (let [delta 2
@@ -174,6 +178,8 @@
   (+
    (* C (- 1  (/ (- X A) (- B A))))
    (* D (/ (- X A) (- B A)))))
+
+
 
 (defn map-function-on-map-vals
   "Take a map and apply a function on its values. From [1].

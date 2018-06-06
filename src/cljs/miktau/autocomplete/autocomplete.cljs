@@ -6,6 +6,7 @@
   [e]
   (str
    (aget e "target" "value" )))
+
 (defn- change-cur-input
   [app-state input]
   (swap! app-state
@@ -35,6 +36,7 @@
       \"world\"] 
      :can-enter-new? false
      :display-size 10
+     :placeholder \"hello world\"
      :compare-fn (fn [cur-input item] (cljs-string/starts-with?   item  cur-input))
      :render-fn (fn [now-input-str selected?-bool item-name-str])
      :submit-fn (fn [data])}"
@@ -44,7 +46,8 @@
         compare-fn  (or (:compare-fn params) default-compare-fn)
         display-size (or (:display-size params) 10)
         render-fn (or (:render-fn params) default-render-fn)
-        placeholder (or (:placehoder params) "Input tags here...")
+        validate-fn (or (:validate-fn params) (fn [data] true))
+        placeholder (or (:placeholder params) "Input tags here...")
         submit-fn-raw  (or (:submit-fn params) identity)
         submit-fn
         (fn [input]
@@ -63,20 +66,29 @@
                 {:selected? (= index cur-index)
                  :name   item})
               [])
-            complete-placeholder (or (:name (first (filter :selected? filtered-items))) "")]
+            complete-placeholder (or (:name (first (filter :selected? filtered-items))) "")
+            has-auto-complete? (not (empty? complete-placeholder))]
         [:div {:style {:position "relative"}}
          [:input {:value cur-input
                   :placeholder placeholder
                   :style {:width "100%" :height "1.9em" :padding-left "10px" :background "transparent"}
                   :type "text"
                   :on-change
-                  #(change-cur-input app-state (e->content %))
+                  #(if (validate-fn (e->content %))
+                     (change-cur-input app-state (e->content %))
+                     identity)
                   :on-key-down
                   #(condp = (aget % "key")
                      "Enter"
-                     (if-not can-enter-new?
+                     (cond
+                       (and can-enter-new? has-auto-complete?)
                        (submit-fn complete-placeholder)
-                       (submit-fn (e->content %)))
+                       (and (not can-enter-new?) (not has-auto-complete?))
+                       identity
+                       (and can-enter-new? (not has-auto-complete?))
+                       (submit-fn (e->content %))
+                       (and (not can-enter-new?)  has-auto-complete?)
+                       (submit-fn complete-placeholder))
                      "ArrowDown"
                      (swap! app-state assoc :cur-index (mod (inc cur-index) (count filtered-items)))
                      "ArrowUp"

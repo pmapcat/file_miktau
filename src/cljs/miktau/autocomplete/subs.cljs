@@ -12,7 +12,7 @@
        (extract-chains pa i))]))
 
 (defn cloud-with-context [db _]
-  (if-not (or (meta-page? db :cloud) (meta-page? db :nodes))
+  (if-not (or (meta-page? db :cloud) (meta-page? db :nodes) (meta-page? db :edit-nodes))
     {}
     (if (:cloud-context db)
       (into

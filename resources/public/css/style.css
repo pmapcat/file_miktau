@@ -12,19 +12,18 @@
 
 .added-in {
   background: HSL(130,100%,92%);
-  color: black;
+  color: black !important;
 }
 
 .added-in:hover {
   background: HSL(130,100%,92%);
-  color: black;
+  color: black !important;
 }
 
 .tag {
   font-family: "Source Sans Pro", sans-serif !important;
   padding: 3px;
-  margin: 3px;
-  font-weight: 600;
+  font-weight: 300;
   display: inline-block;
   text-decoration: none;
 }

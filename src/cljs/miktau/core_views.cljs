@@ -2,6 +2,7 @@
   (:require [miktau.edit-nodes.views :as edit-nodes-views]
             [miktau.nodes.views :as nodes-views]
             [miktau.cloud.views :as cloud-views]
+            [miktau.ui-log.views :as ui-log-views]
             [miktau.generic.views :as generic-views]
             
             [day8.re-frame.http-fx]
@@ -28,13 +29,16 @@
             [miktau.edit-nodes.events]
             [miktau.edit-nodes.subs]
 
-            
+            [miktau.ui-log.events]
+            [miktau.ui-log.subs] 
+           
             
             [re-frame.core :as refe]))
 
 (defn main
   []
   [:div
+   [ui-log-views/main]
    [:div
     (let [meta-page @(refe/subscribe [:meta])]
       (if (:loading? meta-page)

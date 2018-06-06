@@ -2,7 +2,8 @@
   (:require [re-frame.core :as refe]
             [clojure.string :as cljs-string]
             [miktau.tools :as utils]
-            [miktau.meta-db :refer [meta-page?]]))
+            [miktau.meta-db :refer [meta-page?]]
+            [miktau.cloud.misc :as cloud-misc]))
 
 (defn get-db-for-test-purposes [db _]
   (if-not (meta-page? db :cloud)
@@ -25,7 +26,7 @@
           :name  point
           :weighted-size 1
           :size amount
-          :compare-name   (cljs-string/lower-case (str point))
+          :compare-name   (or (cloud-misc/meta-rank item) (cljs-string/lower-case (str point)))
           :on-click
           (if disabled?
             [:cloud/clicked-disabled-cloud-item item]

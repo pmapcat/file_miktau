@@ -11,6 +11,8 @@
    :total-nodes 0
    :nodes-selected #{}
    :cloud-selected #{}
+   :cloud-context  {}
+   :patriarchs []
    
    :cloud-can-select {}
    :cloud {}})
