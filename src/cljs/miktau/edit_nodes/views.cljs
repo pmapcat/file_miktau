@@ -31,8 +31,9 @@
          identity))
       :validate-fn #(and  (string? %) (not (nil? (re-matches  #"^[a-zа-я0-9\_]{0,20}$" %))))}]]
      [:div.pure-u-1-8.mik-flush-right
-      [:div.pure-button.pure-button-primary  {:style {:width "80%"}}
-       [:div {:on-click #(refe/dispatch [:cloud/open-file-selecting-dialog])} "Add tag"]]]])
+      (if @(refe/subscribe [:edit-nodes/can-submit?])
+        [:a.pure-button.pure-button-primary {:on-click #(refe/dispatch [:edit-nodes/submit-tagging])} [views-utils/icon "save"]   " Save"]
+        [:a.pure-button.pure-button-primary.pure-button-disabled {} [views-utils/icon "save"]   " Save"])]])
 
 (defn for-every-and-last
   [data-set]
@@ -123,4 +124,5 @@
     [:a.pure-button {:on-click #(refe/dispatch [:edit-nodes/cancel-tagging])} [views-utils/icon "cancel"] " Cancel"]
     (if @(refe/subscribe [:edit-nodes/can-submit?])
       [:a.pure-button.pure-button-primary {:on-click #(refe/dispatch [:edit-nodes/submit-tagging])} [views-utils/icon "save"]   " Save"]
-      [:a.pure-button.pure-button-primary.pure-button-disabled {} [views-utils/icon "save"]   " Save"])]])
+      [:a.pure-button.pure-button-primary.pure-button-disabled {} [views-utils/icon "save"]   " Save"])
+    ]])
