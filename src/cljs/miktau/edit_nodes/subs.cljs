@@ -6,7 +6,7 @@
 (refe/reg-sub :edit-nodes/get-db-for-test-purposes (fn [db _] db))
 
 (comment
-  (println  (:meta @(refe/subscribe [:edit-nodes/get-db-for-test-purposes]))))
+  (println  (:show-warning? @(refe/subscribe [:edit-nodes/get-db-for-test-purposes]))))
 
 (defn can-submit?
   [db _]
@@ -14,6 +14,10 @@
       (not (empty? (:nodes-temp-tags-to-add    db)))))
 (refe/reg-sub :edit-nodes/can-submit? can-submit?)
 
+(refe/reg-sub
+ :edit-nodes/show-warning?
+ (fn [db _]
+   (:show-warning? db)))
 
 (defn cloud
   [db _]

@@ -146,7 +146,8 @@
    
    
    
-
+   [:.warning {:background "#ffd5d5"}]
+   
    [:.red-clickable {:color "red"}]
    [:.red-clickable:hover {:color "#f5c6c6"}]
    [:.red {:color "red"}]

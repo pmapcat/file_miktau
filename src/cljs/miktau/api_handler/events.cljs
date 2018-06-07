@@ -1,5 +1,6 @@
 (ns miktau.api-handler.events
   (:require [re-frame.core :as refe]
+            [miktau.meta-db :as meta-db]
             [miktau.api-handler.query-builder :as query-builder]))
 
 ;; These are the events this NS should provide
@@ -41,8 +42,8 @@
   "TESTED"
   [{:keys [db]} [_ redirect-to response]]
   (if (empty? (:error response))
-    {:db   db :fx-redirect [redirect-to response]}
-    {:db   db :fx-redirect [:error (:error response)]}))
+    {:db   (meta-db/set-loading db false) :fx-redirect [redirect-to response]}
+    {:db   (meta-db/set-loading db false) :fx-redirect [:error (:error response)]}))
 (refe/reg-event-fx :api-handler/got-app-data got-app-data)
 
 (defn file-operation
@@ -50,7 +51,7 @@
    TESTED"
   [{:keys [db]} [_ on-success action-keyword nodes-selected-set cloud-selected-set]]
   (if-let [api-call (query-builder/build-bulk-operate-on-files action-keyword nodes-selected-set cloud-selected-set nil)]
-    {:db db :http-xhrio (query-builder/server-call-2 api-call [:api-handler/got-app-data on-success] [:error])}
+    {:db (meta-db/set-loading db true) :http-xhrio  (query-builder/server-call-2 api-call [:api-handler/got-app-data on-success] [:error])}
     {:db db :fx-redirect [:error "Cannot build request on these params"]}))
 (refe/reg-event-fx :api-handler/file-operation file-operation)
 
@@ -59,6 +60,6 @@
    TESTED"
   [{:keys [db]} [_ on-success-keyword add-tags-set delete-tags-set nodes-selected-set cloud-selected-set]]
   (if-let [api-call (query-builder/build-update-records add-tags-set delete-tags-set nodes-selected-set cloud-selected-set nil)]
-    {:db db :http-xhrio (query-builder/server-call-2 api-call [:api-handler/got-app-data on-success-keyword] [:error])}
+    {:db (meta-db/set-loading db true) :http-xhrio (query-builder/server-call-2 api-call [:api-handler/got-app-data on-success-keyword] [:error])}
     {:db db :fx-redirect [:error "Cannot build request on these params"]}))
 (refe/reg-event-fx :api-handler/build-update-records build-update-records)

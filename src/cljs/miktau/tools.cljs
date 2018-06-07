@@ -179,7 +179,18 @@
    (* C (- 1  (/ (- X A) (- B A))))
    (* D (/ (- X A) (- B A)))))
 
+;; local storage 
+(defn ls-set!
+  [key-item val-item]
+  (.call (aget  js/localStorage "setItem") js/localStorage (str key-item) val-item))
 
+(defn ls-get
+  [key-item]
+  (.call (aget  js/localStorage "getItem") js/localStorage (str key-item)))
+
+(defn ls-clear!
+  []
+  (.call (aget  js/localStorage "clear") js/localStorage))
 
 (defn map-function-on-map-vals
   "Take a map and apply a function on its values. From [1].

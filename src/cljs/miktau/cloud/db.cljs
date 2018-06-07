@@ -4,9 +4,7 @@
 (def default-db
   {:meta (meta-db/set-page meta-db/meta-db :cloud)
    
-   :filtering ""
    :date-now {}
-   
    :total-nodes 0
 
    :breadcrumbs-show-all? false

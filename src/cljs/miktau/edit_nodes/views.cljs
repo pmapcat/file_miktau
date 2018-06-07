@@ -1,8 +1,25 @@
 (ns miktau.edit-nodes.views
   (:require [miktau.generic.views-utils :as views-utils]
             [miktau.autocomplete.views :as autocomplete-views]
-            [miktau.tools :as utils]
             [re-frame.core :as refe]))
+
+(defn warning []
+  (if-not @(refe/subscribe [:edit-nodes/show-warning?])
+    [:span]
+    [:div.warning.padded-as-button
+     [:div.pure-u-1-8 {:style {:text-align "center" }}
+      [:i.material-icons.red {:style {:font-size "3em"}} "warning"]]
+     [:div.pure-u-7-8
+      [:h3.mik-cut-top "This operation will change directory structure!"]
+      [:p "If keeping current directory structure is important. For example, in: "]
+      [:ul
+       [:li "Programming projects"]
+       [:li "Structured video / audio projects"]
+       [:li "Static wiki and blogging sites"]]
+      [:p
+       "It is highly recommended to use empty root with symlink crosslinkage: " [:a {:href "#"} "Read more on this"] [:br]]
+      [:div.mik-flush-right
+       [:a.unstyled-link.black-clickable {:on-click #(refe/dispatch [:edit-nodes/aknowledge-warning])} "Acknowledged. Don't show me this again"]]]]))
 
 (defn back-button
   []
@@ -115,8 +132,11 @@
       [filter-input]]
      [:div.padded-as-button {:style {:font-size "0.7em" :padding-bottom "1em"}}
       [breadcrumbs]]]]
-   
    ;; tags to add/remove
+   [:div.padded-as-button
+    [warning]]
+   
+   
    [:div.padded-as-button
     [general-cloud]]
    ;; changes to submit
@@ -124,5 +144,4 @@
     [:a.pure-button {:on-click #(refe/dispatch [:edit-nodes/cancel-tagging])} [views-utils/icon "cancel"] " Cancel"]
     (if @(refe/subscribe [:edit-nodes/can-submit?])
       [:a.pure-button.pure-button-primary {:on-click #(refe/dispatch [:edit-nodes/submit-tagging])} [views-utils/icon "save"]   " Save"]
-      [:a.pure-button.pure-button-primary.pure-button-disabled {} [views-utils/icon "save"]   " Save"])
-    ]])
+      [:a.pure-button.pure-button-primary.pure-button-disabled {} [views-utils/icon "save"]   " Save"])]])

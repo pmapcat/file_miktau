@@ -13,9 +13,7 @@
         (meta-db/set-error   error)) 
     :log! (str  error)}))
 
-
-
-
+;; undo config. (Will fetch data from server on every undo step)
 (undo-lib/undo-config!
  {:reinstate-fn
   (fn [atom undo-state]
@@ -35,17 +33,4 @@
  :identity
  (fn [db _]
    db))
-
-(refe/reg-event-db
- :back
- (fn [db _]
-   (.log js/console "registered <back> event")
-   db))
-
-
-
-
-
-
-
 

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 var CNIS = newCoreNodeItemStorage("empty")
@@ -63,6 +64,8 @@ func (s *serve_) BulkFileWorkage(w rest.ResponseWriter, r *rest.Request) {
 	}
 	// process request & write response
 	enq.Error = CNIS.FSActionOnAListOfFiles(enq.Request, enq.Action)
+
+	time.Sleep(time.Duration(time.Second * 3))
 	w.WriteJson(enq)
 }
 

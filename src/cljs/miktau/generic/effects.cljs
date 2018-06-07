@@ -18,6 +18,11 @@
    (undo/clear-history!)))
 
 (refe/reg-fx
+ :generic/set-local-store!
+ (fn [[key val]]
+   (utils/ls-set! key val)))
+
+(refe/reg-fx
  :defer-fx-redirect
  (fn [data]
    (utils/set-timeout!

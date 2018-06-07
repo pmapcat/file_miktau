@@ -5,6 +5,7 @@
   {:core-directory ""
    :meta (meta-db/set-page meta-db/meta-db :edit-nodes)
    :nodes [{:tags ["hello" "world"]}]
+   :show-warning? false
    :nodes-temp-tags-to-delete #{}
    :nodes-temp-tags-to-add    #{}
    

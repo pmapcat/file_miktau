@@ -11,6 +11,7 @@
             [miktau.api-handler.events]
             
             [miktau.generic.effects]
+            [miktau.generic.coeffects]
             [miktau.generic.subs]
             [miktau.generic.events]
             
@@ -50,6 +51,8 @@
           [nodes-views/main]
           :edit-nodes
           [edit-nodes-views/main]
-          [generic-views/choose-root])))]])
+          :dropzone
+          [generic-views/dropzone]
+          [generic-views/initial])))]])
 
 

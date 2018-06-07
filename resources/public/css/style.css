@@ -66,6 +66,10 @@
   color: black !important;
 }
 
+.warning {
+  background: #ffd5d5;
+}
+
 .red-clickable {
   color: red;
 }
