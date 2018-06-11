@@ -49,12 +49,9 @@
          (:name item) " " [:span.mik-float-right   (:size item )]])])])
 
 (defn filter-input []
-  [:div.pure-g.padded-as-button
-   [:div.pure-u-7-8
-    [autocomplete-views/filter-input [:cloud/get-app-data] false]]
-     [:div.pure-u-1-8.mik-flush-right
-      [:div.pure-button.pure-button-primary  {:style {:width "80%"}}
-       [:div {:on-click #(refe/dispatch [:cloud/open-file-selecting-dialog])} "Add files"]]]])
+  [:div.pure-g
+   [:div.pure-u-1
+    [autocomplete-views/filter-input [:cloud/get-app-data] false {:placeholder "Type tags in here…"}]]])
 
 (defn top-drawer []
   [:div.top-drawer.padded-as-button {:style {:font-size "0.7em"}}
@@ -80,6 +77,25 @@
        {:font-size "5em"}}
       [views-utils/icon "keyboard_arrow_left"]])])
 
+(defn cloud-no-files-view
+  []
+  [:div.padded-as-button.light-gray
+   [:h1 {:style {:font-size "3em"}} "Nothing here, yet" ]
+   [:p "You can start by"]
+   [:ul
+    [:li.padded-as-button [:a.pure-button.pure-button-primary "Choosing folder"] " with more files"]
+    [:li.padded-as-button [:a.pure-button.pure-button-primary "Adding new"] " files to this folder"]
+    [:li.padded-as-button "Drag & drop some files here"]]])
+
+(defn empty-cloud-view []
+  [:div.padded-as-button.light-gray.mik-cut-top
+   [:h1.mik-cut-top {:style {:font-size "3em"}} "There are no categories" ]
+   [:p "You probably want to add some by "]
+   [:ul
+    [:li "Clicking on " ]
+    [:li "Edit tags on selection"]
+    [:li "In the right bottom corner"]]])
+
 (defn nodes-selected-view []
   (let [nodes-selection @(refe/subscribe [:cloud/nodes-selection])]
     [:div {:style {:font-size "0.8em" }}
@@ -102,28 +118,41 @@
            [:a.unstyled-link.blue-disaabled (:name item)]
            [:a.unstyled-link.blue-clickable {:on-click #(refe/dispatch (:on-click item))} (:name item )])
          [:br]])]]))
-
+;; @(refe/subscribe [:cloud/empty-view])
 (defn main
   []
-  [:div.pure-g {:style {:margin-bottom "200px"}}
-   ;; header
-   [:div.pure-u-1 {:style {:box-shadow "1px 1px 2px 0px gray"}}
-    [top-drawer]
-    [:div.pure-u-1-24
-     [back-button]]
-    [:div.pure-u-23-24
-     [filter-input]
-     [:div.padded-as-button {:style {:font-size "0.7em" :padding-bottom "1em"}}
-      [breadcrumbs-views/breadcrumbs [:cloud/get-app-data]]]]]
-   
-   [:div.pure-u-1
-    [:div.pure-u-1-8
-     [:div.padded-as-button
-      [general-meta-panel]]]
-    [:div.pure-u-7-8
-     [:div.padded-as-button
-      [general-cloud]]]
-    
-    
-    [:div.padded-as-button {:style {:position "fixed" :left "0px" :right "0px" :bottom "0px"  :background "white" :box-shadow "2px 0px 3px 0px grey"}}
-     [nodes-selected-view]]]])
+  (let [emptiness @(refe/subscribe [:cloud/empty-view])]
+    [:div.pure-g {:style {:margin-bottom "200px"}}
+     ;; header
+     [:div.pure-u-1 {:style {:box-shadow "#dedede 1px 1px 2px 0px"}}
+      (if (:show-filtering-view emptiness)
+        [:span
+         [top-drawer]
+         [:div.pure-u-1-12
+          [back-button]]
+         [:div.pure-u-11-12
+          [filter-input]
+          [:div.padded-as-button {:style {:font-size "0.7em" :padding-bottom "1em"}}
+           [breadcrumbs-views/breadcrumbs [:cloud/get-app-data]]]]])]
+     
+     (if (:show-empty-all emptiness)
+       [:div.pure-u-1
+        [cloud-no-files-view]]
+       [:span])
+     
+     [:div.pure-u-1
+      [:div.pure-u-1-8
+       [:div.padded-as-button
+        [general-meta-panel]]]
+      [:div.pure-u-7-8
+       [:div.padded-as-button
+        [general-cloud]
+        (if (:show-empty-cloud emptiness)
+          [:div.pure-u-1
+           [empty-cloud-view]]
+          [:span])]]
+      (if (:show-bottom-view emptiness)
+        [:div.padded-as-button {:style {:position "fixed" :left "0px" :right "0px" :bottom "0px"  :background "white" :box-shadow "2px 0px 3px 0px grey"}}
+         [nodes-selected-view]]
+        [:span]
+        )]]))

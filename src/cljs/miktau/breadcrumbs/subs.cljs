@@ -13,6 +13,8 @@
             (keys (:cloud-can-select  db)))]
       {:show-all? (:breadcrumbs-show-all? db)
        :can-expand? (> (count selectable-items) 8)
+       :should-show-clear?  (not (empty? (:cloud-selected db)))
+       
        :cloud-items
        (let [click-children (:cloud-selected  db)]
          (for [[index item]  (map list  (range) (:cloud-selected  db))]

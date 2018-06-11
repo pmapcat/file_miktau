@@ -80,13 +80,23 @@
 
 (defn submit-tagging
   "TESTED"
-  [{:keys [db]} _]
+  [{:keys [db]} [_ then-redirect?]]
   {:db  (assoc db :nodes-temp-tags-to-add #{}
                :nodes-temp-tags-to-delete #{})
    :fx-redirect
-   [:api-handler/build-update-records :edit-nodes/get-app-data (:nodes-temp-tags-to-add db) (:nodes-temp-tags-to-delete db)
+   [:api-handler/build-update-records
+    (if then-redirect?
+      :edit-nodes/on-after-submit-tagging
+      :edit-nodes/get-app-data) (:nodes-temp-tags-to-add db) (:nodes-temp-tags-to-delete db)
     (:nodes-selected db) (:cloud-selected db)]})
 (refe/reg-event-fx :edit-nodes/submit-tagging submit-tagging)
+
+(defn on-after-submit-tagging
+  "TESTED"
+  [db _]
+  {:db (assoc db :nodes-temp-tags-to-add #{} :nodes-temp-tags-to-delete #{})
+   :fx-redirect  [:undo]})
+(refe/reg-event-fx :edit-nodes/on-after-submit-tagging on-after-submit-tagging)
 
 
 (defn cancel-tagging

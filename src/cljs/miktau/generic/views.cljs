@@ -9,6 +9,7 @@
     [views-utils/icon "file_upload"]
     "Drop files here"]])
 
+
 (defn drop-conflict
   []
   [:div

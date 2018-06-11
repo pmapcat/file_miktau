@@ -27,18 +27,11 @@
        :style
        {:font-size "5em"}}
       [views-utils/icon "keyboard_arrow_left"]])])
-(defn top-drawer-chroot []
-  
-  
-  )
 
 (defn filter-input []
-  [:div.pure-g.padded-as-button
-   [:div.pure-u-7-8
-    [autocomplete-views/filter-input [:nodes/get-app-data] false]]
-     [:div.pure-u-1-8.mik-flush-right
-      [:div.pure-button.pure-button-primary  {:style {:width "80%"}}
-       [:div {:on-click #(refe/dispatch [:nodes/open-file-selecting-dialog])} "Add files"]]]])
+  [:div.pure-g
+   [:div.pure-u-1
+    [autocomplete-views/filter-input [:nodes/get-app-data] false]]])
 
 (defn radio-button
   [text on-change selected?]

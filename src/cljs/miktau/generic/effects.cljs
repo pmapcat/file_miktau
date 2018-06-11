@@ -17,6 +17,7 @@
  (fn [_]
    (undo/clear-history!)))
 
+
 (refe/reg-fx
  :generic/set-local-store!
  (fn [[key val]]

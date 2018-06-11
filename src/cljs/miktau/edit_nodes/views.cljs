@@ -1,6 +1,7 @@
 (ns miktau.edit-nodes.views
   (:require [miktau.generic.views-utils :as views-utils]
             [miktau.autocomplete.views :as autocomplete-views]
+            [reagent.core :as reagent]
             [re-frame.core :as refe]))
 
 (defn warning []
@@ -36,21 +37,21 @@
       [views-utils/icon "keyboard_arrow_left"]])])
 
 (defn filter-input []
-  [:div.pure-g
-   [:div.pure-u-7-8
-    [autocomplete-views/filter-input
-     [:edit-nodes/get-app-data] true
-     {:placeholder "New tag: [letters & numbers, lowercase, three to twenty symbols]"
-      :submit-fn
-      (fn [data]
-       (if 
-         (refe/dispatch [:edit-nodes/tag-click (keyword (str data))])
-         identity))
-      :validate-fn #(and  (string? %) (not (nil? (re-matches  #"^[a-zа-я0-9\_]{0,20}$" %))))}]]
-     [:div.pure-u-1-8.mik-flush-right
-      (if @(refe/subscribe [:edit-nodes/can-submit?])
-        [:a.pure-button.pure-button-primary {:on-click #(refe/dispatch [:edit-nodes/submit-tagging])} [views-utils/icon "save"]   " Save"]
-        [:a.pure-button.pure-button-primary.pure-button-disabled {} [views-utils/icon "save"]   " Save"])]])
+  (let [app-state (reagent/atom {:cur-index 0 :cur-input ""})]
+    (fn []
+      [:div.pure-g
+       [:div.pure-u-7-8
+        [autocomplete-views/filter-input-no-btn
+         [:edit-nodes/get-app-data] true
+         {:placeholder "New tag: [letters & numbers, lowercase, three to twenty symbols]"
+          :app-state app-state
+          :submit-fn
+          (fn [data] (refe/dispatch [:edit-nodes/tag-click (keyword (str data))]))
+          :validate-fn #(and  (string? %) (not (nil? (re-matches  #"^[a-zа-я0-9\_]{0,20}$" %))))}]]
+       [:div.pure-u-1-8.mik-flush-right
+        (if (empty? (:cur-input @app-state))
+          [:a.pure-button.pure-button-primary.pure-button-disabled [views-utils/icon "create"]   " Add"]
+          [:a.pure-button.pure-button-primary {:on-click #(refe/dispatch [:edit-nodes/tag-click (keyword (str (:cur-input @app-state)))])} [views-utils/icon "create"]   " Add"])]])))
 
 (defn for-every-and-last
   [data-set]
@@ -142,6 +143,11 @@
    ;; changes to submit
    [:div.mik-flush-right.padded-as-button {:style {:margin-top "5em"}}
     [:a.pure-button {:on-click #(refe/dispatch [:edit-nodes/cancel-tagging])} [views-utils/icon "cancel"] " Cancel"]
+    
     (if @(refe/subscribe [:edit-nodes/can-submit?])
-      [:a.pure-button.pure-button-primary {:on-click #(refe/dispatch [:edit-nodes/submit-tagging])} [views-utils/icon "save"]   " Save"]
-      [:a.pure-button.pure-button-primary.pure-button-disabled {} [views-utils/icon "save"]   " Save"])]])
+      [:span
+       [:a.pure-button.pure-button-primary {:on-click #(refe/dispatch [:edit-nodes/submit-tagging true])} [views-utils/icon "save"]   " Save"]
+       [:a.pure-button.pure-button-primary {:on-click #(refe/dispatch [:edit-nodes/submit-tagging false])} [views-utils/icon "save"]   " Save & continue editing"]]
+      [:span
+       [:a.pure-button.pure-button-primary.pure-button-disabled {} [views-utils/icon "save"]   " Save"]
+       [:a.pure-button.pure-button-primary.pure-button-disabled {} [views-utils/icon "save"]   " Save & continue editing"]])]])

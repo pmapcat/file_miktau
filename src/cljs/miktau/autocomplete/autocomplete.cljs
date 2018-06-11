@@ -41,13 +41,13 @@
      :render-fn (fn [now-input-str selected?-bool item-name-str])
      :submit-fn (fn [data])}"
   [completions params]
-  (let [app-state (reagent/atom {:cur-index 0 :cur-input ""})
+  (let [app-state      (or (:app-state params) (reagent/atom {:cur-index 0 :cur-input ""}))
         can-enter-new? (or (:can-enter-new? params) false)
-        compare-fn  (or (:compare-fn params) default-compare-fn)
-        display-size (or (:display-size params) 10)
-        render-fn (or (:render-fn params) default-render-fn)
-        validate-fn (or (:validate-fn params) (fn [data] true))
-        placeholder (or (:placeholder params) "Input tags here...")
+        compare-fn     (or (:compare-fn params) default-compare-fn)
+        display-size   (or (:display-size params) 10)
+        render-fn      (or (:render-fn params) default-render-fn)
+        validate-fn    (or (:validate-fn params) (fn [data] true))
+        placeholder    (or (:placeholder params) "Input tags here...")
         submit-fn-raw  (or (:submit-fn params) identity)
         submit-fn
         (fn [input]

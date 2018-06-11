@@ -28,12 +28,11 @@ Another one, is trickier. `on-drop-list-of-files`:
   * on result, if no error
   * redirect to `edit-nodes`
   
-If I remove choice step, (or have it in settings, beforehand), then:
+  If I remove choice step, (or have it in settings, beforehand), then:
   * give them to server (server automatically handles conflicts according to settings)
   * on response redirect to edit nodes. (With selected ids of newly created items)
   * PROFIT
-  
-But, I need settings screen, what I would put there? 
+    
+But, if I need settings screen, what I would put there? 
   * Symlink/Copy/Move conflicting files
   * Choose root directory
-  

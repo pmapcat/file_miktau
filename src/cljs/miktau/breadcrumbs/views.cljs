@@ -23,10 +23,11 @@
       "["
       [:a.blue-clickable.unstyled-link {:href "#" :on-click #(refe/dispatch  [:nodes/init-page #{}  #{} {}]) } "Nodes "]
       [:a.blue-clickable.unstyled-link {:href "#" :on-click #(refe/dispatch  [:cloud/init-page #{}  {}]) } "Cloud"]
-      "]"] 
-     
-     
-     [:a.unstyled-link.red-clickable {:on-click #(refe/dispatch [:breadcrumbs/clear redirector]) :style {:padding-right "5px"}} "[Clear]"]
+      "]"]
+
+     (if (:should-show-clear? breadcrumbs)
+       [:a.unstyled-link.red-clickable {:on-click #(refe/dispatch [:breadcrumbs/clear redirector]) :style {:padding-right "5px"}} "[Clear]"]
+       [:span])
 
      ;; cloud items
      [:span {:style {:padding-right "5px"}}

@@ -18,6 +18,25 @@ func (f *fs_backend_) OpenAsSymlinksInASingleFolder(fpathes []string) error {
 	return nil
 }
 
+func (f *fs_backend_) BuildEmptyAppState(fpath string) ([]*CoreNodeItem, error) {
+	log.Println("Reading the folder: ", fpath)
+	log.Println("Reading files, line by line")
+	log.Println("Populating CoreNodeItem with Files metadata")
+	return []*CoreNodeItem{}, nil
+}
+
+func (f *fs_backend_) BuildAppStateWithNoUserTags(fpath string) ([]*CoreNodeItem, error) {
+	log.Println("Reading the folder: ", fpath)
+	log.Println("Reading files, line by line")
+	log.Println("Populating CoreNodeItem with Files metadata")
+	result := buildDemoDataset()
+	for k, v := range result {
+		v.Tags = []string{}
+		result[k] = v
+	}
+	return result, nil
+}
+
 func (f *fs_backend_) BuildAppStateOnAFolder(fpath string) ([]*CoreNodeItem, error) {
 	log.Println("Reading the folder: ", fpath)
 	log.Println("Reading files, line by line")

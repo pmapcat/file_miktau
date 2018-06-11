@@ -32,27 +32,33 @@
 
             [miktau.ui-log.events]
             [miktau.ui-log.subs] 
-           
-            
             [re-frame.core :as refe]))
 
 (defn main
   []
-  [:div
+  [:div {:draggable false
+         :on-drop
+         (fn [e]
+           (.call (aget e "preventDefault") e)
+           (.log js/console "drop")
+           (refe/dispatch [:generic/dragging? false]))}
    [ui-log-views/main]
    [:div
     (let [meta-page @(refe/subscribe [:meta])]
-      (if (:loading? meta-page)
+      (cond
+        (:loading? meta-page)
         [generic-views/processing]
-        (condp = (:page meta-page)
-          :cloud
-          [cloud-views/main]
-          :nodes
-          [nodes-views/main]
-          :edit-nodes
-          [edit-nodes-views/main]
-          :dropzone
-          [generic-views/dropzone]
-          [generic-views/initial])))]])
+        (:dragging? meta-page)
+        [generic-views/dropzone]
+        (= (:page meta-page) :cloud)
+        [cloud-views/main]
+        (= (:page meta-page) :nodes)
+        [nodes-views/main]
+        (= (:page meta-page) :edit-nodes)
+        [edit-nodes-views/main]
+        (= (:page meta-page) :dropzone)
+        [generic-views/dropzone]
+        :else
+        [generic-views/initial]))]])
 
 

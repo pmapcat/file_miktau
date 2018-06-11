@@ -10,6 +10,10 @@
     {}
     db))
 (refe/reg-sub :cloud/get-db-for-test-purposes get-db-for-test-purposes)
+(comment
+  (:cloud @(refe/subscribe  [:cloud/get-db-for-test-purposes]))
+ 
+ )
 
 ;; (let [[a b] (cljs-string/split "@had:sad" #":")]
 ;;   (println a "   HOHOHOH  " b))
@@ -73,6 +77,19 @@
 
 (refe/reg-sub :cloud/cloud cloud)
 
+(defn empty-view
+  [db _]
+  (if-not (meta-page? db :cloud)
+    {:show-empty-cloud false
+     :show-empty-all   false}
+    (let[cloud (utils/filter-map-on-key (comp not utils/is-meta-tag?) (:cloud db))
+          empty-cloud? (zero? (count cloud))
+          empty-nodes? (zero? (:total-nodes db))]
+      {:show-empty-cloud (and (not empty-nodes? ) empty-cloud?)
+       :show-filtering-view (not empty-nodes?)
+       :show-bottom-view   (not empty-nodes?)
+       :show-empty-all   empty-nodes?})))
+(refe/reg-sub :cloud/empty-view empty-view)
 
 (defn nodes-selection-editable-view
   [db _]
