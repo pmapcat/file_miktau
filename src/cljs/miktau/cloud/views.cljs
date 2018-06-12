@@ -60,7 +60,11 @@
     [:span.unstyled-link "Current root is: "]
     [:a.red-clickable.unstyled-link  "[../some-current-root-dir/]"]
     [:div.pure-button.pure-button-primary.mik-flush-right {:style {:font-size "0.7em" :display "inline-block" :margin-left "10px"}} [:b "Change root"]]
-    [:input.pure-button.pure-button-primary.mik-flush-right {:style {:font-size "0.7em" :display "inline-block" :margin-left "10px"} :type "file" }]]])
+    [:input.pure-button.pure-button-primary.mik-flush-right {:style {:font-size "0.7em" :display "inline-block" :margin-left "10px"}
+                                                             :on-change
+                                                             (fn [e]
+                                                               (.log js/console e))
+                                                             :type "file"}]]])
 
 
 (defn back-button

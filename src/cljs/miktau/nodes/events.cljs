@@ -26,7 +26,6 @@
                  (:cloud-selected db)]})
 (refe/reg-event-fx :nodes/edit-nodes edit-nodes)
 
-
 (defn get-app-data
   "TESTED"
   [{:keys [db]} _]
