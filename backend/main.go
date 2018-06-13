@@ -6,6 +6,7 @@ import (
 
 func main() {
 	port := flag.Int("port", 4000, "On what port should the app be served")
+	flag.Parse()
 
 	// demo_data, _ := fs_backend.BuildEmptyAppState("")
 	// demo_data, _ := fs_backend.BuildAppStateWithNoUserTags("")

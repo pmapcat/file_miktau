@@ -40,10 +40,14 @@ const selectPort = function () {
 
 const createServer = function () {
     let executable = getServerPath()
-    let port = '' + selectPort()
-    server_running = child_process.execFile(executable, ["--port",port])
+    let port = selectPort()
+    server_running = child_process.execFile(executable, ['--port', port], function(error, stdout, stderr){
+	      log.debug(stderr);
+        log.error(error)
+        log.debug(stdout)
+    });
     if (server_running != null) {
-        console.log('server is running on port ' + port)
+        log.debug('server is running on port ' + port)
     }
 }
 
@@ -64,7 +68,7 @@ let mainWindow = null
 const createWindow = () => {
     mainWindow = new BrowserWindow({width: 800, height: 600,resize:false})
     mainWindow.loadURL(APP_URL)
-    mainWindow.webContents.openDevTools()
+    // mainWindow.webContents.openDevTools()
     
     mainWindow.on('closed', () => {
         mainWindow = null
