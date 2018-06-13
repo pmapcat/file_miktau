@@ -1,0 +1,52 @@
+{
+  "name": "metator",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Metator desktop app (file tagging utility)",
+  "author": "Michael Leachim <mklimoff222@gmail.com>",
+  "main": "main.js",
+  "scripts": {},
+  "build": {
+    "appId": "com.metator.mleachim",
+    "files": [
+      "out"
+    ],
+    "mac": {
+      "category": "public.app-category.graphics-design"
+    },
+    "nsis": {
+      "createDesktopShortcut": "always"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "linux": {
+      "category": "File tagging"
+    }
+  },
+  "dependencies": {
+    "electron-builder": "^20.15.1",
+    "electron-log": "^2.2.14",
+    "electron-updater": "^2.21.10"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "file",
+    "management",
+    "tags",
+    "work",
+    "with",
+    "files"
+  ]
+}

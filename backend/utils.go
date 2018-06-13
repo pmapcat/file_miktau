@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"math/rand"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -87,6 +88,14 @@ func randomTime() time.Time {
 func str(data ...string) string {
 	return strings.Join(data, "")
 }
+
+func is_dev_environ() bool {
+	return os.Getenv("go_environ") != "production"
+}
+func is_prod_environ() bool {
+	return os.Getenv("go_environ") == "production"
+}
+
 func split_meta_tags(tags []string) ([]string, []string) {
 	a := []string{}
 	b := []string{}

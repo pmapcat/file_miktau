@@ -99,7 +99,13 @@ func (s *serve_) CheckIsLive(w rest.ResponseWriter, r *rest.Request) {
 
 func (s *serve_) Serve(port int) {
 	api := rest.NewApi()
-	api.Use(rest.DefaultDevStack...)
+
+	if is_dev_environ() {
+		api.Use(rest.DefaultProdStack...)
+	} else {
+		api.Use(rest.DefaultDevStack...)
+	}
+
 	router, err := rest.MakeRouter(
 		rest.Get("/api", s.CheckIsLive),
 		rest.Post("/api/get-app-data", s.GetAppData),
@@ -111,5 +117,8 @@ func (s *serve_) Serve(port int) {
 		log.Fatal(err)
 	}
 	api.SetApp(router)
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), api.MakeHandler()))
+	http.Handle("/api/", api.MakeHandler())
+	http.Handle("/", http.FileServer(http.Dir("public/")))
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), nil))
+
 }
