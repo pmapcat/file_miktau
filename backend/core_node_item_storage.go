@@ -44,7 +44,7 @@ func (n *CoreNodeItemStorage) FSActionOnAListOfFiles(query CoreQuery, action str
 	case "symlinks":
 		return fs_backend.OpenAsSymlinksInASingleFolder(fpathes)
 	case "filebrowser":
-		return fs_backend.OpenEachInFileExplorer(fpathes)
+		return fs_backend.OpenEachInDefaultProgram(fpathes)
 	case "default":
 		return fs_backend.OpenEachInDefaultProgram(fpathes)
 	}

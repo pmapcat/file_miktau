@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/willf/bitset"
-	"log"
 	"strings"
 	"testing"
 )
@@ -18,7 +17,6 @@ func TestPlayingWithBits(t *testing.T) {
 }
 
 func TestLoremGenerator(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	res := []string{}
 	for _, v := range buildDemoDataset() {
 		res = append(res, v.Tags...)
@@ -111,9 +109,9 @@ func TestAllNodesShouldHaveDifferentIdInSearchResponse(t *testing.T) {
 func TestCloudShouldntHaveEmptyTags(t *testing.T) {
 	cnis := newCoreNodeItemStorage("testing")
 	cnis.MutableCreate(buildDemoDataset())
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).Cloud, map[string]int{"work": 20, "bibliostore": 8, "translator": 2, "natan": 13, "wiki": 1, "everybook": 1, "amazon": 2, "согласовать": 1, "moscow_market": 9, "sforim": 2, "скачка_источников": 1, "биржа": 2, "магазины": 2, "UI": 1, "personal": 4, "blog": 1, "devops": 1, "zeldin": 2, "usecases": 2, "работа_сделана": 1})
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).SimpleCloud(), map[string]int{"work": 20, "bibliostore": 8, "translator": 2, "natan": 13, "wiki": 1, "everybook": 1, "amazon": 2, "согласовать": 1, "moscow_market": 9, "sforim": 2, "скачка_источников": 1, "биржа": 2, "магазины": 2, "UI": 1, "personal": 4, "blog": 1, "devops": 1, "zeldin": 2, "usecases": 2, "работа_сделана": 1})
 
-	for tag_name, _ := range cnis.GetAppData(*newCoreQuery()).Cloud {
+	for tag_name, _ := range cnis.GetAppData(*newCoreQuery()).SimpleCloud() {
 		assert.NotEqual(t, tag_name, "")
 		assert.NotEqual(t, strings.TrimSpace(tag_name), "")
 	}
@@ -133,13 +131,13 @@ func TestGettingStationaryAppData(t *testing.T) {
 	cnis := newCoreNodeItemStorage("testing")
 	cnis.MutableCreate(buildDemoDataset())
 	// test getting cloud
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).Cloud,
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).SimpleCloud(),
 		map[string]int{"translator": 2, "магазины": 2, "personal": 4, "blog": 1, "usecases": 2, "amazon": 2, "биржа": 2, "moscow_market": 9, "devops": 1, "wiki": 1, "согласовать": 1, "UI": 1, "zeldin": 2, "natan": 13, "work": 20, "bibliostore": 8, "sforim": 2, "скачка_источников": 1, "everybook": 1, "работа_сделана": 1})
 
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery().WithTags("natan")).CloudCanSelect,
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery().WithTags("natan")).SimpleCloudCanSelect(),
 		map[string]bool{"natan": true, "work": true, "translator": true, "amazon": true, "devops": true, "биржа": true, "UI": true, "moscow_market": true, "согласовать": true, "bibliostore": true, "wiki": true, "sforim": true, "скачка_источников": true, "магазины": true})
 
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).CloudCanSelect,
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).SimpleCloudCanSelect(),
 		map[string]bool{"bibliostore": true, "wiki": true, "биржа": true, "personal": true, "work": true, "moscow_market": true, "translator": true, "sforim": true, "скачка_источников": true, "работа_сделана": true, "магазины": true, "UI": true, "blog": true, "zeldin": true, "natan": true, "amazon": true, "devops": true, "согласовать": true, "usecases": true, "everybook": true})
 
 	// test sorted results
@@ -157,8 +155,8 @@ func TestAggregation(t *testing.T) {
 	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).TotalNodes, 22)
 	assert.Equal(t, len(cnis.GetAppData(*newCoreQuery()).CloudContext), len(cnis.GetAppData(*newCoreQuery()).Cloud))
 
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).CloudContext["work"], map[string]int{"natan": 7, "bibliostore": 6, "moscow_market": 6, "translator": 1, "amazon": 1})
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).CloudContext["translator"],
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).SimpleCloudContext()["work"], map[string]int{"natan": 7, "bibliostore": 6, "moscow_market": 6, "translator": 1, "amazon": 1})
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).SimpleCloudContext()["translator"],
 		map[string]int{"amazon": 1, "natan": 2, "work": 2, "bibliostore": 2, "devops": 1, "moscow_market": 1})
 }
 
@@ -166,7 +164,7 @@ func TestMutableWorkage(t *testing.T) {
 	cnis := newCoreNodeItemStorage("testing")
 	cnis.MutableCreate(buildDemoDataset())
 	cnis.MutableAddRemoveTagsToSelection(*newCoreQuery().WithTags("work"), []string{"bolo"}, []string{"work"})
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).Cloud, map[string]int{"devops": 1, "translator": 2, "wiki": 1,
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).SimpleCloud(), map[string]int{"devops": 1, "translator": 2, "wiki": 1,
 		"sforim": 2, "согласовать": 1, "personal": 4, "blog": 1, "zeldin": 2, "everybook": 1,
 		"natan": 13, "bolo": 20, "скачка_источников": 1, "биржа": 2, "UI": 1, "usecases": 2,
 		"moscow_market": 9, "amazon": 2, "магазины": 2, "bibliostore": 8, "работа_сделана": 1})
@@ -175,16 +173,15 @@ func TestMutableWorkage(t *testing.T) {
 // trying to replicate *exact* error conditions
 func TestFixingEmptyFieldsForDataSet(t *testing.T) {
 	storage := newCoreNodeItemStorage("empty")
-	demo_data, _ := fs_backend.BuildAppStateOnAFolder("/home/mik/some.demo.project/")
-	storage.MutableRebirthWithNewData(demo_data)
-	assert.Equal(t, storage.GetAppData(*newCoreQuery()).Cloud, map[string]int{"devops": 1, "wiki": 1, "zeldin": 2, "work": 20, "sforim": 2,
+	storage.MutableRebirthWithNewData(buildDemoDataset())
+
+	assert.Equal(t, storage.GetAppData(*newCoreQuery()).SimpleCloud(), map[string]int{"devops": 1, "wiki": 1, "zeldin": 2, "work": 20, "sforim": 2,
 		"скачка_источников": 1, "биржа": 2, "UI": 1, "personal": 4, "bibliostore": 8,
 		"amazon": 2, "blog": 1, "usecases": 2, "natan": 13, "moscow_market": 9,
 		"translator": 2, "согласовать": 1, "магазины": 2, "everybook": 1, "работа_сделана": 1})
 
 }
 func TestGetAppData(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	cnis := newCoreNodeItemStorage("testing")
 	cnis.MutableCreate(buildDemoDataset())
 
@@ -216,44 +213,38 @@ func TestMetaGetAppData(t *testing.T) {
 	on_time.WithWhateverTime(on_time.OnDate(2003, 02, 17), func() {
 		cnis := newCoreNodeItemStorage("testing")
 		cnis.MutableCreate(buildDemoDataset())
-		assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloud,
-			map[string]int{"@empty": 1, "@modified:month:4": 4, "@modified:month:5": 4, "@modified:year:2016": 14, "@file-size:10—50mb": 5, "@file-size:100—500mb": 4, "@modified:month:2": 8, "@modified:month:1": 1, "@modified:year:2017": 6, "@modified:year:2018": 2, "@file-size:1—10mb": 12, "@modified:month:7": 4, "@modified:in-future": 22, "@file-size:50—100mb": 1, "@file-type:video": 22, "@modified:month:3": 1})
+		assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloud(),
+			map[string]int{"@file-type:video": 22, "@modified-month:7": 4, "@modified-year:2018": 2, "@empty:is-empty?": 1, "@modified-year:2017": 6, "@modified-month:3": 1, "@file-size:10—50mb": 5, "@file-size:100—500mb": 4, "@file-size:1—10mb": 12, "@modified-year:2016": 14, "@modified-month:4": 4, "@file-size:50—100mb": 1, "@modified:in-future": 22, "@modified-month:2": 8, "@modified-month:1": 1, "@modified-month:5": 4})
 
-		assert.Equal(t, len(cnis.GetAppData(*newCoreQuery().WithTags("@modified:year:2018")).MetaCloudCanSelect), 0)
-		assert.Equal(t, len(cnis.GetAppData(*newCoreQuery().WithMetaTags("@modified:year:2016")).MetaCloudCanSelect), 13)
-		assert.Equal(t, len(cnis.GetAppData(*newCoreQuery().WithMetaTags("@modified:year:2017")).MetaCloudCanSelect), 10)
-
+		assert.Equal(t, len(cnis.GetAppData(*newCoreQuery().WithTags("@modified-year:2018")).MetaCloudCanSelect()), 6)
+		assert.Equal(t, len(cnis.GetAppData(*newCoreQuery().WithTags("@modified-year:2016")).MetaCloudCanSelect()), 13)
+		assert.Equal(t, len(cnis.GetAppData(*newCoreQuery().WithTags("@modified-year:2017")).MetaCloudCanSelect()), 10)
 	})
 
 	cnis := newCoreNodeItemStorage("testing")
 	cnis.MutableCreate(buildDemoDataset())
 	// meta-cloud-context should be in ordinary taxonomies/tags
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloudContext["@file-type:video"],
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloudContext()["@file-type:video"],
 		map[string]int{"natan": 4, "work": 4, "bibliostore": 4, "moscow_market": 3, "translator": 1})
 
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloudContext["@file-type:video"],
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloudContext()["@file-type:video"],
 		map[string]int{"natan": 4, "work": 4, "bibliostore": 4, "moscow_market": 3, "translator": 1})
 
 	on_time.WithWhateverTime(on_time.OnDate(2016, 8, 02), func() {
 		cnis := newCoreNodeItemStorage("testing")
 		cnis.MutableCreate(buildDemoDataset())
-		assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloud,
-			map[string]int{"@modified:year:2018": 2, "@modified:year:2016": 14,
-				"@file-type:video": 22, "@modified:in-future": 8, "@file-size:10—50mb": 5,
-				"@modified:month:2": 8, "@modified:this-year": 12,
-				"@empty": 1, "@modified:month:7": 4, "@modified:month:3": 1,
-				"@file-size:100—500mb": 4, "@modified:month:5": 4, "@modified:year:2017": 6,
-				"@file-size:1—10mb": 12, "@modified:month:4": 4, "@modified:month:1": 1, "@modified:this-month": 2, "@file-size:50—100mb": 1})
+		assert.Equal(t, cnis.GetAppData(*newCoreQuery()).MetaCloud(),
+			map[string]int{"@modified:this-month": 2, "@file-size:50—100mb": 1, "@empty:is-empty?": 1, "@modified-month:5": 4, "@file-size:100—500mb": 4, "@modified:in-future": 8, "@file-size:1—10mb": 12, "@modified-month:3": 1, "@file-size:10—50mb": 5, "@modified-month:7": 4, "@modified-year:2017": 6, "@modified-year:2018": 2, "@modified-year:2016": 14, "@modified:this-year": 12, "@modified-month:2": 8, "@modified-month:1": 1, "@file-type:video": 22, "@modified-month:4": 4})
+
 	})
 }
 
 func TestDachaBaselineDataset(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	cnis := newCoreNodeItemStorage("testing")
 	cnis.MutableCreate(buildDachaDataset())
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery().WithTags("дервья")).Cloud,
-		map[string]int{"дом": 23, "ближний": 2, "утепление": 2, "обратный_клапан": 1, "магистраль_до_колодца": 1, "потребные_материалы": 2, "сад": 3, "окна": 2, "верстак": 1, "лестница": 1, "план_чередования": 1, "конструкция": 2, "чертежи": 1, "ворот": 1, "раковина": 2, "ванная": 2, "душ": 1, "на_кухню": 1, "к_душу": 2, "огород": 4, "стол": 1, "от_раковины_в_ванной": 1, "от_раковины_в_туалете": 1, "от_раковины_с": 1, "дача": 37, "канализация": 2, "уличная_мебель": 1, "вывод_из_дома": 1, "сушилка": 1, "отопление": 1, "шланг_верхний": 1, "тросы_подвеса_насоса": 1, "газовый_балон": 1, "каркас": 1, "магистраль_в": 1, "колодец": 2, "фундамент": 2, "санузел": 4, "план_грядок": 2, "однолетники": 1, "каркас_под_насос": 1, "фильтрационный_колодец": 1, "погреб": 4, "перед_домом": 1, "у_дорожки_слева": 2, "шланг_нижний": 1, "к_раковине_в_туалете": 1, "цвет?": 1, "стелажи": 2, "многолетники": 1, "сорта_культур": 1, "к_ванне": 1, "перекрытия": 1, "обшивка": 1, "у_дорожки_справа": 2, "уплотнение": 2, "эскизы": 1, "стулья": 1, "туалет": 1, "кухни": 1, "припасы": 2, "беседка": 3, "стены": 3, "вода": 2, "доме": 1, "крыша": 2, "замки": 2, "тумбы": 1, "замок": 1, "гриль": 1, "дверь": 2, "внутренние": 1, "трос_ведра": 1, "разводка_воды_в_доме": 3, "к_раковине_в_ванной": 1, "холодильник": 1, "сарай": 3, "перегородки": 1, "деревья": 1, "кусты": 1, "клубника": 1, "ручки": 3, "насос": 1, "полки": 1, "плита": 1, "ванна": 1, "пол": 1, "забор": 1, "малина": 1, "наружные": 8, "": 1, "ведро": 1, "ввод": 1, "двери": 9, "кухня": 3, "цветники": 4, "перед_беседкой": 1, "дальний": 2, "список_культур": 2, "к_унитазу": 1, "освещение": 1})
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery().WithTags("дервья")).SimpleCloud(),
+		map[string]int{"дом": 23, "ближний": 2, "утепление": 2, "обратный_клапан": 1, "магистраль_до_колодца": 1, "потребные_материалы": 2, "сад": 3, "окна": 2, "верстак": 1, "лестница": 1, "план_чередования": 1, "конструкция": 2, "чертежи": 1, "ворот": 1, "раковина": 2, "ванная": 2, "душ": 1, "на_кухню": 1, "к_душу": 2, "огород": 4, "стол": 1, "от_раковины_в_ванной": 1, "от_раковины_в_туалете": 1, "от_раковины_с": 1, "дача": 37, "канализация": 2, "уличная_мебель": 1, "вывод_из_дома": 1, "сушилка": 1, "отопление": 1, "шланг_верхний": 1, "тросы_подвеса_насоса": 1, "газовый_балон": 1, "каркас": 1, "магистраль_в": 1, "колодец": 2, "фундамент": 2, "санузел": 4, "план_грядок": 2, "однолетники": 1, "каркас_под_насос": 1, "фильтрационный_колодец": 1, "погреб": 4, "перед_домом": 1, "у_дорожки_слева": 2, "шланг_нижний": 1, "к_раковине_в_туалете": 1, "цвет?": 1, "стелажи": 2, "многолетники": 1, "сорта_культур": 1, "к_ванне": 1, "перекрытия": 1, "обшивка": 1, "у_дорожки_справа": 2, "уплотнение": 2, "эскизы": 1, "стулья": 1, "туалет": 1, "кухни": 1, "припасы": 2, "беседка": 3, "стены": 3, "вода": 2, "доме": 1, "крыша": 2, "замки": 2, "тумбы": 1, "замок": 1, "гриль": 1, "дверь": 2, "внутренние": 1, "трос_ведра": 1, "разводка_воды_в_доме": 3, "к_раковине_в_ванной": 1, "холодильник": 1, "сарай": 3, "перегородки": 1, "деревья": 1, "кусты": 1, "клубника": 1, "ручки": 3, "насос": 1, "полки": 1, "плита": 1, "ванна": 1, "пол": 1, "забор": 1, "малина": 1, "наружные": 8, "ведро": 1, "ввод": 1, "двери": 9, "кухня": 3, "цветники": 4, "перед_беседкой": 1, "дальний": 2, "список_культур": 2, "к_унитазу": 1, "освещение": 1})
 
-	assert.Equal(t, cnis.GetAppData(*newCoreQuery().WithTags("деревья")).CloudCanSelect,
+	assert.Equal(t, cnis.GetAppData(*newCoreQuery().WithTags("деревья")).SimpleCloudCanSelect(),
 		map[string]bool{"дача": true, "сад": true, "деревья": true, "кусты": true, "цветники": true})
 }

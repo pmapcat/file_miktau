@@ -20,6 +20,7 @@
     (do (reset! atom undo-state)
         (refe/dispatch [:generic/update-page])))})
 
+
 (refe/reg-event-fx
  :generic/update-page
  (fn [{:keys [db]} _]
@@ -27,7 +28,8 @@
      :nodes      {:db db :fx-redirect [:nodes/get-app-data]}
      :cloud      {:db db :fx-redirect [:cloud/get-app-data]}
      :edit-nodes {:db db :fx-redirect [:edit-nodes/get-app-data]}
-     {:db db})))
+     {:db db :fx-redirect [:cloud/get-app-data]})))
+
 
 (refe/reg-event-db
  :identity

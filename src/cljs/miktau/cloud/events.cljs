@@ -16,6 +16,8 @@
           :cloud-selected (or cloud-selected-set #{}))
    :fx-redirect [:cloud/get-app-data]})
 (refe/reg-event-fx :cloud/init-page (undoable "init page") init)
+(refe/reg-event-fx :cloud/init-page-no-undo  init)
+
 
 (defn redirect-to-nodes
   [{:keys [db]} [_ all-nodes-selected?]]

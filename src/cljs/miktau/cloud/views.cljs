@@ -54,6 +54,7 @@
     [autocomplete-views/filter-input [:cloud/get-app-data] false {:placeholder "Type tags in here…"}]]])
 
 (defn top-drawer []
+  
   [:div.top-drawer.padded-as-button {:style {:font-size "0.7em"}}
    [:div.pure-u-1-24]
    [:div.pure-u-23-24

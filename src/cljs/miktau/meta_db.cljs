@@ -1,5 +1,6 @@
 (ns miktau.meta-db)
 
+
 (defn meta-page? [db page-name]
   (= (get-in db [:meta :page]) page-name))
 (defn it-is-meta-page= [db]
@@ -32,8 +33,7 @@
 (defn get-arbitrary-key [db key]
   (get-in db [:meta key]))
 
-
 (def meta-db
-  {:page :cloud
+  {:page nil
    :loading? false
    :error nil})

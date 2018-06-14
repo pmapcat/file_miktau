@@ -3,20 +3,16 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
 type fs_backend_ struct {
 }
 
 var fs_backend = fs_backend_{}
-
-func (f *fs_backend_) OpenAsSymlinksInASingleFolder(fpathes []string) error {
-	log.Println("Made symlinks of  ", len(fpathes), " files to /tmp/xyz")
-	log.Println("Some of them were renamed into (1) (2) variants")
-	log.Println("Now opening /tmp/xyz in file browser")
-	return nil
-}
 
 func (f *fs_backend_) BuildEmptyAppState(fpath string) ([]*CoreNodeItem, error) {
 	log.Println("Reading the folder: ", fpath)
@@ -41,20 +37,51 @@ func (f *fs_backend_) BuildAppStateOnAFolder(fpath string) ([]*CoreNodeItem, err
 	log.Println("Reading the folder: ", fpath)
 	log.Println("Reading files, line by line")
 	log.Println("Populating CoreNodeItem with Files metadata")
-	return buildDemoDataset(), nil
+	cni := []*CoreNodeItem{}
+	return cni, filepath.Walk(fpath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			cni = append(cni, newCoreNodeItemFromFile(fpath, info, path))
+		}
+		return nil
+	})
+}
+
+func (f *fs_backend_) SymlinkInTempGivenPathes(fpathes []string) (string, error) {
+	tmpdir, err := ioutil.TempDir("", "symlink_")
+	if err != nil {
+		return "", err
+	}
+
+	for _, v := range fpathes {
+		err := os.Symlink(v,
+			filepath.Join(tmpdir, GenerateCollisionFreeFileName(tmpdir, filepath.Base(v))))
+		if err != nil {
+			return "", err
+		}
+	}
+	return tmpdir, nil
+}
+
+func (f *fs_backend_) OpenAsSymlinksInASingleFolder(fpathes []string) error {
+	if len(fpathes) > MAX_ALLOWED_FILES_TO_BE_OPENED_IN_FILE_EXPLORER {
+		return errors.New(fmt.Sprintf("Amount of pathes exceeds limits: %v. When allowed: %v", len(fpathes), MAX_ALLOWED_FILES_TO_BE_OPENED_IN_FILE_EXPLORER))
+	}
+	temp_dir, err := f.SymlinkInTempGivenPathes(fpathes)
+	if err != nil {
+		return err
+	}
+	return OpenFile(temp_dir)
 }
 
 func (f *fs_backend_) OpenEachInDefaultProgram(fpathes []string) error {
 	if len(fpathes) > MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM {
 		return errors.New(fmt.Sprintf("Amount of pathes exceeds limits: %v. When allowed: %v", len(fpathes), MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM))
 	}
-	log.Println("Opening files in default program")
-	return nil
-}
-func (f *fs_backend_) OpenEachInFileExplorer(fpathes []string) error {
-	if len(fpathes) > MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM {
-		return errors.New(fmt.Sprintf("Amount of pathes exceeds limits: %v. When allowed: %v", len(fpathes), MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM))
+	for _, v := range fpathes {
+		OpenFile(v)
 	}
-	log.Println("Opening files in explorer")
 	return nil
 }

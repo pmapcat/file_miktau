@@ -1,14 +1,19 @@
 package main
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 )
+
+func IsMetaTag(tag string) bool {
+	return strings.HasPrefix(tag, "@")
+}
 
 // panics if can't convert
 // (useful when 100% sure that result returns int, as in tests,for example)
@@ -171,4 +176,36 @@ func markovLorem(input string) func(outlen int) string {
 		}
 		return strings.Join(return_data, " ")
 	}
+}
+
+func IsFileExist(fpath string) bool {
+	_, err := os.Stat(fpath)
+	return !os.IsNotExist(err)
+}
+
+func WithDir(fpath string, cb func()) error {
+	err := os.MkdirAll(fpath, 0777)
+	if err != nil {
+		return err
+	}
+	cb()
+	return os.RemoveAll(fpath)
+
+}
+
+// if such file exists, then do: fname.mp4 -> fname_1.mp4
+func GenerateCollisionFreeFileName(fdir string, fname string) string {
+	if fname == "" {
+		fname = "undefined"
+	}
+	counter := 1
+	file_extension := filepath.Ext(fname)
+	file_basename := strings.TrimSuffix(fname, file_extension)
+	file_basename_with_numcode := file_basename
+
+	for IsFileExist(filepath.Join(fdir, str(file_basename_with_numcode, file_extension))) {
+		file_basename_with_numcode = str(file_basename, "_", strconv.Itoa(counter))
+		counter += 1
+	}
+	return str(file_basename_with_numcode, file_extension)
 }

@@ -19,7 +19,7 @@
                   (.getElementById js/document "container")))
 
 (defn render []
-  (re-frame/dispatch-sync [:cloud/init-page #{}])
+  (re-frame/dispatch-sync [:cloud/init-page-no-undo #{}])
   ;; (re-frame/dispatch-sync [:nodes/init-page #{}  #{:bibliostore}])
   ;; (re-frame/dispatch-sync [:nodes/init-page #{}  #{}])
 

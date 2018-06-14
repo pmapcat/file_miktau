@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	fp "path/filepath"
 	"strconv"
 	"strings"
@@ -9,6 +10,23 @@ import (
 
 func (n *CoreNodeItem) ModifiedInDays() uint32 {
 	return uint32(n.Modified.Time().Unix() / 86400)
+}
+
+func newCoreNodeItemFromFile(root string, stats os.FileInfo, fpath string) *CoreNodeItem {
+	// tags are unrooted
+	tags := strings.Split(strings.TrimPrefix(fp.Dir(fpath), root), string(fp.Separator))
+
+	return &CoreNodeItem{
+		Id:                      -1,
+		Name:                    fp.Base(fpath),
+		FilePath:                fpath,
+		MetaTags:                []string{},
+		Tags:                    tags,
+		FileSizeInMb:            int(stats.Size() / 1000000),
+		FileExtensionLowerCased: strings.ToLower(fp.Ext(stats.Name())),
+		Modified:                newJSONTime(stats.ModTime()),
+	}
+
 }
 
 func newCoreNodeItemFromDemoDataSet(fsize, fpath, tags, fname string, date time.Time) *CoreNodeItem {
@@ -26,6 +44,7 @@ func newCoreNodeItemFromDemoDataSet(fsize, fpath, tags, fname string, date time.
 		FileExtensionLowerCased: strings.ToLower(fp.Ext(fname)),
 		Modified:                newJSONTime(date),
 	}
+
 }
 
 // will have to call only on mutable actions

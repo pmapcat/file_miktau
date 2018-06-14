@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/stretchr/testify/assert"
 	"math/rand"
+	"os"
 	"testing"
 )
 
@@ -11,6 +12,25 @@ func TestWithExt(t *testing.T) {
 	zin := []string{"other", "meta", "tags", "of", "a", "file"}
 	withExt("@super", []string{".hello"}, &zin, ".hello")
 	assert.Equal(t, zin, []string{"other", "meta", "tags", "of", "a", "file", "@super"})
+}
+
+func TestGeneratingCollisionFreeFileName(t *testing.T) {
+	wdir := "tempo/"
+	create := func(fpath string) {
+		_, err := os.Create(fpath)
+		assert.Equal(t, err, nil)
+	}
+	assert.Equal(t, WithDir(wdir, func() {
+		assert.Equal(t, GenerateCollisionFreeFileName(wdir, ""), "undefined")
+		assert.Equal(t, GenerateCollisionFreeFileName(wdir, "hello.mp4"), "hello.mp4")
+		create(wdir + "hello.mp4")
+		assert.Equal(t, GenerateCollisionFreeFileName(wdir, "hello.mp4"), "hello_1.mp4")
+		create(wdir + "hello_1.mp4")
+		assert.Equal(t, GenerateCollisionFreeFileName(wdir, "hello.mp4"), "hello_2.mp4")
+		create(wdir + "hello_2.mp4")
+		assert.Equal(t, GenerateCollisionFreeFileName(wdir, "hello.mp4"), "hello_3.mp4")
+		// e.t.c.
+	}), nil)
 }
 
 func TestIsSubset(t *testing.T) {

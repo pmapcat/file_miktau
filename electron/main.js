@@ -21,9 +21,15 @@ autoUpdater.checkForUpdatesAndNotify()
  *************************************************************/
 const SERVER_PORT = 4242
 const BACKEND_FOLDER = 'backend'
+const ISDEV    = (process.env.ELECTRON_ENV !== "production")
 const CALLABLE = 'backend' 
 const CALLABLE_WIN = 'backend.exe'
-const APP_URL = "http://127.0.0.1:" + SERVER_PORT
+const APP_URL = (function(){
+    if (ISDEV) {
+        return "http://localhost"
+    }
+    return "http://127.0.0.1:" + SERVER_PORT
+})()
 
 let server_running = null
 
@@ -66,7 +72,8 @@ app.on('will-quit', exitServer)
 let mainWindow = null
 
 const createWindow = () => {
-    mainWindow = new BrowserWindow({width: 800, height: 600,resize:false})
+    mainWindow = new BrowserWindow({width: 1000, height: 600,resizable:false})
+    
     mainWindow.loadURL(APP_URL)
     // mainWindow.webContents.openDevTools()
     

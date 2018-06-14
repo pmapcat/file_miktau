@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/ant0ine/go-json-rest/rest"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 	"time"

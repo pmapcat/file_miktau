@@ -8,6 +8,11 @@ func undublicate_list(list []string) []string {
 	checker := map[string]bool{}
 	result := []string{}
 	for _, v := range list {
+		// no empty
+		if v == "" {
+			continue
+		}
+
 		if checker[v] {
 			continue
 		}
