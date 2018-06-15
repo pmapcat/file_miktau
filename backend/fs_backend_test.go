@@ -19,28 +19,6 @@ func MikEqual(t assert.TestingT, actual, expected interface{}, msgAndArgs ...int
 	return true
 }
 
-// takes node items, and creates project with such & such structure under the root dir
-// fails, if root_dir is not empty
-func BuildProjectOnDataSet(root_dir string, dataset []*CoreNodeItem) error {
-	err := os.MkdirAll(root_dir, 0777)
-	if err != nil {
-		return err
-	}
-	for _, v := range dataset {
-		pdir := filepath.Join(append([]string{root_dir}, v.Tags...)...)
-
-		err := os.MkdirAll(pdir, 0777)
-		if err != nil {
-			return err
-		}
-		_, err = os.Create(filepath.Join(pdir, GenerateCollisionFreeFileName(pdir, v.Name)))
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func WithDachaInDir(t *testing.T, root_dir string, cb func()) {
 	cnis := newCoreNodeItemStorage("testing")
 	cnis.MutableCreate(buildDachaDataset())
@@ -95,8 +73,10 @@ func TestBuildSymlinksInADefaultProgram(t *testing.T) {
 		}
 		temp_dir, err := fs_backend.SymlinkInTempGivenPathes(fpathes)
 		assert.Equal(t, err, nil)
-		OpenFile(temp_dir)
+		assert.Equal(t, len(fs_ls(temp_dir).Files), 22)
+		assert.Equal(t, len(fs_backend.getTempDirsCreated()), 1)
+		fs_backend.DropTempDirsCreated()
 
-		cnis.FSActionOnAListOfFiles(*newCoreQuery(), "symlinks")
+		// cnis.FSActionOnAListOfFiles(*newCoreQuery(), "symlinks")
 	})
 }

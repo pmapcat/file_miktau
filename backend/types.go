@@ -1,13 +1,21 @@
 package main
 
 import (
+	"os"
 	"sync"
 )
 
-const MAX_ALLOWED_FILES_TO_BE_OPENED_IN_FILE_EXPLORER = 100
-const MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM = 32
-const DEFAULT_PAGE_SIZE = 10
-const TAG_CONTEXT_MAX_SIZE = 5
+const (
+	MAX_ALLOWED_FILES_TO_BE_OPENED_IN_FILE_EXPLORER   = 100
+	MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM = 32
+	DEFAULT_PAGE_SIZE                                 = 10
+	TAG_CONTEXT_MAX_SIZE                              = 5
+	TEMP_DIR_PREFIX                                   = "metator_prefix_"
+	STRATEGY_SYMLINK                                  = 1
+	STRATEGY_MOVE                                     = 2
+	STRATEGY_COPY                                     = 3
+	STRATEGY_DEFAULT_PROGRAM                          = 4
+)
 
 type CoreNodeItemStorage struct {
 	sync.RWMutex
@@ -25,6 +33,15 @@ type ModifyRecordsRequest struct {
 	TagsToDelete    []string  `json:"tags-to-delete"`
 	Request         CoreQuery `json:"request"`
 }
+
+type PushNewFilesRequest struct {
+	Error error `json:"error"`
+	// symlink || move || copy
+	RootResolve  string   `json:"root-resolve"`
+	NewFilePaths []string `json:"new-file-paths"`
+	NewFileIds   []int    `json:"new-file-ids"`
+}
+
 type FileActionRequest struct {
 	Error   error     `json:"error"`
 	Action  string    `json:"action"` // symlinks/default/filebrowser
@@ -48,14 +65,15 @@ type CoreQuery struct {
 }
 
 type CoreNodeItem struct {
-	Id                      int      `json:"id"`
-	Name                    string   `json:"name"`
-	FilePath                string   `json:"file-path"`
-	MetaTags                []string `json:"meta-tags"`
-	Tags                    []string `json:"tags"`
-	FileSizeInMb            int      `json:"file-size-in-mb"`
-	FileExtensionLowerCased string   `json:"file-extension-lower-cased"`
-	Modified                JSONTime `json:"modified"`
+	Id                      int         `json:"id"`
+	Name                    string      `json:"name"`
+	FilePath                string      `json:"file-path"`
+	FileInfo                os.FileInfo `json:"-"`
+	MetaTags                []string    `json:"meta-tags"`
+	Tags                    []string    `json:"tags"`
+	FileSizeInMb            int         `json:"file-size-in-mb"`
+	FileExtensionLowerCased string      `json:"file-extension-lower-cased"`
+	Modified                JSONTime    `json:"modified"`
 }
 
 type CoreAppDataResponse struct {

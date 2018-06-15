@@ -35,17 +35,15 @@ func (n *CoreNodeItemStorage) GetNodesSorted(field string) []*CoreNodeItem {
 	return n.nodes
 }
 
-func (n *CoreNodeItemStorage) FSActionOnAListOfFiles(query CoreQuery, action string) error {
+func (n *CoreNodeItemStorage) FSActionOnAListOfFiles(query CoreQuery, action int) error {
 	fpathes := []string{}
 	n.GetInBulk(query, func(item *CoreNodeItem) {
 		fpathes = append(fpathes, item.FilePath)
 	})
 	switch action {
-	case "symlinks":
+	case STRATEGY_SYMLINK:
 		return fs_backend.OpenAsSymlinksInASingleFolder(fpathes)
-	case "filebrowser":
-		return fs_backend.OpenEachInDefaultProgram(fpathes)
-	case "default":
+	case STRATEGY_DEFAULT_PROGRAM:
 		return fs_backend.OpenEachInDefaultProgram(fpathes)
 	}
 	return errors.New("No action was specified for this dataset")

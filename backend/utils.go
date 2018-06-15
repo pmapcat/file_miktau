@@ -11,6 +11,12 @@ import (
 	"time"
 )
 
+func LogErr(err_msg string, err error) {
+	if err != nil {
+		log.WithField("err", err).Error(err_msg)
+	}
+}
+
 func IsMetaTag(tag string) bool {
 	return strings.HasPrefix(tag, "@")
 }
@@ -190,7 +196,34 @@ func WithDir(fpath string, cb func()) error {
 	}
 	cb()
 	return os.RemoveAll(fpath)
+}
 
+type FsLsReturnType struct {
+	Self        string
+	Files       []string
+	Directories []string
+	Error       error
+}
+
+func fs_ls(fpath string) FsLsReturnType {
+	fslsreturntype := FsLsReturnType{Files: []string{}, Directories: []string{}}
+	fslsreturntype.Error = filepath.Walk(fpath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		// in case of curdir
+		if fpath == path {
+			fslsreturntype.Self = fpath
+			return nil
+		}
+		if info.IsDir() {
+			fslsreturntype.Directories = append(fslsreturntype.Directories, path)
+			return filepath.SkipDir
+		}
+		fslsreturntype.Files = append(fslsreturntype.Files, path)
+		return nil
+	})
+	return fslsreturntype
 }
 
 // if such file exists, then do: fname.mp4 -> fname_1.mp4

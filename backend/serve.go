@@ -51,6 +51,22 @@ func (s *serve_) UpdateRecords(w rest.ResponseWriter, r *rest.Request) {
 	w.WriteJson(enq)
 }
 
+func (s *serve_) PushNewFiles(w rest.ResponseWriter, r *rest.Request) {
+	// lock main structure
+	// read lock (will not require changing of the main structure)
+	CNIS.RLock()
+	defer CNIS.RUnlock()
+	enq := PushNewFilesRequest{}
+	err := r.DecodeJsonPayload(&enq)
+	if err != nil {
+		w.WriteJson(newErrorPushNewFilesRequest(err))
+		return
+	}
+	// process request & write response
+	enq.Error, enq.NewFileIds = CNIS.MutablePushNewFiles(enq.NewFilePaths)
+	w.WriteJson(enq)
+}
+
 func (s *serve_) BulkFileWorkage(w rest.ResponseWriter, r *rest.Request) {
 	// lock main structure
 	// read lock (will not require changing of the main structure)
@@ -112,6 +128,8 @@ func (s *serve_) Serve(port int) {
 		rest.Post("/api/update-records", s.UpdateRecords),
 		rest.Post("/api/bulk-operate-on-files", s.BulkFileWorkage),
 		rest.Post("/api/switch-projects", s.SwitchFolders),
+		rest.Post("/api/push-new-files", s.PushNewFiles),
+		rest.Post("/api/open-file-in-default-program", s.OpenFileInDefaultProgram),
 	)
 	if err != nil {
 		log.Fatal(err)

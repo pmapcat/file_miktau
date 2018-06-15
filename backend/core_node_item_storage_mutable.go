@@ -1,5 +1,12 @@
 package main
 
+import (
+	log "github.com/sirupsen/logrus"
+	"os"
+	"path/filepath"
+	"strings"
+)
+
 // will have to happen on every <mutable> action on a database
 // shall nest without problem. `_transact` shall bubble up to the highest
 // level. Meaning, it won't be called excessivly, only on highest level it should
@@ -52,6 +59,54 @@ func (n *CoreNodeItemStorage) MutableUpdate(query CoreQuery, cb func(*CoreNodeIt
 			}
 		}
 	})
+}
+
+type ResolverNodeItem struct {
+	Node         *CoreNodeItem
+	CameWithPath string
+	WithResolver os.FileInfo
+}
+
+// for each file, check whether it is already in
+// This is O(N*K) algorithm, where K is the amount of file_pathes.
+// On larger systems, it might take larger time to work with it
+func (n *CoreNodeItemStorage) ResolveIfPossibleWithinTheSystem(file_paths []string) ([]*ResolverNodeItem, error) {
+	finfos := []*ResolverNodeItem{}
+	for _, v := range file_paths {
+		stat, err := os.Lstat(v)
+		if err != nil {
+			log.WithError(err).WithField("path", v).
+				Error("Path is not resolvable, skipping")
+			continue
+		}
+		finfos = append(finfos, &ResolverNodeItem{CameWithPath: v, WithResolver: stat})
+	}
+
+	if len(finfos) == 0 {
+		log.Info("Empty list of data, terminating prematurely, saving CPU cycles")
+		return []*ResolverNodeItem{}, nil
+	}
+
+	results := []*ResolverNodeItem{}
+	for _, node := range n.nodes {
+		for point_index, resolver_node := range finfos {
+			if resolver_node == nil {
+				continue
+			}
+			if os.SameFile(node.FileInfo, resolver_node.WithResolver) {
+				resolver_node.Node = node
+				results = append(results, resolver_node)
+				finfos[point_index] = nil
+			}
+			break
+		}
+	}
+	return results, nil
+}
+
+// filepath.
+
+func (n *CoreNodeItemStorage) MutablePushNewFiles(file_paths []string) ([]int, error) {
 }
 
 func (n *CoreNodeItemStorage) MutableAddRemoveTagsToSelection(query CoreQuery, tags_to_add, tags_to_remove []string) int {

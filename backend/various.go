@@ -7,6 +7,10 @@ func newErrorModifyRecordsResponse(err error) ModifyRecordsRequest {
 	return ModifyRecordsRequest{Error: err.Error()}
 }
 
+func newErrorPushNewFilesRequest(err error) PushNewFilesRequest {
+	return PushNewFilesRequest{Error: err}
+}
+
 func newErrorBulkFileWorkage(err error) FileActionRequest {
 	return FileActionRequest{Error: err}
 }

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type fs_backend_ struct {
@@ -14,23 +15,26 @@ type fs_backend_ struct {
 
 var fs_backend = fs_backend_{}
 
-func (f *fs_backend_) BuildEmptyAppState(fpath string) ([]*CoreNodeItem, error) {
-	log.Println("Reading the folder: ", fpath)
-	log.Println("Reading files, line by line")
-	log.Println("Populating CoreNodeItem with Files metadata")
-	return []*CoreNodeItem{}, nil
-}
-
-func (f *fs_backend_) BuildAppStateWithNoUserTags(fpath string) ([]*CoreNodeItem, error) {
-	log.Println("Reading the folder: ", fpath)
-	log.Println("Reading files, line by line")
-	log.Println("Populating CoreNodeItem with Files metadata")
-	result := buildDemoDataset()
-	for k, v := range result {
-		v.Tags = []string{}
-		result[k] = v
+// takes node items, and creates project with such & such structure under the root dir
+// fails, if root_dir is not empty
+func BuildProjectOnDataSet(root_dir string, dataset []*CoreNodeItem) error {
+	err := os.MkdirAll(root_dir, 0777)
+	if err != nil {
+		return err
 	}
-	return result, nil
+	for _, v := range dataset {
+		pdir := filepath.Join(append([]string{root_dir}, v.Tags...)...)
+
+		err := os.MkdirAll(pdir, 0777)
+		if err != nil {
+			return err
+		}
+		_, err = os.Create(filepath.Join(pdir, GenerateCollisionFreeFileName(pdir, v.Name)))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (f *fs_backend_) BuildAppStateOnAFolder(fpath string) ([]*CoreNodeItem, error) {
@@ -49,13 +53,40 @@ func (f *fs_backend_) BuildAppStateOnAFolder(fpath string) ([]*CoreNodeItem, err
 	})
 }
 
+func (f *fs_backend_) getTempDirsCreated() []string {
+	fslspoint := fs_ls(os.TempDir())
+	tmpdirlist := []string{}
+	for _, dir := range fslspoint.Directories {
+		if strings.HasPrefix(filepath.Base(dir), TEMP_DIR_PREFIX) {
+			tmpdirlist = append(tmpdirlist, dir)
+		}
+	}
+	return tmpdirlist
+}
+
+func (f *fs_backend_) DropTempDirsCreated() error {
+	log.Info("Removing temporary dirs, that were created on previous runs")
+	for _, tempdir := range f.getTempDirsCreated() {
+		log.WithField("tempdir", tempdir).Info("Removing directory")
+		err := os.RemoveAll(tempdir)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (f *fs_backend_) SymlinkInTempGivenPathes(fpathes []string) (string, error) {
-	tmpdir, err := ioutil.TempDir("", "symlink_")
+	tmpdir, err := ioutil.TempDir("", TEMP_DIR_PREFIX)
 	if err != nil {
 		return "", err
 	}
 
 	for _, v := range fpathes {
+		v, err = filepath.Abs(v)
+		if err != nil {
+			return "", err
+		}
 		err := os.Symlink(v,
 			filepath.Join(tmpdir, GenerateCollisionFreeFileName(tmpdir, filepath.Base(v))))
 		if err != nil {
