@@ -17,7 +17,7 @@ var fs_backend = fs_backend_{}
 
 // takes node items, and creates project with such & such structure under the root dir
 // fails, if root_dir is not empty
-func BuildProjectOnDataSet(root_dir string, dataset []*CoreNodeItem) error {
+func TestBuildProjectFolderOnDataSet(root_dir string, dataset []*CoreNodeItem) error {
 	err := os.MkdirAll(root_dir, 0777)
 	if err != nil {
 		return err
@@ -35,22 +35,6 @@ func BuildProjectOnDataSet(root_dir string, dataset []*CoreNodeItem) error {
 		}
 	}
 	return nil
-}
-
-func (f *fs_backend_) BuildAppStateOnAFolder(fpath string) ([]*CoreNodeItem, error) {
-	log.Println("Reading the folder: ", fpath)
-	log.Println("Reading files, line by line")
-	log.Println("Populating CoreNodeItem with Files metadata")
-	cni := []*CoreNodeItem{}
-	return cni, filepath.Walk(fpath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() {
-			cni = append(cni, newCoreNodeItemFromFile(fpath, info, path))
-		}
-		return nil
-	})
 }
 
 func (f *fs_backend_) getTempDirsCreated() []string {

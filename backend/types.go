@@ -11,11 +11,20 @@ const (
 	DEFAULT_PAGE_SIZE                                 = 10
 	TAG_CONTEXT_MAX_SIZE                              = 5
 	TEMP_DIR_PREFIX                                   = "metator_prefix_"
-	STRATEGY_SYMLINK                                  = 1
-	STRATEGY_MOVE                                     = 2
-	STRATEGY_COPY                                     = 3
-	STRATEGY_DEFAULT_PROGRAM                          = 4
+	PATCH_DB_PREFIX                                   = "metator_database_file.db"
+
+	STRATEGY_SYMLINK         = 1
+	STRATEGY_MOVE            = 2
+	STRATEGY_COPY            = 3
+	STRATEGY_DEFAULT_PROGRAM = 4
 )
+
+var PATCH_DB_BUCKET = []byte("metator_db_bucket")
+
+type PatchRecord struct {
+	TagsAdded   []string
+	TagsRemoved []string
+}
 
 type CoreNodeItemStorage struct {
 	sync.RWMutex

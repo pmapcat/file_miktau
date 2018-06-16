@@ -29,3 +29,26 @@ On update (write):
     * Remove, (what to delete) from (what to add) on patch
     * Remove (what to add) from (what to delete) on patch
     * Save patched data into a patch database.
+    
+Thus, making this persistence seamless. I.e. no need to think 
+about potential harm that could be done to user system. 
+
+Another benefit, it is an easily pluggable system. 
+
+And, it should be performant, without much time with changing inodes and stuff.
+
+Basically, it should work on "Aggregation" level. 
+
+### Okay, simpler example:
+
+I've got record. 
+It has <Program files> <dacha> <hello_world> directories on it. 
+In patch it has {:remove ["Program files" "whatever" "hello world"]}
+
+I've got to 
+* delete several tags
+* add some tags
+
+To a given query set. 
+
+
