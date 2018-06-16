@@ -39,16 +39,13 @@ And, it should be performant, without much time with changing inodes and stuff.
 
 Basically, it should work on "Aggregation" level. 
 
-### Okay, simpler example:
+### What if? 
 
-I've got record. 
-It has <Program files> <dacha> <hello_world> directories on it. 
-In patch it has {:remove ["Program files" "whatever" "hello world"]}
+Remove all this complex TagsToAdd/TagsToDelete patch. And do the following:
+* If no Tags on patch
+  * Then, nothing was edited
+  * Then, load from FS
+* otherwise:
+  * load tags from patch
 
-I've got to 
-* delete several tags
-* add some tags
-
-To a given query set. 
-
-
+In case, I don't use FilePath as a file identity resolution. Then 

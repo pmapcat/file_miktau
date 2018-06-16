@@ -18,14 +18,14 @@ var fs_backend = fs_backend_{}
 // takes node items, and creates project with such & such structure under the root dir
 // fails, if root_dir is not empty
 func TestBuildProjectFolderOnDataSet(root_dir string, dataset []*CoreNodeItem) error {
-	err := os.MkdirAll(root_dir, 0777)
+	err := os.MkdirAll(root_dir, DEFAULT_PERMISSION)
 	if err != nil {
 		return err
 	}
 	for _, v := range dataset {
 		pdir := filepath.Join(append([]string{root_dir}, v.Tags...)...)
 
-		err := os.MkdirAll(pdir, 0777)
+		err := os.MkdirAll(pdir, DEFAULT_PERMISSION)
 		if err != nil {
 			return err
 		}

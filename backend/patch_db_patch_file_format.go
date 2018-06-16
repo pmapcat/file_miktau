@@ -44,9 +44,7 @@ func (i ColferTail) Error() string {
 type PatchRecord struct {
 	RelativePath string
 
-	TagsAdded []string
-
-	TagsRemoved []string
+	Tags []string
 }
 
 // MarshalTo encodes o as Colfer into buf and returns the number of bytes written.
@@ -68,7 +66,7 @@ func (o *PatchRecord) MarshalTo(buf []byte) int {
 		i += copy(buf[i:], o.RelativePath)
 	}
 
-	if l := len(o.TagsAdded); l != 0 {
+	if l := len(o.Tags); l != 0 {
 		buf[i] = 1
 		i++
 		x := uint(l)
@@ -79,31 +77,7 @@ func (o *PatchRecord) MarshalTo(buf []byte) int {
 		}
 		buf[i] = byte(x)
 		i++
-		for _, a := range o.TagsAdded {
-			x = uint(len(a))
-			for x >= 0x80 {
-				buf[i] = byte(x | 0x80)
-				x >>= 7
-				i++
-			}
-			buf[i] = byte(x)
-			i++
-			i += copy(buf[i:], a)
-		}
-	}
-
-	if l := len(o.TagsRemoved); l != 0 {
-		buf[i] = 2
-		i++
-		x := uint(l)
-		for x >= 0x80 {
-			buf[i] = byte(x | 0x80)
-			x >>= 7
-			i++
-		}
-		buf[i] = byte(x)
-		i++
-		for _, a := range o.TagsRemoved {
+		for _, a := range o.Tags {
 			x = uint(len(a))
 			for x >= 0x80 {
 				buf[i] = byte(x | 0x80)
@@ -135,38 +109,17 @@ func (o *PatchRecord) MarshalLen() (int, error) {
 		}
 	}
 
-	if x := len(o.TagsAdded); x != 0 {
+	if x := len(o.Tags); x != 0 {
 		if x > ColferListMax {
-			return 0, ColferMax(fmt.Sprintf("colfer: field main.PatchRecord.TagsAdded exceeds %d elements", ColferListMax))
+			return 0, ColferMax(fmt.Sprintf("colfer: field main.PatchRecord.Tags exceeds %d elements", ColferListMax))
 		}
 		for l += 2; x >= 0x80; l++ {
 			x >>= 7
 		}
-		for _, a := range o.TagsAdded {
+		for _, a := range o.Tags {
 			x = len(a)
 			if x > ColferSizeMax {
-				return 0, ColferMax(fmt.Sprintf("colfer: field main.PatchRecord.TagsAdded exceeds %d bytes", ColferSizeMax))
-			}
-			for l += x + 1; x >= 0x80; l++ {
-				x >>= 7
-			}
-		}
-		if l >= ColferSizeMax {
-			return 0, ColferMax(fmt.Sprintf("colfer: struct main.PatchRecord size exceeds %d bytes", ColferSizeMax))
-		}
-	}
-
-	if x := len(o.TagsRemoved); x != 0 {
-		if x > ColferListMax {
-			return 0, ColferMax(fmt.Sprintf("colfer: field main.PatchRecord.TagsRemoved exceeds %d elements", ColferListMax))
-		}
-		for l += 2; x >= 0x80; l++ {
-			x >>= 7
-		}
-		for _, a := range o.TagsRemoved {
-			x = len(a)
-			if x > ColferSizeMax {
-				return 0, ColferMax(fmt.Sprintf("colfer: field main.PatchRecord.TagsRemoved exceeds %d bytes", ColferSizeMax))
+				return 0, ColferMax(fmt.Sprintf("colfer: field main.PatchRecord.Tags exceeds %d bytes", ColferSizeMax))
 			}
 			for l += x + 1; x >= 0x80; l++ {
 				x >>= 7
@@ -268,10 +221,10 @@ func (o *PatchRecord) Unmarshal(data []byte) (int, error) {
 		}
 
 		if x > uint(ColferListMax) {
-			return 0, ColferMax(fmt.Sprintf("colfer: main.PatchRecord.TagsAdded length %d exceeds %d elements", x, ColferListMax))
+			return 0, ColferMax(fmt.Sprintf("colfer: main.PatchRecord.Tags length %d exceeds %d elements", x, ColferListMax))
 		}
 		a := make([]string, int(x))
-		o.TagsAdded = a
+		o.Tags = a
 
 		for ai := range a {
 			if i >= len(data) {
@@ -298,80 +251,7 @@ func (o *PatchRecord) Unmarshal(data []byte) (int, error) {
 			}
 
 			if x > uint(ColferSizeMax) {
-				return 0, ColferMax(fmt.Sprintf("colfer: main.PatchRecord.TagsAdded element %d size %d exceeds %d bytes", ai, x, ColferSizeMax))
-			}
-
-			start := i
-			i += int(x)
-			if i >= len(data) {
-				goto eof
-			}
-			a[ai] = string(data[start:i])
-		}
-
-		if i >= len(data) {
-			goto eof
-		}
-		header = data[i]
-		i++
-	}
-
-	if header == 2 {
-		if i >= len(data) {
-			goto eof
-		}
-		x := uint(data[i])
-		i++
-
-		if x >= 0x80 {
-			x &= 0x7f
-			for shift := uint(7); ; shift += 7 {
-				if i >= len(data) {
-					goto eof
-				}
-				b := uint(data[i])
-				i++
-
-				if b < 0x80 {
-					x |= b << shift
-					break
-				}
-				x |= (b & 0x7f) << shift
-			}
-		}
-
-		if x > uint(ColferListMax) {
-			return 0, ColferMax(fmt.Sprintf("colfer: main.PatchRecord.TagsRemoved length %d exceeds %d elements", x, ColferListMax))
-		}
-		a := make([]string, int(x))
-		o.TagsRemoved = a
-
-		for ai := range a {
-			if i >= len(data) {
-				goto eof
-			}
-			x := uint(data[i])
-			i++
-
-			if x >= 0x80 {
-				x &= 0x7f
-				for shift := uint(7); ; shift += 7 {
-					if i >= len(data) {
-						goto eof
-					}
-					b := uint(data[i])
-					i++
-
-					if b < 0x80 {
-						x |= b << shift
-						break
-					}
-					x |= (b & 0x7f) << shift
-				}
-			}
-
-			if x > uint(ColferSizeMax) {
-				return 0, ColferMax(fmt.Sprintf("colfer: main.PatchRecord.TagsRemoved element %d size %d exceeds %d bytes", ai, x, ColferSizeMax))
+				return 0, ColferMax(fmt.Sprintf("colfer: main.PatchRecord.Tags element %d size %d exceeds %d bytes", ai, x, ColferSizeMax))
 			}
 
 			start := i

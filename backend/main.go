@@ -16,9 +16,9 @@ func main() {
 	// demo_data, _ := fs_backend.BuildEmptyAppState("")
 	// demo_data, _ := fs_backend.BuildAppStateWithNoUserTags("")
 
-	demo_data, _ := fs_backend.BuildAppStateOnAFolder("./test_data/simple_set/")
-	CNIS.MutableCreate(demo_data)
-	demo_dacha, _ := fs_backend.BuildAppStateOnAFolder("./test_data/dacha_set/")
-	CNIS.MutableCreate(demo_dacha)
+	demo_data, _ := NewAppStateOnFolderIdentity("./test_data/simple_set/")
+	CNIS.__mutableCreate(demo_data)
+	demo_dacha, _ := NewAppStateOnFolderIdentity("./test_data/dacha_set/")
+	CNIS.__mutableCreate(demo_dacha)
 	serve.Serve(*port)
 }

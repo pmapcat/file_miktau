@@ -6,6 +6,10 @@ import (
 	"path/filepath"
 )
 
+func NewAppStateOnFolderIdentity(fpath string) ([]*CoreNodeItem, error) {
+	return NewAppStateOnFolder(fpath, func(n *CoreNodeItem) *CoreNodeItem { return n })
+}
+
 // worker, is a backend helper that would read up
 func NewAppStateOnFolder(fpath string, worker func(*CoreNodeItem) *CoreNodeItem) ([]*CoreNodeItem, error) {
 	log.Info("Reading the folder: ", fpath)

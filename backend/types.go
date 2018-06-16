@@ -10,6 +10,7 @@ const (
 	MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM = 32
 	DEFAULT_PAGE_SIZE                                 = 10
 	TAG_CONTEXT_MAX_SIZE                              = 5
+	DEFAULT_PERMISSION                                = 0777
 	TEMP_DIR_PREFIX                                   = "metator_prefix_"
 	PATCH_DB_PREFIX                                   = "metator_database_file.db"
 
@@ -20,11 +21,6 @@ const (
 )
 
 var PATCH_DB_BUCKET = []byte("metator_db_bucket")
-
-type PatchRecord struct {
-	TagsAdded   []string
-	TagsRemoved []string
-}
 
 type CoreNodeItemStorage struct {
 	sync.RWMutex

@@ -1,7 +1,6 @@
 package main
 type PatchRecord struct {
   RelativePath text
-	TagsAdded   []text
-	TagsRemoved []text
+	Tags   []text
 }
 
