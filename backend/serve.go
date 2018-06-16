@@ -85,6 +85,21 @@ func (s *serve_) BulkFileWorkage(w rest.ResponseWriter, r *rest.Request) {
 	w.WriteJson(enq)
 }
 
+func (s *serve_) OpenFileInADefaultProgram(w rest.ResponseWriter, r *rest.Request) {
+	// lock main structure
+	// read lock (will not require changing of the main structure)
+	CNIS.RLock()
+	defer CNIS.RUnlock()
+	enq := OpenFileInDefaultProgramRequst{}
+	err := r.DecodeJsonPayload(&enq)
+	if err != nil {
+		w.WriteJson(newErrorOpenFileInDefaultProgram(err))
+		return
+	}
+	enq.Error = OpenFile(enq.FilePath)
+	w.WriteJson(enq)
+}
+
 func (s *serve_) SwitchFolders(w rest.ResponseWriter, r *rest.Request) {
 	// lock main structure
 	// write lock (will require "rewiping" of the working data structure)
@@ -109,6 +124,7 @@ func (s *serve_) SwitchFolders(w rest.ResponseWriter, r *rest.Request) {
 	CNIS.MutableCreate(nodes)
 	w.WriteJson(enq)
 }
+
 func (s *serve_) CheckIsLive(w rest.ResponseWriter, r *rest.Request) {
 	w.WriteJson(map[string]string{"status": "alive and kickin!"})
 }
@@ -129,7 +145,7 @@ func (s *serve_) Serve(port int) {
 		rest.Post("/api/bulk-operate-on-files", s.BulkFileWorkage),
 		rest.Post("/api/switch-projects", s.SwitchFolders),
 		rest.Post("/api/push-new-files", s.PushNewFiles),
-		rest.Post("/api/open-file-in-default-program", s.OpenFileInDefaultProgram),
+		rest.Post("/api/open-file-in-default-program", s.OpenFileInADefaultProgram),
 	)
 	if err != nil {
 		log.Fatal(err)

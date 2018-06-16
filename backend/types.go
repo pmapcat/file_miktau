@@ -44,7 +44,7 @@ type PushNewFilesRequest struct {
 
 type FileActionRequest struct {
 	Error   error     `json:"error"`
-	Action  string    `json:"action"` // symlinks/default/filebrowser
+	Action  int       `json:"action"` // symlinks/default/filebrowser
 	Request CoreQuery `json:"request"`
 }
 type SwitchFoldersRequest struct {
@@ -87,4 +87,9 @@ type CoreAppDataResponse struct {
 	CloudCanSelect  map[string]bool           `json:"cloud-can-select"`
 	Cloud           map[string]int            `json:"cloud"`
 	CloudContext    map[string]map[string]int `json:"cloud-context"`
+}
+
+type OpenFileInDefaultProgramRequst struct {
+	FilePath string `json:"file-path"`
+	Error    error
 }

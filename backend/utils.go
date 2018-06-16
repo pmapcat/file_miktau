@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"os"
@@ -11,10 +12,11 @@ import (
 	"time"
 )
 
-func LogErr(err_msg string, err error) {
+func LogErr(err_msg string, err error) error {
 	if err != nil {
 		log.WithField("err", err).Error(err_msg)
 	}
+	return err
 }
 
 func IsMetaTag(tag string) bool {
@@ -226,7 +228,36 @@ func fs_ls(fpath string) FsLsReturnType {
 	return fslsreturntype
 }
 
+// assume, that os.Remove will return error, if the directory is not empty
+// MUST CHECK ON ALL PLATFORMS.
+// because, I don't know whether it will work as expected, or procede
+// removing everything up to the root dir
+func CleanUpEmptyDirectories(root, fpath string) error {
+	err := os.Remove(fpath)
+	if err != nil {
+		return err
+	}
+	for fpath != root {
+		fpath = filepath.Dir(fpath)
+		err := os.Remove(fpath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// with removal of stale (empty directories)
+// with creating of new fpath
+// TESTED
+func DoFileMoving(old_fpath, new_fpath string) error {
+	LogErr("On file moving error: ", os.MkdirAll(filepath.Dir(new_fpath)))
+	return os.Rename(old_fpath,
+		filepath.Join(filepath.Dir(new_fpath), GenerateCollisionFreeFileName(filepath.Dir(new_fpath), filepath.Base(new_fpath))))
+}
+
 // if such file exists, then do: fname.mp4 -> fname_1.mp4
+// TESTED
 func GenerateCollisionFreeFileName(fdir string, fname string) string {
 	if fname == "" {
 		fname = "undefined"

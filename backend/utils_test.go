@@ -14,6 +14,41 @@ func TestWithExt(t *testing.T) {
 	assert.Equal(t, zin, []string{"other", "meta", "tags", "of", "a", "file", "@super"})
 }
 
+func TestDoFileMoving(t *testing.T) {
+	assert.Equal(t, os.Create("test_data/demo.mp4"), nil)
+	assert.Equal(t, DoFileMoving("test_data/demo.mp4", "test_data/zombie/zombie/blambie/dodo/demo.mp4"), nil)
+	assert.Equal(t, IsFileExist("test_data/demo.mp4"), false)
+	assert.Equal(t, IsFileExist("test_data/zombie/zombie/blambie/dodo/demo.mp4"), true)
+
+	assert.Equal(t, os.Create("test_data/demo2.mp4"), nil)
+	assert.Equal(t, DoFileMoving("test_data/demo2.mp4", "test_data/zombie/zombie/blambie/dodo/demo.mp4"), nil)
+	assert.Equal(t, IsFileExist("test_data/demo2.mp4"), false)
+	assert.Equal(t, IsFileExist("test_data/zombie/zombie/blambie/dodo/demo_1.mp4"), true)
+
+	assert.Equal(t, os.Remove("test_data/zombie/zombie/blambie/dodo/demo.mp4"), nil)
+	assert.Equal(t, os.Remove("test_data/zombie/zombie/blambie/dodo/demo_1.mp4"), nil)
+	assert.Equal(t, CleanUpEmptyDirectories("test_data/", "test_data/zombie/zombie/blambie/dodo/"), nil)
+	assert.Equal(t, IsFileExist("test_data/zombie/"), false)
+}
+func TestCleanUpEmptyDirectories(t *testing.T) {
+	assert.Equal(t, os.MkdirAll("test_data/blab/blip/blop", 0777), nil)
+	assert.Equal(t, os.Create("test_data/blab/blip/blop/tempo.mp4"), nil)
+	assert.Equal(t, os.Create("test_data/blab/blip/tempo2.mp4"), nil)
+
+	assert.Equal(t, CleanUpEmptyDirectories("test_data/", "test_data/blab/blip/blop/tempo.mp4").Error(), "Not a directory: test_data/blab/blip/blop/tempo.mp4")
+	assert.Equal(t, CleanUpEmptyDirectories("test_data/", "test_data/blab/blip/blop/").Error(), "not empty")
+	assert.Equal(t, os.Remove("test_data/blab/blip/blop/tempo.mp4"), nil)
+
+	assert.Equal(t, IsFileExist("test_data/blab/blip/blop/"), true)
+	assert.Equal(t, CleanUpEmptyDirectories("test_data/", "test_data/blab/blip/blop/"), "not-empty")
+	assert.Equal(t, IsFileExist("test_data/blab/blip/blop/"), false)
+	assert.Equal(t, IsFileExist("test_data/blab/blip/"), true)
+	assert.Equal(t, os.Remove("test_data/blab/blip/tempo2.mp4"), nil)
+	assert.Equal(t, CleanUpEmptyDirectories("test_data/", "test_data/blab/blip/"), nil)
+	assert.Equal(t, IsFileExist("test_data/blab/"), false)
+	assert.Equal(t, IsFileExist("test_data/"), true)
+
+}
 func TestGeneratingCollisionFreeFileName(t *testing.T) {
 	wdir := "tempo/"
 	create := func(fpath string) {

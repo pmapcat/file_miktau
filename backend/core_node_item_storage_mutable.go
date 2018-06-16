@@ -105,8 +105,8 @@ func (n *CoreNodeItemStorage) ResolveIfPossibleWithinTheSystem(file_paths []stri
 }
 
 // filepath.
-
 func (n *CoreNodeItemStorage) MutablePushNewFiles(file_paths []string) ([]int, error) {
+	return []int{}, nil
 }
 
 func (n *CoreNodeItemStorage) MutableAddRemoveTagsToSelection(query CoreQuery, tags_to_add, tags_to_remove []string) int {

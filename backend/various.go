@@ -14,6 +14,11 @@ func newErrorPushNewFilesRequest(err error) PushNewFilesRequest {
 func newErrorBulkFileWorkage(err error) FileActionRequest {
 	return FileActionRequest{Error: err}
 }
+
+func newErrorOpenFileInDefaultProgram(err error) OpenFileInDefaultProgramRequst {
+	return OpenFileInDefaultProgramRequst{Error: err}
+}
+
 func newErrorSwitchFoldersRequest(err error) SwitchFoldersRequest {
 	return SwitchFoldersRequest{Error: err}
 }
