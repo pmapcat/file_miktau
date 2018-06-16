@@ -1,10 +1,10 @@
 package main
 
 import (
-// log "github.com/sirupsen/logrus"
-// "os"
-// "path/filepath"
-// "strings"
+	// log "github.com/sirupsen/logrus"
+	"os"
+	// "path/filepath"
+	// "strings"
 )
 
 // will have to happen on every <mutable> action on a database
@@ -39,12 +39,14 @@ func (n *CoreNodeItemStorage) MutableDrop() {
 	n.nodes = []*CoreNodeItem{}
 }
 
-func (n *CoreNodeItemStorage) __mutableCreate(nodes []*CoreNodeItem) {
+func (n *CoreNodeItemStorage) __mutableCreate(nodes []*CoreNodeItem) []int {
+	new_ids := []int{}
 	n._transact(func() {
 		for _, node := range nodes {
 			node.Id = len(n.nodes)
 			CallHooks(node)
 			n.nodes = append(n.nodes, node)
+			new_ids = append(new_ids, node.Id)
 		}
 	})
 }
@@ -61,23 +63,39 @@ func (n *CoreNodeItemStorage) __mutableUpdate(query CoreQuery, cb func(*CoreNode
 	})
 }
 
-// filepath: TODO: test
+// filepath: TODO: TEST
 func (n *CoreNodeItemStorage) MutablePushNewFiles(root string, file_paths []string) ([]int, error) {
+	// resolve files by comparing them to these already within the root FS
 	resolved_items, unresolved_items, err := n.ResolveIfPossibleWithinTheSystem(file_paths)
 	if err != nil {
 		return []int{}, err
 	}
+	// take unresolved items, and extract strings from them
+	unresolved_items_strings := []string{}
 	for _, v := range unresolved_items {
-		// TODO ================= < FROM HERE > ==============
-		// err := os.Symlink(v.CameWithPath,
-		// 	filepath.Join(n., GenerateCollisionFreeFileName(, filepath.Base(v))))
-		// newCoreNodeItemFromFile(root string, stats os.FileInfo, fpath string)
-
-		v.CameWithPath
-
+		unresolved_items_strings = append(unresolved_items_strings, v.CameWithPath)
 	}
 
-	return []int{}, nil
+	// symlink unresolved into <root> directory
+	unresolved_as_new_pathes, err := fs_backend.SymlinkInRootGivenForeignPathes(root, unresolved_items_strings)
+	new_core_node_items := []*CoreNodeItem{}
+	for _, item := range unresolved_as_new_pathes {
+		finfo, err := os.Stat(item)
+		if err != nil {
+			LogErr("This is the error", err)
+			continue
+		}
+		new_core_node_items = append(new_core_node_items, newCoreNodeItemFromFile(root, finfo, item))
+	}
+	// create new records for these newly symlinked items into root directory
+	result_ids := n.__mutableCreate(new_core_node_items)
+
+	// save ids from previous operation
+	for _, v := range resolved_items {
+		result_ids = append(result_ids, v.Node.Id)
+	}
+	// and return it back to the user
+	return result_ids, nil
 }
 
 func (n *CoreNodeItemStorage) MutableAddRemoveTagsToSelection(query CoreQuery, tags_to_add, tags_to_remove []string) int {

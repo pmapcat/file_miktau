@@ -60,6 +60,26 @@ func (f *fs_backend_) DropTempDirsCreated() error {
 	return nil
 }
 
+func (f *fs_backend_) SymlinkInRootGivenForeignPathes(root string, fpathes []string) ([]string, error) {
+	if !IsFileExist(root) {
+		return []string{}, errors.New("Root doesn't exist: " + root)
+	}
+	result := []string{}
+	for _, v := range fpathes {
+		v, err := filepath.Abs(v)
+		if err != nil {
+			return []string{}, err
+		}
+		new_fname := filepath.Join(root, GenerateCollisionFreeFileName(root, filepath.Base(v)))
+		err = os.Symlink(v, new_fname)
+		if err != nil {
+			return []string{}, err
+		}
+		result = append(result, new_fname)
+	}
+	return result, nil
+}
+
 func (f *fs_backend_) SymlinkInTempGivenPathes(fpathes []string) (string, error) {
 	tmpdir, err := ioutil.TempDir("", TEMP_DIR_PREFIX)
 	if err != nil {
