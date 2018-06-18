@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	log "github.com/sirupsen/logrus"
+	"github.com/skratchdot/open-golang/open"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -11,6 +12,15 @@ import (
 	"strings"
 	"time"
 )
+
+func OpenFile(fpath string) error {
+	if is_dev_environ() {
+		log.Info("We are in dev environment")
+		log.Info("Successfully opened in a dev environ")
+		return nil
+	}
+	return open.Run(fpath)
+}
 
 func LogErr(err_msg string, err error) error {
 	if err != nil {
@@ -21,6 +31,46 @@ func LogErr(err_msg string, err error) error {
 
 func IsMetaTag(tag string) bool {
 	return strings.HasPrefix(tag, "@")
+}
+
+func MergeTagContexts(a map[string]map[string]int, b map[string]map[string]int) map[string]map[string]int {
+	result := map[string]map[string]int{}
+	for k, v := range a {
+		result[k] = v
+	}
+	for k, v := range b {
+		result[k] = v
+	}
+	return result
+
+}
+func MergeThesaurus(a map[string]int, b map[string]int) map[string]int {
+	result := map[string]int{}
+	for k, v := range a {
+		result[k] = v
+	}
+	for k, v := range b {
+		result[k] = v
+	}
+	return result
+
+}
+func undublicate_list(list []string) []string {
+	checker := map[string]bool{}
+	result := []string{}
+	for _, v := range list {
+		// no empty
+		if v == "" {
+			continue
+		}
+
+		if checker[v] {
+			continue
+		}
+		result = append(result, v)
+		checker[v] = true
+	}
+	return result
 }
 
 // panics if can't convert

@@ -20,14 +20,14 @@ func MikEqual(t assert.TestingT, actual, expected interface{}, msgAndArgs ...int
 }
 
 func WithDachaInDir(t *testing.T, root_dir string, cb func()) {
-	cnis := newCoreNodeItemStorage("testing")
+	cnis := newAppState("testing")
 	cnis.MutableCreate(buildDachaDataset())
 	assert.Equal(t, BuildProjectOnDataSet(root_dir, cnis.nodes), nil)
 	cb()
 	assert.Equal(t, TearDownProjectOnDataSet(root_dir), nil)
 }
 func WithSimpleInDir(t *testing.T, root_dir string, cb func()) {
-	cnis := newCoreNodeItemStorage("testing")
+	cnis := newAppState("testing")
 	cnis.MutableCreate(buildDemoDataset())
 	assert.Equal(t, BuildProjectOnDataSet(root_dir, cnis.nodes), nil)
 	cb()
@@ -39,7 +39,7 @@ func TearDownProjectOnDataSet(root_dir string) error {
 }
 
 func TestGenerateNiceLookingTreeDataSet(t *testing.T) {
-	cnis := newCoreNodeItemStorage("testing")
+	cnis := newAppState("testing")
 	cnis.MutableCreate(buildDachaDataset())
 	tmp_dir := "dacha_set/"
 	assert.Equal(t, BuildProjectOnDataSet(tmp_dir, cnis.nodes), nil)
@@ -48,12 +48,12 @@ func TestGenerateNiceLookingTreeDataSet(t *testing.T) {
 
 func TestBuildingAppStateOnFS(t *testing.T) {
 	WithSimpleInDir(t, "simple_in_dir", func() {
-		cnis := newCoreNodeItemStorage("testing")
+		cnis := newAppState("testing")
 		nodes, err := fs_backend.BuildAppStateOnAFolder("simple_in_dir")
 		assert.Equal(t, err, nil)
 		cnis.MutableCreate(nodes)
-		cnis.GetAppData(*newCoreQuery()).MetaCloud()
-		assert.Equal(t, cnis.GetAppData(*newCoreQuery()).SimpleCloud(),
+		cnis.GetAppData(*newQuery()).MetaCloud()
+		assert.Equal(t, cnis.GetAppData(*newQuery()).SimpleCloud(),
 			map[string]int{"work": 20, "bibliostore": 8, "translator": 2, "natan": 13, "wiki": 1, "everybook": 1,
 				"amazon": 2, "согласовать": 1, "moscow_market": 9, "sforim": 2, "скачка_источников": 1, "биржа": 2,
 				"магазины": 2, "UI": 1, "personal": 4, "blog": 1, "devops": 1, "zeldin": 2, "usecases": 2, "работа_сделана": 1})
@@ -63,7 +63,7 @@ func TestBuildingAppStateOnFS(t *testing.T) {
 
 func TestBuildSymlinksInADefaultProgram(t *testing.T) {
 	WithSimpleInDir(t, "simple_in_dir", func() {
-		cnis := newCoreNodeItemStorage("testing")
+		cnis := newAppState("testing")
 		nodes, err := fs_backend.BuildAppStateOnAFolder("simple_in_dir")
 		assert.Equal(t, err, nil)
 		cnis.MutableCreate(nodes)
@@ -77,6 +77,6 @@ func TestBuildSymlinksInADefaultProgram(t *testing.T) {
 		assert.Equal(t, len(fs_backend.getTempDirsCreated()), 1)
 		fs_backend.DropTempDirsCreated()
 
-		// cnis.FSActionOnAListOfFiles(*newCoreQuery(), "symlinks")
+		// cnis.FSActionOnAListOfFiles(*newQuery(), "symlinks")
 	})
 }

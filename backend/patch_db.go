@@ -88,7 +88,7 @@ func (p *patch_db_) ApplyPatch(root string, items []*PatchRecord) error {
 }
 
 // will apply user patch to a data set
-func (p *patch_db_) OnLoadApplyPatch(root string, items []*CoreNodeItem) ([]*CoreNodeItem, error) {
+func (p *patch_db_) OnLoadApplyPatch(root string, items []*AppStateItem) ([]*AppStateItem, error) {
 	patchdb, err := p._retrievePatchData(root)
 	if err != nil {
 		return items, err
