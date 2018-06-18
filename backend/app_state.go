@@ -4,13 +4,29 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
+	"sync"
 )
+
+type AppState struct {
+	sync.RWMutex
+	hook_fns            []func(*AppStateItem)
+	agg_sorting         ThesaurusAndSortingAggregator
+	agg_meta            MetaThesaurusAndSortingAggregator
+	nodes               []*AppStateItem
+	core_dir            string
+	_transact_happening bool
+}
 
 func NewAppStateOnFolderIdentity(fpath string) (AppState, error) {
 	return NewAppStateOnFolder(fpath, func(n *AppStateItem) *AppStateItem { return n })
 }
+func NewAppStateFromDachaDataSet() AppState {
+}
 
-func newAppState(core_dir string, list_of_nodes []*AppStateItem, hook_fns []func(*AppStateItem)) AppState {
+func NewAppStateFromDemoDataSet() AppState {
+}
+
+func NewAppState(core_dir string, list_of_nodes []*AppStateItem, hook_fns []func(*AppStateItem)) AppState {
 	res := AppState{
 		nodes:                   []*AppStateItem{},
 		core_dir:                core_dir,

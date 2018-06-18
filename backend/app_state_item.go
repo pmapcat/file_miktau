@@ -8,6 +8,18 @@ import (
 	"time"
 )
 
+type AppStateItem struct {
+	Id                      int         `json:"id"`
+	Name                    string      `json:"name"`
+	FilePath                string      `json:"file-path"`
+	FileInfo                os.FileInfo `json:"-"`
+	MetaTags                []string    `json:"meta-tags"`
+	Tags                    []string    `json:"tags"`
+	FileSizeInMb            int         `json:"file-size-in-mb"`
+	FileExtensionLowerCased string      `json:"file-extension-lower-cased"`
+	Modified                JSONTime    `json:"modified"`
+}
+
 func newAppStateItemFromFile(root string, stats os.FileInfo, fpath string) *AppStateItem {
 	// tags are unrooted
 	tags := strings.Split(strings.TrimPrefix(fp.Dir(fpath), root), string(fp.Separator))
