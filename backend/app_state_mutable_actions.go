@@ -43,12 +43,14 @@ func (n *AppState) MutableCreate(nodes []*AppStateItem) []int {
 	n._transact(func() {
 		for _, node := range nodes {
 			node.Id = len(n.nodes)
+			node = n.MutableApplyHooks(node)
 			n.nodes = append(n.nodes, node)
 			new_ids = append(new_ids, node.Id)
 		}
 	})
 	return new_ids
 }
+
 func (n *AppState) MutableApplyHooks(item *AppStateItem) *AppStateItem {
 	for _, v := range n.hook_fns {
 		v(item)

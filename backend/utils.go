@@ -5,7 +5,6 @@ import (
 	"github.com/skratchdot/open-golang/open"
 	"math/rand"
 	"os"
-	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -239,92 +238,4 @@ func markovLorem(input string) func(outlen int) string {
 		}
 		return strings.Join(return_data, " ")
 	}
-}
-
-func IsFileExist(fpath string) bool {
-	_, err := os.Stat(fpath)
-	return !os.IsNotExist(err)
-}
-
-func WithDir(fpath string, cb func()) error {
-	err := os.MkdirAll(fpath, 0777)
-	if err != nil {
-		return err
-	}
-	cb()
-	return os.RemoveAll(fpath)
-}
-
-type FsLsReturnType struct {
-	Self        string
-	Files       []string
-	Directories []string
-	Error       error
-}
-
-func fs_ls(fpath string) FsLsReturnType {
-	fslsreturntype := FsLsReturnType{Files: []string{}, Directories: []string{}}
-	fslsreturntype.Error = filepath.Walk(fpath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		// in case of curdir
-		if fpath == path {
-			fslsreturntype.Self = fpath
-			return nil
-		}
-		if info.IsDir() {
-			fslsreturntype.Directories = append(fslsreturntype.Directories, path)
-			return filepath.SkipDir
-		}
-		fslsreturntype.Files = append(fslsreturntype.Files, path)
-		return nil
-	})
-	return fslsreturntype
-}
-
-// assume, that os.Remove will return error, if the directory is not empty
-// MUST CHECK ON ALL PLATFORMS.
-// because, I don't know whether it will work as expected, or procede
-// removing everything up to the root dir
-func CleanUpEmptyDirectories(root, fpath string) error {
-	err := os.Remove(fpath)
-	if err != nil {
-		return err
-	}
-	for fpath != root {
-		fpath = filepath.Dir(fpath)
-		err := os.Remove(fpath)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// with removal of stale (empty directories)
-// with creating of new fpath
-// TESTED
-func DoFileMoving(old_fpath, new_fpath string) error {
-	LogErr("On file moving error: ", os.MkdirAll(filepath.Dir(new_fpath), DEFAULT_PERMISSION))
-	return os.Rename(old_fpath,
-		filepath.Join(filepath.Dir(new_fpath), GenerateCollisionFreeFileName(filepath.Dir(new_fpath), filepath.Base(new_fpath))))
-}
-
-// if such file exists, then do: fname.mp4 -> fname_1.mp4
-// TESTED
-func GenerateCollisionFreeFileName(fdir string, fname string) string {
-	if fname == "" {
-		fname = "undefined"
-	}
-	counter := 1
-	file_extension := filepath.Ext(fname)
-	file_basename := strings.TrimSuffix(fname, file_extension)
-	file_basename_with_numcode := file_basename
-
-	for IsFileExist(filepath.Join(fdir, str(file_basename_with_numcode, file_extension))) {
-		file_basename_with_numcode = str(file_basename, "_", strconv.Itoa(counter))
-		counter += 1
-	}
-	return str(file_basename_with_numcode, file_extension)
 }

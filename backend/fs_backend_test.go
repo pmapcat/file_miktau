@@ -4,7 +4,6 @@ import (
 	"github.com/go-test/deep"
 	"github.com/stretchr/testify/assert"
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -20,16 +19,15 @@ func MikEqual(t assert.TestingT, actual, expected interface{}, msgAndArgs ...int
 }
 
 func WithDachaInDir(t *testing.T, root_dir string, cb func()) {
-	cnis := newAppState("testing")
-	cnis.MutableCreate(buildDachaDataset())
-	assert.Equal(t, BuildProjectOnDataSet(root_dir, cnis.nodes), nil)
+	cnis := NewAppStateFromDachaDataSet(1)
+	assert.Equal(t, TestBuildProjectFolderOnDataSet(root_dir, cnis.nodes), nil)
 	cb()
 	assert.Equal(t, TearDownProjectOnDataSet(root_dir), nil)
 }
+
 func WithSimpleInDir(t *testing.T, root_dir string, cb func()) {
-	cnis := newAppState("testing")
-	cnis.MutableCreate(buildDemoDataset())
-	assert.Equal(t, BuildProjectOnDataSet(root_dir, cnis.nodes), nil)
+	cnis := NewAppStateFromDemoDataSet(1)
+	assert.Equal(t, TestBuildProjectFolderOnDataSet(root_dir, cnis.nodes), nil)
 	cb()
 	assert.Equal(t, TearDownProjectOnDataSet(root_dir), nil)
 }
@@ -39,21 +37,19 @@ func TearDownProjectOnDataSet(root_dir string) error {
 }
 
 func TestGenerateNiceLookingTreeDataSet(t *testing.T) {
-	cnis := newAppState("testing")
-	cnis.MutableCreate(buildDachaDataset())
+	cnis := NewAppStateFromDachaDataSet(1)
 	tmp_dir := "dacha_set/"
-	assert.Equal(t, BuildProjectOnDataSet(tmp_dir, cnis.nodes), nil)
+	assert.Equal(t, TestBuildProjectFolderOnDataSet(tmp_dir, cnis.nodes), nil)
 	assert.Equal(t, TearDownProjectOnDataSet(tmp_dir), nil)
 }
 
 func TestBuildingAppStateOnFS(t *testing.T) {
 	WithSimpleInDir(t, "simple_in_dir", func() {
-		cnis := newAppState("testing")
-		nodes, err := fs_backend.BuildAppStateOnAFolder("simple_in_dir")
+		cnis, err := NewAppStateOnFolder("simple_in_dir", AppStateItemIdentity)
 		assert.Equal(t, err, nil)
-		cnis.MutableCreate(nodes)
-		cnis.GetAppData(*newQuery()).MetaCloud()
-		assert.Equal(t, cnis.GetAppData(*newQuery()).SimpleCloud(),
+
+		NewAppStateResponse(cnis, *newQuery()).MetaCloud()
+		assert.Equal(t, NewAppStateResponse(cnis, *newQuery()).SimpleCloud(),
 			map[string]int{"work": 20, "bibliostore": 8, "translator": 2, "natan": 13, "wiki": 1, "everybook": 1,
 				"amazon": 2, "согласовать": 1, "moscow_market": 9, "sforim": 2, "скачка_источников": 1, "биржа": 2,
 				"магазины": 2, "UI": 1, "personal": 4, "blog": 1, "devops": 1, "zeldin": 2, "usecases": 2, "работа_сделана": 1})
@@ -63,10 +59,8 @@ func TestBuildingAppStateOnFS(t *testing.T) {
 
 func TestBuildSymlinksInADefaultProgram(t *testing.T) {
 	WithSimpleInDir(t, "simple_in_dir", func() {
-		cnis := newAppState("testing")
-		nodes, err := fs_backend.BuildAppStateOnAFolder("simple_in_dir")
+		cnis, err := NewAppStateOnFolder("simple_in_dir", AppStateItemIdentity)
 		assert.Equal(t, err, nil)
-		cnis.MutableCreate(nodes)
 		fpathes := []string{}
 		for _, v := range cnis.nodes {
 			fpathes = append(fpathes, v.FilePath)
@@ -76,7 +70,5 @@ func TestBuildSymlinksInADefaultProgram(t *testing.T) {
 		assert.Equal(t, len(fs_ls(temp_dir).Files), 22)
 		assert.Equal(t, len(fs_backend.getTempDirsCreated()), 1)
 		fs_backend.DropTempDirsCreated()
-
-		// cnis.FSActionOnAListOfFiles(*newQuery(), "symlinks")
 	})
 }

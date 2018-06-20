@@ -120,3 +120,9 @@ func (f *fs_backend_) OpenEachInDefaultProgram(fpathes []string) error {
 	}
 	return nil
 }
+
+func (f *fs_backend_) Create(fpath string) error {
+	os.MkdirAll(filepath.Dir(fpath), DEFAULT_PERMISSION)
+	_, err := os.Create(fpath)
+	return err
+}

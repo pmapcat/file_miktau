@@ -102,7 +102,9 @@ func TestAllNodesShouldHaveDifferentIdInSearchResponse(t *testing.T) {
 
 func TestCloudShouldntHaveEmptyTags(t *testing.T) {
 	cnis := NewAppStateFromDemoDataSet(1)
-	assert.Equal(t, NewAppStateResponse(cnis, *newQuery()).SimpleCloud(), map[string]int{"work": 20, "bibliostore": 8, "translator": 2, "natan": 13, "wiki": 1, "everybook": 1, "amazon": 2, "согласовать": 1, "moscow_market": 9, "sforim": 2, "скачка_источников": 1, "биржа": 2, "магазины": 2, "UI": 1, "personal": 4, "blog": 1, "devops": 1, "zeldin": 2, "usecases": 2, "работа_сделана": 1})
+	MikEqual(t,
+		NewAppStateResponse(cnis, *newQuery()).SimpleCloud(),
+		map[string]int{"work": 20, "bibliostore": 8, "translator": 2, "natan": 13, "wiki": 1, "everybook": 1, "amazon": 2, "согласовать": 1, "moscow_market": 9, "sforim": 2, "скачка_источников": 1, "биржа": 2, "магазины": 2, "UI": 1, "personal": 4, "blog": 1, "devops": 1, "zeldin": 2, "usecases": 2, "работа_сделана": 1})
 
 	for tag_name, _ := range NewAppStateResponse(cnis, *newQuery()).SimpleCloud() {
 		assert.NotEqual(t, tag_name, "")
@@ -121,9 +123,8 @@ func TestCloudCouldSelectShouldntHaveEmptyTags(t *testing.T) {
 
 func TestGettingStationaryAppData(t *testing.T) {
 	cnis := NewAppStateFromDemoDataSet(1)
-	cnis.MutableCreate(buildDemoDataset())
 	// test getting cloud
-	assert.Equal(t, NewAppStateResponse(cnis, *newQuery()).SimpleCloud(),
+	MikEqual(t, NewAppStateResponse(cnis, *newQuery()).SimpleCloud(),
 		map[string]int{"translator": 2, "магазины": 2, "personal": 4, "blog": 1, "usecases": 2, "amazon": 2, "биржа": 2, "moscow_market": 9, "devops": 1, "wiki": 1, "согласовать": 1, "UI": 1, "zeldin": 2, "natan": 13, "work": 20, "bibliostore": 8, "sforim": 2, "скачка_источников": 1, "everybook": 1, "работа_сделана": 1})
 
 	assert.Equal(t, NewAppStateResponse(cnis, *newQuery().WithTags("natan")).SimpleCloudCanSelect(),
@@ -144,7 +145,7 @@ func TestAggregation(t *testing.T) {
 	cnis := NewAppStateFromDemoDataSet(1)
 	assert.Equal(t, NewAppStateResponse(cnis, *newQuery()).Patriarchs, []string{"work", "работа_сделана"})
 	assert.Equal(t, NewAppStateResponse(cnis, *newQuery()).TotalNodes, 22)
-	assert.Equal(t, len(NewAppStateResponse(cnis, *newQuery()).CloudContext), len(cnis.GetAppData(*newQuery()).Cloud))
+	assert.Equal(t, len(NewAppStateResponse(cnis, *newQuery()).CloudContext), len(NewAppStateResponse(cnis, *newQuery()).Cloud))
 
 	assert.Equal(t, NewAppStateResponse(cnis, *newQuery()).SimpleCloudContext()["work"], map[string]int{"natan": 7, "bibliostore": 6, "moscow_market": 6, "translator": 1, "amazon": 1})
 	assert.Equal(t, NewAppStateResponse(cnis, *newQuery()).SimpleCloudContext()["translator"],
@@ -216,7 +217,7 @@ func TestMetaGetAppData(t *testing.T) {
 
 func TestDachaBaselineDataset(t *testing.T) {
 	cnis := NewAppStateFromDachaDataSet(1)
-	assert.Equal(t, NewAppStateResponse(cnis, *newQuery().WithTags("дервья")).SimpleCloud(),
+	MikEqual(t, NewAppStateResponse(cnis, *newQuery().WithTags("дервья")).SimpleCloud(),
 		map[string]int{"дом": 23, "ближний": 2, "утепление": 2, "обратный_клапан": 1, "магистраль_до_колодца": 1, "потребные_материалы": 2, "сад": 3, "окна": 2, "верстак": 1, "лестница": 1, "план_чередования": 1, "конструкция": 2, "чертежи": 1, "ворот": 1, "раковина": 2, "ванная": 2, "душ": 1, "на_кухню": 1, "к_душу": 2, "огород": 4, "стол": 1, "от_раковины_в_ванной": 1, "от_раковины_в_туалете": 1, "от_раковины_с": 1, "дача": 37, "канализация": 2, "уличная_мебель": 1, "вывод_из_дома": 1, "сушилка": 1, "отопление": 1, "шланг_верхний": 1, "тросы_подвеса_насоса": 1, "газовый_балон": 1, "каркас": 1, "магистраль_в": 1, "колодец": 2, "фундамент": 2, "санузел": 4, "план_грядок": 2, "однолетники": 1, "каркас_под_насос": 1, "фильтрационный_колодец": 1, "погреб": 4, "перед_домом": 1, "у_дорожки_слева": 2, "шланг_нижний": 1, "к_раковине_в_туалете": 1, "цвет?": 1, "стелажи": 2, "многолетники": 1, "сорта_культур": 1, "к_ванне": 1, "перекрытия": 1, "обшивка": 1, "у_дорожки_справа": 2, "уплотнение": 2, "эскизы": 1, "стулья": 1, "туалет": 1, "кухни": 1, "припасы": 2, "беседка": 3, "стены": 3, "вода": 2, "доме": 1, "крыша": 2, "замки": 2, "тумбы": 1, "замок": 1, "гриль": 1, "дверь": 2, "внутренние": 1, "трос_ведра": 1, "разводка_воды_в_доме": 3, "к_раковине_в_ванной": 1, "холодильник": 1, "сарай": 3, "перегородки": 1, "деревья": 1, "кусты": 1, "клубника": 1, "ручки": 3, "насос": 1, "полки": 1, "плита": 1, "ванна": 1, "пол": 1, "забор": 1, "малина": 1, "наружные": 8, "ведро": 1, "ввод": 1, "двери": 9, "кухня": 3, "цветники": 4, "перед_беседкой": 1, "дальний": 2, "список_культур": 2, "к_унитазу": 1, "освещение": 1})
 
 	assert.Equal(t, NewAppStateResponse(cnis, *newQuery().WithTags("деревья")).SimpleCloudCanSelect(),

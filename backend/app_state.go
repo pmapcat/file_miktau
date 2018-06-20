@@ -17,7 +17,7 @@ type AppState struct {
 
 func NewAppStateFromDachaDataSet(repeat int) *AppState {
 	nodes_list := []*AppStateItem{}
-	for i := 0; i <= repeat; i++ {
+	for i := 0; i < repeat; i++ {
 		nodes_list = append(nodes_list, buildDachaDataset()...)
 	}
 	return NewAppState(DEMO_DACHA_PATH, nodes_list)
@@ -25,10 +25,10 @@ func NewAppStateFromDachaDataSet(repeat int) *AppState {
 
 func NewAppStateFromDemoDataSet(repeat int) *AppState {
 	nodes_list := []*AppStateItem{}
-	for i := 0; i <= repeat; i++ {
+	for i := 0; i < repeat; i++ {
 		nodes_list = append(nodes_list, buildDemoDataset()...)
 	}
-	return NewAppState(DEMO_DATA_PATH, buildDemoDataset())
+	return NewAppState(DEMO_DATA_PATH, nodes_list)
 }
 
 func NewEmptyAppState() *AppState {
