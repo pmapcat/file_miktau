@@ -38,7 +38,7 @@ func (p *patch_db_) _retrievePatchData(root string) (map[string]*PatchRecord, er
 	}
 	defer db.Close()
 	return result, db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(PATCH_DB_BUCKET)
+		bucket := tx.Bucket([]byte(PATCH_DB_BUCKET))
 		if bucket == nil {
 			return errors.New("No bucket")
 		}
@@ -71,7 +71,7 @@ func (p *patch_db_) ApplyPatch(root string, items []*PatchRecord) error {
 	}
 	defer db.Close()
 	return db.Update(func(tx *bolt.Tx) error {
-		bucket, err := tx.CreateBucketIfNotExists(PATCH_DB_BUCKET)
+		bucket, err := tx.CreateBucketIfNotExists([]byte(PATCH_DB_BUCKET))
 		if err != nil {
 			return err
 		}

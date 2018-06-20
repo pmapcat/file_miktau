@@ -95,8 +95,8 @@ type MetaThesaurusAndSortingAggregator struct {
 	context   map[string]map[string]int
 }
 
-func newMetaThesaurusAndSortingAggregator() *ThesaurusAndSortingAggregator {
-	r := ThesaurusAndSortingAggregator{}
+func newMetaThesaurusAndSortingAggregator() *MetaThesaurusAndSortingAggregator {
+	r := MetaThesaurusAndSortingAggregator{}
 	r.reinit()
 	return &r
 }

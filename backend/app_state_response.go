@@ -13,12 +13,12 @@ type AppStateResponse struct {
 	CloudContext    map[string]map[string]int `json:"cloud-context"`
 }
 
-func newAppStateResponse(n *AppState, query Query) AppStateResponse {
+func NewAppStateResponse(n *AppState, query Query) AppStateResponse {
 	cloud_can_select := map[string]bool{}
 	nodes_list := []*AppStateItem{}
 
 	// Gathering and processing
-	for _, node := range n.GetNodesSorted(query.Sorted) {
+	for _, node := range n.GetItemsSorted(query.Sorted) {
 		// check whether the result is drillable
 		if node.ApplyFilter(&query) {
 			// cloud can select
@@ -41,12 +41,12 @@ func newAppStateResponse(n *AppState, query Query) AppStateResponse {
 	// }
 
 	// Formatting for the Rest output
-	rsp := AppDataResponse{}
+	rsp := AppStateResponse{}
 
-	rsp.Patriarchs = n.sorting_aggregator.GetPatriarchs()
+	rsp.Patriarchs = n.agg_sorting.GetPatriarchs()
 
-	rsp.Cloud = MergeThesaurus(n.sorting_aggregator.GetThesaurus(), n.sorting_meta_aggregator.GetThesaurus())
-	rsp.CloudContext = MergeTagContexts(n.sorting_aggregator.GetTagContext(), n.sorting_meta_aggregator.GetTagContext())
+	rsp.Cloud = MergeThesaurus(n.agg_sorting.GetThesaurus(), n.agg_meta.GetThesaurus())
+	rsp.CloudContext = MergeTagContexts(n.agg_sorting.GetTagContext(), n.agg_meta.GetTagContext())
 	rsp.CloudCanSelect = cloud_can_select
 
 	rsp.NodeSorting = query.Sorted

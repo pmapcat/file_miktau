@@ -61,17 +61,17 @@ func (n *AppStateItem) ModifiedInDays() uint32 {
 
 // will have to call only on mutable actions
 func (n *AppStateItem) ApplyFilter(c *Query) bool {
-	if result, whether_applicable := apply_filter.FilterByFilePaths(n, c); whether_applicable {
+	if result, whether_applicable := query_filter.FilterByFilePaths(n, c); whether_applicable {
 		return result
 	}
-	if result, whether_applicable := apply_filter.FilterByIds(n, c); whether_applicable {
+	if result, whether_applicable := query_filter.FilterByIds(n, c); whether_applicable {
 		return result
 	}
 
-	if result, whether_applicable := apply_filter.IsSubSet(n.Tags, c.GetTags()); whether_applicable {
+	if result, whether_applicable := query_filter.IsSubSet(n.Tags, c.GetTags()); whether_applicable {
 		return result
 	}
-	if result, whether_applicable := apply_filter.IsSubSet(n.MetaTags, c.GetMetaTags()); whether_applicable {
+	if result, whether_applicable := query_filter.IsSubSet(n.MetaTags, c.GetMetaTags()); whether_applicable {
 		return result
 	}
 	return true

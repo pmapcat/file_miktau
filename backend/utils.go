@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/skratchdot/open-golang/open"
 	"math/rand"
@@ -12,6 +11,12 @@ import (
 	"strings"
 	"time"
 )
+
+func FailOnError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func OpenFile(fpath string) error {
 	if is_dev_environ() {
@@ -301,7 +306,7 @@ func CleanUpEmptyDirectories(root, fpath string) error {
 // with creating of new fpath
 // TESTED
 func DoFileMoving(old_fpath, new_fpath string) error {
-	LogErr("On file moving error: ", os.MkdirAll(filepath.Dir(new_fpath)))
+	LogErr("On file moving error: ", os.MkdirAll(filepath.Dir(new_fpath), DEFAULT_PERMISSION))
 	return os.Rename(old_fpath,
 		filepath.Join(filepath.Dir(new_fpath), GenerateCollisionFreeFileName(filepath.Dir(new_fpath), filepath.Base(new_fpath))))
 }

@@ -43,29 +43,33 @@ func (n *AppState) MutableCreate(nodes []*AppStateItem) []int {
 	n._transact(func() {
 		for _, node := range nodes {
 			node.Id = len(n.nodes)
-			(node)
 			n.nodes = append(n.nodes, node)
 			new_ids = append(new_ids, node.Id)
 		}
 	})
+	return new_ids
+}
+func (n *AppState) MutableApplyHooks(item *AppStateItem) *AppStateItem {
+	for _, v := range n.hook_fns {
+		v(item)
+	}
+	return item
 }
 
 func (n *AppState) MutableUpdate(query Query, cb func(*AppStateItem) *AppStateItem) {
 	n._transact(func() {
 		for k, v := range n.nodes {
 			if v.ApplyFilter(&query) {
-				fo := cb(v)
-				CallHooks(fo)
-				n.nodes[k] = fo
+				n.nodes[k] = n.MutableApplyHooks(cb(v))
 			}
 		}
 	})
 }
 
 // filepath: TODO: TEST
-func (n *AppState) MutablePushNewFiles(root string, file_paths []string) ([]int, error) {
+func (n *AppState) MutablePushNewFiles(file_paths []string) ([]int, error) {
 	// resolve files by comparing them to these already within the root FS
-	resolved_items, unresolved_items, err := n.ResolveIfPossibleWithinTheSystem(file_paths)
+	resolved_items, unresolved_items, err := n.SideEffectResolveIfPossibleWithinFileSystem(file_paths)
 	if err != nil {
 		return []int{}, err
 	}
@@ -76,7 +80,7 @@ func (n *AppState) MutablePushNewFiles(root string, file_paths []string) ([]int,
 	}
 
 	// symlink unresolved into <root> directory
-	unresolved_as_new_pathes, err := fs_backend.SymlinkInRootGivenForeignPathes(root, unresolved_items_strings)
+	unresolved_as_new_pathes, err := fs_backend.SymlinkInRootGivenForeignPathes(n.core_dir, unresolved_items_strings)
 	new_core_node_items := []*AppStateItem{}
 	for _, item := range unresolved_as_new_pathes {
 		finfo, err := os.Stat(item)
@@ -84,10 +88,10 @@ func (n *AppState) MutablePushNewFiles(root string, file_paths []string) ([]int,
 			LogErr("This is the error", err)
 			continue
 		}
-		new_core_node_items = append(new_core_node_items, newAppStateItemFromFile(root, finfo, item))
+		new_core_node_items = append(new_core_node_items, newAppStateItemFromFile(n.core_dir, finfo, item))
 	}
 	// create new records for these newly symlinked items into root directory
-	result_ids := n.__mutableCreate(new_core_node_items)
+	result_ids := n.MutableCreate(new_core_node_items)
 
 	// save ids from previous operation
 	for _, v := range resolved_items {

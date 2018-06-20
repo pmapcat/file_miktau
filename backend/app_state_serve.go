@@ -5,10 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
-	"time"
 )
-
-var CNIS = newCoreNodeItemStorage("empty")
 
 type serve_ struct {
 }
@@ -19,7 +16,7 @@ func (s *serve_) GetAppData(w rest.ResponseWriter, r *rest.Request) {
 	// lock data. (Read lock, because getting doesn't require write access to the struct)
 	CNIS.RLock()
 	defer CNIS.RUnlock()
-	enq := CoreQuery{}
+	enq := Query{}
 
 	// response encode/decode error
 	err := r.DecodeJsonPayload(&enq)
@@ -27,8 +24,7 @@ func (s *serve_) GetAppData(w rest.ResponseWriter, r *rest.Request) {
 		w.WriteJson(newErrorCoreAppDataResponse(err))
 		return
 	}
-	w.WriteJson(CNIS.GetAppData(enq))
-
+	w.WriteJson(NewAppStateResponse(CNIS.AppState(), enq))
 	// response app data results
 
 }
@@ -47,7 +43,7 @@ func (s *serve_) UpdateRecords(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 	// process request
-	enq.RecordsAffected = CNIS.MutableAddRemoveTagsToSelection(enq.Request, enq.TagsToAdd, enq.TagsToDelete)
+	enq.RecordsAffected = CNIS.AppState().MutableAddRemoveTagsToSelection(enq.Request, enq.TagsToAdd, enq.TagsToDelete)
 	w.WriteJson(enq)
 }
 
@@ -63,7 +59,7 @@ func (s *serve_) PushNewFiles(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 	// process request & write response
-	enq.Error, enq.NewFileIds = CNIS.MutablePushNewFiles(enq.NewFilePaths)
+	enq.NewFileIds, enq.Error = CNIS.AppState().MutablePushNewFiles(enq.NewFilePaths)
 	w.WriteJson(enq)
 }
 
@@ -79,9 +75,7 @@ func (s *serve_) BulkFileWorkage(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 	// process request & write response
-	enq.Error = CNIS.FSActionOnAListOfFiles(enq.Request, enq.Action)
-
-	time.Sleep(time.Duration(time.Second * 3))
+	enq.Error = CNIS.AppState().SideEffectFileSystemActionOnAListOfFiles(enq.Request, enq.Action)
 	w.WriteJson(enq)
 }
 
@@ -102,7 +96,6 @@ func (s *serve_) OpenFileInADefaultProgram(w rest.ResponseWriter, r *rest.Reques
 
 func (s *serve_) SwitchFolders(w rest.ResponseWriter, r *rest.Request) {
 	// lock main structure
-	// write lock (will require "rewiping" of the working data structure)
 	CNIS.Lock()
 	defer CNIS.Unlock()
 
@@ -115,13 +108,13 @@ func (s *serve_) SwitchFolders(w rest.ResponseWriter, r *rest.Request) {
 
 	// build new system structure based on
 	// newly loaded data from FS
-	nodes, err := fs_backend.BuildAppStateOnAFolder(enq.FilePath)
+	new_app_state, err := NewAppStateOnFolder(enq.FilePath, AppStateItemIdentity)
 	if err != nil {
 		w.WriteJson(newErrorSwitchFoldersRequest(err))
 		return
 	}
-	CNIS.MutableDrop()
-	CNIS.MutableCreate(nodes)
+	CNIS.AppState().MutableRebirthWithNewData(new_app_state.nodes)
+	CNIS.SwapAppState(new_app_state)
 	w.WriteJson(enq)
 }
 

@@ -32,7 +32,7 @@ type OpenFileInDefaultProgramRequst struct {
 }
 
 func newErrorCoreAppDataResponse(err error) AppStateResponse {
-	return CoreAppDataResponse{Error: err.Error()}
+	return AppStateResponse{Error: err.Error()}
 }
 func newErrorModifyRecordsResponse(err error) ModifyRecordsRequest {
 	return ModifyRecordsRequest{Error: err.Error()}

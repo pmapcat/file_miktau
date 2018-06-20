@@ -12,28 +12,28 @@ const (
 	DEFAULT_PERMISSION                                = 0777
 	TEMP_DIR_PREFIX                                   = "metator_prefix_"
 	PATCH_DB_PREFIX                                   = "metator_database_file.db"
-
-	STRATEGY_SYMLINK         = 1
-	STRATEGY_MOVE            = 2
-	STRATEGY_COPY            = 3
-	STRATEGY_DEFAULT_PROGRAM = 4
+	DEMO_DACHA_PATH                                   = "/dacha_data_set/"
+	DEMO_DATA_PATH                                    = "/demo_data_set/"
+	EMPTY_DATA_PATH                                   = ":empty:"
+	PATCH_DB_BUCKET                                   = "metator_bucket"
+	STRATEGY_SYMLINK                                  = 1
+	STRATEGY_MOVE                                     = 2
+	STRATEGY_COPY                                     = 3
+	STRATEGY_DEFAULT_PROGRAM                          = 4
 )
+
+var CNIS = WrapSync(NewEmptyAppState())
+var HOOKS_LIST = (func() []func(*AppStateItem) {
+	return []func(*AppStateItem){FileSystemHooks}
+})()
 
 func main() {
 	port := flag.Int("port", 4000, "On what port should the app be served")
 	flag.Parse()
-
 	fs_backend.DropTempDirsCreated()
 
-	// LogErr("Cannot build simple_set", BuildProjectOnDataSet("./test_data/simple_set/", buildDemoDataset()))
-	// LogErr("Cannot build dacha_set", BuildProjectOnDataSet("./test_data/dacha_set/", buildDachaDataset()))
-
-	// demo_data, _ := fs_backend.BuildEmptyAppState("")
-	// demo_data, _ := fs_backend.BuildAppStateWithNoUserTags("")
-
-	demo_data, _ := NewAppStateOnFolderIdentity("./test_data/simple_set/")
-	CNIS.__mutableCreate(demo_data)
-	demo_dacha, _ := NewAppStateOnFolderIdentity("./test_data/dacha_set/")
-	CNIS.__mutableCreate(demo_dacha)
+	demo_data, err := NewAppStateOnFolder("test_data/", AppStateItemIdentity)
+	FailOnError(err)
+	CNIS.SwapAppState(demo_data)
 	serve.Serve(*port)
 }
