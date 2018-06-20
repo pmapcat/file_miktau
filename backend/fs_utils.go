@@ -78,7 +78,9 @@ func fs_ls(fpath string) FsLsReturnType {
 // in depth first fashion
 // so, newer directories are also removed
 func SimplifiedCleanUp(fpath string) error {
+	result := []string{}
 	return filepath.Walk(fpath, func(path string, info os.FileInfo, err error) error {
+		result = append(result, path)
 		if err != nil {
 			return err
 		}
@@ -95,6 +97,7 @@ func SimplifiedCleanUp(fpath string) error {
 		}
 		return filepath.SkipDir
 	})
+
 }
 
 func jp(data ...string) string {

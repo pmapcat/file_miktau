@@ -10,21 +10,33 @@ import (
 func TestCleanUpPath(t *testing.T) {
 	WithTempDir(t, func(temp_dir string) {
 		most_top := jp(temp_dir, "hello/world/")
-		dir := jp(temp_dir, most_top, "new/and/large/data/input/point/blab")
+		dir := jp(most_top, "new/and/large/data/input/point/blab")
 		dorothy := jp(dir, "dorothy.mp4")
+		dir_list := []string{
+			jp(most_top, "new/and/large/data/input/point/blab"),
+			jp(most_top, "new/and/large/data/input/point/"),
+			jp(most_top, "new/and/large/data/input/"),
+			jp(most_top, "new/and/large/data/"),
+			jp(most_top, "new/and/large/"),
+			jp(most_top, "new/and/"),
+			jp(most_top, "new/"),
+			jp(most_top, ""),
+		}
 		// creating stuff
-		assert.Equal(t, os.MkdirAll(dir, DEFAULT_PERMISSION), nil)
-		assert.Equal(t, (dorothy), nil)
+		assert.Equal(t, fs_backend.Create(dorothy), nil)
 		assert.Equal(t, IsFSExist(dorothy), true)
 
 		// now, should not remove, because of "dorothy.mp4"
-		SimplifiedCleanUp(temp_dir)
+		assert.Equal(t, SimplifiedCleanUp(temp_dir), nil)
 		assert.Equal(t, IsFSExist(dir), true)
 
 		// but, when we remove "dorothy.mp4" then clean up should also work
 		assert.Equal(t, os.Remove(dorothy), nil)
-		SimplifiedCleanUp(temp_dir)
-		assert.Equal(t, IsFSExist(most_top), false)
+		assert.Equal(t, SimplifiedCleanUp(temp_dir), nil)
+		assert.Equal(t, IsFSExist(dir), false)
+		for _, v := range dir_list {
+			assert.Equal(t, IsFSExist(v), false, "This should not exist: "+v)
+		}
 	})
 
 }
