@@ -1,13 +1,24 @@
 package main
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"testing"
 )
 
-func TestCleanUpPath(t *testing.T) {
+func TestWhatever(t *testing.T) {
+	// log2.SetFlags(flag int)
+
+	// log2.LstdFlags
+	// hm, what would happen if I do this?
+	assert.Equal(t, os.IsNotExist(nil), false)
+	assert.Equal(t, os.IsExist(nil), false)
+
+}
+
+func TestSimplifiedCleanUp(t *testing.T) {
 	WithTempDir(t, func(temp_dir string) {
 		most_top := jp(temp_dir, "hello/world/")
 		dir := jp(most_top, "new/and/large/data/input/point/blab")
@@ -24,18 +35,19 @@ func TestCleanUpPath(t *testing.T) {
 		}
 		// creating stuff
 		assert.Equal(t, fs_backend.Create(dorothy), nil)
-		assert.Equal(t, IsFSExist(dorothy), true)
+		assert.Equal(t, MustIsFSExist(dorothy), true)
 
 		// now, should not remove, because of "dorothy.mp4"
 		assert.Equal(t, SimplifiedCleanUp(temp_dir), nil)
-		assert.Equal(t, IsFSExist(dir), true)
+		assert.Equal(t, MustIsFSExist(dir), true)
 
 		// but, when we remove "dorothy.mp4" then clean up should also work
+		log.SetLevel(log.DebugLevel)
 		assert.Equal(t, os.Remove(dorothy), nil)
 		assert.Equal(t, SimplifiedCleanUp(temp_dir), nil)
-		assert.Equal(t, IsFSExist(dir), false)
+		assert.Equal(t, MustIsFSExist(dir), false)
 		for _, v := range dir_list {
-			assert.Equal(t, IsFSExist(v), false, "This should not exist: "+v)
+			assert.Equal(t, MustIsFSExist(v), false, "This should not exist: "+v)
 		}
 	})
 
@@ -78,13 +90,15 @@ func TestFileMovingBug(t *testing.T) {
 		assert.Equal(t, fs_backend.Create(jp(temp_dir, "demo.mp4")), nil)
 		movenew, err := DoFileMoving(jp(temp_dir, "demo.mp4"), jp(temp_dir, "zombie/zombie/blambie/dodo/demo.mp4"))
 		assert.Equal(t, err, nil)
-		assert.Equal(t, IsFileExist(jp(temp_dir, "demo.mp4")), false)
-		assert.Equal(t, IsFileExist(movenew), true)
+		assert.Equal(t, MustIsFileExist(jp(temp_dir, "demo.mp4")), false)
+		assert.Equal(t, MustIsFileExist(movenew), true)
 	})
 }
 
 func TestDoFileMoving(t *testing.T) {
 	WithTempDir(t, func(temp_dir string) {
+		assert.Equal(t, fs_backend.Create(jp(temp_dir, "maintain_this_dir.mp4")), nil)
+
 		old_fpath := jp(temp_dir, "demo.mp4")
 		nardie := []string{
 			jp(temp_dir, ""),
@@ -95,21 +109,21 @@ func TestDoFileMoving(t *testing.T) {
 		}
 		new_fpath_dir := jp(temp_dir, nardie[4])
 		new_fpath := jp(new_fpath_dir, "demo.mp4")
-		new_fpath_after_collision_resolution := jp(new_fpath, "demo_1.mp4")
+		new_fpath_after_collision_resolution := jp(new_fpath_dir, "demo_1.mp4")
 
 		assert.Equal(t, fs_backend.Create(old_fpath), nil)
 
 		dmf, err := DoFileMoving(old_fpath, new_fpath)
 		assert.Equal(t, err, nil)
-		assert.Equal(t, IsFileExist(old_fpath), false)
-		assert.Equal(t, IsFileExist(new_fpath), true)
+		assert.Equal(t, MustIsFileExist(old_fpath), false)
+		assert.Equal(t, MustIsFileExist(new_fpath), true)
 		assert.Equal(t, fs_backend.Create(old_fpath), nil)
 		assert.Equal(t, dmf, new_fpath)
 
 		dmf, err = DoFileMoving(old_fpath, new_fpath)
 		assert.Equal(t, err, nil)
-		assert.Equal(t, IsFileExist(old_fpath), false)
-		assert.Equal(t, IsFileExist(new_fpath_after_collision_resolution), true)
+		assert.Equal(t, MustIsFileExist(old_fpath), false)
+		assert.Equal(t, MustIsFileExist(new_fpath_after_collision_resolution), true)
 		assert.Equal(t, dmf, new_fpath_after_collision_resolution)
 
 		assert.Equal(t, os.Remove(new_fpath), nil)
@@ -117,9 +131,9 @@ func TestDoFileMoving(t *testing.T) {
 
 		SimplifiedCleanUp(temp_dir)
 		for _, fpath := range nardie[1:] {
-			assert.Equal(t, IsFSExist(fpath), false)
+			assert.Equal(t, MustIsFSExist(fpath), false)
 		}
-		assert.Equal(t, IsFSExist(nardie[0]), true)
+		assert.Equal(t, MustIsFSExist(nardie[0]), true)
 	})
 }
 
@@ -139,23 +153,23 @@ func TestCleanUpEmptyDirectories(t *testing.T) {
 			jp(temp_dir, "blab/blip/tempo2.mp4"),
 		}
 
-		assert.Equal(t, fs_backend.Create(f1[5]), nil)
+		assert.Equal(t, fs_backend.Create(f1[4]), nil)
 		assert.Equal(t, fs_backend.Create(f2[3]), nil)
 
 		assert.Equal(t, SimplifiedCleanUp(temp_dir), nil)
-		assert.Equal(t, IsFSExist(f1[4]), true)
+		assert.Equal(t, MustIsFSExist(f1[3]), true)
 
-		assert.Equal(t, os.Remove(f1[5]), nil)
+		assert.Equal(t, os.Remove(f1[4]), nil)
 		assert.Equal(t, SimplifiedCleanUp(temp_dir), nil)
-		assert.Equal(t, IsFSExist(f1[4]), false)
+		assert.Equal(t, MustIsFSExist(f1[3]), false)
 		// because, we have another file: under the name tempo2.mp4, removing here should halt
-		assert.Equal(t, IsFSExist(f1[3]), true)
+		assert.Equal(t, MustIsFSExist(f1[2]), true)
 		// remove now the file
 		assert.Equal(t, os.Remove(f2[3]), nil)
 		// do the clean up
 		assert.Equal(t, SimplifiedCleanUp(temp_dir), nil)
 		// so, no folders now should exist
-		assert.Equal(t, IsFSExist(f2[2]), false)
-		assert.Equal(t, IsFSExist(f2[1]), false)
+		assert.Equal(t, MustIsFSExist(f2[2]), false)
+		assert.Equal(t, MustIsFSExist(f2[1]), false)
 	})
 }

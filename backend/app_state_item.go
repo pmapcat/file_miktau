@@ -34,7 +34,6 @@ func newAppStateItemFromFile(root string, stats os.FileInfo, fpath string) *AppS
 		FileExtensionLowerCased: strings.ToLower(fp.Ext(stats.Name())),
 		Modified:                newJSONTime(stats.ModTime()),
 	}
-
 }
 
 func newAppStateItemFromDemoDataSet(fsize, fpath, tags, fname string, date time.Time) *AppStateItem {

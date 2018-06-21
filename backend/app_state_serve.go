@@ -59,7 +59,7 @@ func (s *serve_) PushNewFiles(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 	// process request & write response
-	enq.NewFileIds, enq.Error = CNIS.AppState().MutablePushNewFiles(enq.NewFilePaths)
+	enq.NewFileIds, enq.Error = CNIS.AppState().SideEffectMutablePushNewFiles(enq.NewFilePaths)
 	w.WriteJson(enq)
 }
 
@@ -108,13 +108,11 @@ func (s *serve_) SwitchFolders(w rest.ResponseWriter, r *rest.Request) {
 
 	// build new system structure based on
 	// newly loaded data from FS
-	new_app_state, err := NewAppStateOnFolder(enq.FilePath, AppStateItemIdentity)
+	err = CNIS.AppState().MutableSwitchFolders(enq.FilePath)
 	if err != nil {
 		w.WriteJson(newErrorSwitchFoldersRequest(err))
 		return
 	}
-	CNIS.AppState().MutableRebirthWithNewData(new_app_state.nodes)
-	CNIS.SwapAppState(new_app_state)
 	w.WriteJson(enq)
 }
 

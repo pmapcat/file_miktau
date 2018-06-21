@@ -26,6 +26,13 @@ func OpenFile(fpath string) error {
 	return open.Run(fpath)
 }
 
+// will log error, but on info level, in such case when error is supposed to happen
+func LogInfoErr(msg string, err error) error {
+	if err != nil {
+		log.WithField("err", err).Info(msg)
+	}
+	return err
+}
 func LogErr(err_msg string, err error) error {
 	if err != nil {
 		log.WithField("err", err).Error(err_msg)

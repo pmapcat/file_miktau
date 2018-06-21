@@ -14,7 +14,8 @@ const (
 	PATCH_DB_PREFIX                                   = "metator_database_file.db"
 	DEMO_DACHA_PATH                                   = "/dacha_data_set/"
 	DEMO_DATA_PATH                                    = "/demo_data_set/"
-	EMPTY_DATA_PATH                                   = ":empty:"
+	EMPTY_DATA_PATH                                   = "blab/"
+	IN_MEMORY_DB_PATH                                 = ":memory:"
 	PATCH_DB_BUCKET                                   = "metator_bucket"
 	STRATEGY_SYMLINK                                  = 1
 	STRATEGY_MOVE                                     = 2
@@ -22,10 +23,8 @@ const (
 	STRATEGY_DEFAULT_PROGRAM                          = 4
 )
 
+var USE_PATCH_DB = false
 var CNIS = WrapSync(NewEmptyAppState())
-var HOOKS_LIST = (func() []func(*AppStateItem) {
-	return []func(*AppStateItem){FileSystemHooks}
-})()
 
 func main() {
 	port := flag.Int("port", 4000, "On what port should the app be served")

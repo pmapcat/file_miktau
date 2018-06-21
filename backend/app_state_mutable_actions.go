@@ -1,106 +1,81 @@
 package main
 
-import (
-	"os"
+const (
+	WRITE_TRANSACT_CREATE = iota
+	WRITE_TRANSACT_UPDATE
+	WRITE_TRANSACT_DELETE
 )
 
 // will have to happen on every <mutable> action on a database
-// shall nest without problem. `_transact` shall bubble up to the highest
-// level. Meaning, it won't be called excessivly, only on highest level it should
-// be called
-func (c *AppState) _transact(worker func()) {
+// should nest without problem. `_transact` should bubble up to the highest
+// level. It won't be called excessivly until highest level
+func (c *AppState) _set_is_transact(is_transact bool) {
+	c._transact_happening = is_transact
+}
+
+func (c *AppState) _transact(action int, worker func() []*AppStateItem) {
 	if c._transact_happening {
 		worker()
 		return
 	}
-	c._transact_happening = true
-	worker()
+	c._set_is_transact(true)
 
-	c.agg_sorting.OnBeforeRun()
-	c.agg_meta.OnBeforeRun()
+	// in case of error/panic or other premature exit.
+	defer c._set_is_transact(false)
 
-	for _, v := range c.nodes {
-		c.agg_sorting.Accumulate(v)
-		c.agg_meta.Accumulate(v)
-
+	applied_items := worker()
+	switch action {
+	case WRITE_TRANSACT_CREATE:
+		for _, v := range c._on_after_create {
+			v(applied_items)
+		}
+	case WRITE_TRANSACT_UPDATE:
+		for _, v := range c._on_after_update {
+			v(applied_items)
+		}
 	}
-	for _, v := range c.nodes {
-		c.agg_sorting.Aggregate(v)
-		c.agg_meta.Aggregate(v)
-	}
-	c._transact_happening = false
-}
 
-func (n *AppState) MutableDrop() {
-	n.core_dir = ""
-	n.agg_sorting = newThesaurusAndSortingAggregator()
-	n.agg_meta = newMetaThesaurusAndSortingAggregator()
-	n.nodes = []*AppStateItem{}
+	for _, action := range c._rebuild_after_mutable_action {
+		action.OnBeforeRun()
+	}
+	for _, action := range c._rebuild_after_mutable_action {
+		for _, v := range c.nodes {
+			action.Accumulate(v)
+		}
+	}
+	for _, action := range c._rebuild_after_mutable_action {
+		for _, v := range c.nodes {
+			action.Aggregate(v)
+		}
+	}
 }
 
 func (n *AppState) MutableCreate(nodes []*AppStateItem) []int {
 	new_ids := []int{}
-	n._transact(func() {
+	n._transact(WRITE_TRANSACT_CREATE, func() []*AppStateItem {
+		result := []*AppStateItem{}
 		for _, node := range nodes {
 			node.Id = len(n.nodes)
-			node = n.MutableApplyHooks(node)
 			n.nodes = append(n.nodes, node)
 			new_ids = append(new_ids, node.Id)
+			result = append(result, node)
 		}
+		return result
 	})
 	return new_ids
 }
 
-func (n *AppState) MutableApplyHooks(item *AppStateItem) *AppStateItem {
-	for _, v := range n.hook_fns {
-		v(item)
-	}
-	return item
-}
-
 func (n *AppState) MutableUpdate(query Query, cb func(*AppStateItem) *AppStateItem) {
-	n._transact(func() {
+	n._transact(WRITE_TRANSACT_UPDATE, func() []*AppStateItem {
+		result := []*AppStateItem{}
 		for k, v := range n.nodes {
 			if v.ApplyFilter(&query) {
-				n.nodes[k] = n.MutableApplyHooks(cb(v))
+				n.nodes[k] = cb(v)
+				result = append(result, v)
 			}
 		}
+		return result
 	})
-}
-
-// filepath: TODO: TEST
-func (n *AppState) MutablePushNewFiles(file_paths []string) ([]int, error) {
-	// resolve files by comparing them to these already within the root FS
-	resolved_items, unresolved_items, err := n.SideEffectResolveIfPossibleWithinFileSystem(file_paths)
-	if err != nil {
-		return []int{}, err
-	}
-	// take unresolved items, and extract strings from them
-	unresolved_items_strings := []string{}
-	for _, v := range unresolved_items {
-		unresolved_items_strings = append(unresolved_items_strings, v.CameWithPath)
-	}
-
-	// symlink unresolved into <root> directory
-	unresolved_as_new_pathes, err := fs_backend.SymlinkInRootGivenForeignPathes(n.core_dir, unresolved_items_strings)
-	new_core_node_items := []*AppStateItem{}
-	for _, item := range unresolved_as_new_pathes {
-		finfo, err := os.Stat(item)
-		if err != nil {
-			LogErr("This is the error", err)
-			continue
-		}
-		new_core_node_items = append(new_core_node_items, newAppStateItemFromFile(n.core_dir, finfo, item))
-	}
-	// create new records for these newly symlinked items into root directory
-	result_ids := n.MutableCreate(new_core_node_items)
-
-	// save ids from previous operation
-	for _, v := range resolved_items {
-		result_ids = append(result_ids, v.Node.Id)
-	}
-	// and return it back to the user
-	return result_ids, nil
 }
 
 func (n *AppState) MutableAddRemoveTagsToSelection(query Query, tags_to_add, tags_to_remove []string) int {
@@ -114,7 +89,11 @@ func (n *AppState) MutableAddRemoveTagsToSelection(query Query, tags_to_add, tag
 	return records_affected
 }
 
-func (n *AppState) MutableRebirthWithNewData(nodes []*AppStateItem) {
-	n.MutableDrop()
-	n.MutableCreate(nodes)
+func (n *AppState) MutableSwitchFolders(new_root string) error {
+	ap, err := NewAppStateOnFolder(new_root, AppStateItemIdentity)
+	if err != nil {
+		return err
+	}
+	n = ap
+	return nil
 }

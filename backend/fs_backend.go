@@ -61,7 +61,7 @@ func (f *fs_backend_) DropTempDirsCreated() error {
 }
 
 func (f *fs_backend_) SymlinkInRootGivenForeignPathes(root string, fpathes []string) ([]string, error) {
-	if !IsFileExist(root) {
+	if !MustIsFileExist(root) {
 		return []string{}, errors.New("Root doesn't exist: " + root)
 	}
 	result := []string{}

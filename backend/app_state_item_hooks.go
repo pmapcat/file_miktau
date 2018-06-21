@@ -6,7 +6,7 @@ import (
 
 // will populate meta tags of a node.
 // important! all hooks should be idempotent
-func FileSystemHooks(m *AppStateItem) {
+func FileSystemHook(m *AppStateItem) {
 
 	// undublicate tags
 	m.Tags = undublicate_list(m.Tags)
