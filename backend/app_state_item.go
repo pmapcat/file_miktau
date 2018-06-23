@@ -54,10 +54,6 @@ func newAppStateItemFromDemoDataSet(fsize, fpath, tags, fname string, date time.
 
 }
 
-func (n *AppStateItem) ModifiedInDays() uint32 {
-	return uint32(n.Modified.Time().Unix() / 86400)
-}
-
 // will have to call only on mutable actions
 func (n *AppStateItem) ApplyFilter(c *Query) bool {
 	if result, whether_applicable := query_filter.FilterByFilePaths(n, c); whether_applicable {

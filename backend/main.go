@@ -5,6 +5,14 @@ import (
 )
 
 const (
+	// not iota, bc needed for external API
+	STRATEGY_SYMLINK         = "symlinks"
+	STRATEGY_DEFAULT_PROGRAM = "default"
+	STRATEGY_MOVE            = 1
+	STRATEGY_COPY            = 2
+)
+
+const (
 	MAX_ALLOWED_FILES_TO_BE_OPENED_IN_FILE_EXPLORER   = 100
 	MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM = 32
 	DEFAULT_PAGE_SIZE                                 = 10
@@ -13,14 +21,10 @@ const (
 	TEMP_DIR_PREFIX                                   = "metator_prefix_"
 	PATCH_DB_PREFIX                                   = "metator_database_file.db"
 	DEMO_DACHA_PATH                                   = "/dacha_data_set/"
-	DEMO_DATA_PATH                                    = "/demo_data_set/"
-	EMPTY_DATA_PATH                                   = "blab/"
+	DEMO_DATA_PATH                                    = "test_data/demo_data_set/"
+	EMPTY_DATA_PATH                                   = ":empty:"
 	IN_MEMORY_DB_PATH                                 = ":memory:"
 	PATCH_DB_BUCKET                                   = "metator_bucket"
-	STRATEGY_SYMLINK                                  = 1
-	STRATEGY_MOVE                                     = 2
-	STRATEGY_COPY                                     = 3
-	STRATEGY_DEFAULT_PROGRAM                          = 4
 )
 
 var USE_PATCH_DB = false
@@ -29,10 +33,14 @@ var CNIS = WrapSync(NewEmptyAppState())
 func main() {
 	port := flag.Int("port", 4000, "On what port should the app be served")
 	flag.Parse()
+
+	// removing stale folders from previous runs
 	fs_backend.DropTempDirsCreated()
 
-	demo_data, err := NewAppStateOnFolder("test_data/", AppStateItemIdentity)
-	FailOnError(err)
-	CNIS.SwapAppState(demo_data)
+	// load demo data set
+	LogErr("loading demo data set:", CNIS.MutableSwitchFolders("test_data/"))
+
+	// make :stub:, empty app state. Now, the user should select
+	// working folder
 	serve.Serve(*port)
 }

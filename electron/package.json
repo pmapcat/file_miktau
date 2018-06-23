@@ -12,7 +12,7 @@
       "out"
     ],
     "mac": {
-      "category": "public.app-category.graphics-design"
+      "category": "public.app-category.tagging"
     },
     "nsis": {
       "createDesktopShortcut": "always"

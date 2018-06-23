@@ -34,6 +34,6 @@
   (get-in db [:meta key]))
 
 (def meta-db
-  {:page nil
+  {:page :init
    :loading? false
    :error nil})

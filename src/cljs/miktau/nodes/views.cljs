@@ -188,7 +188,6 @@
      [filter-input]
      [:div.padded-as-button {:style {:font-size "0.7em" :padding-bottom "1em"}}
       [breadcrumbs-views/breadcrumbs [:nodes/get-app-data]]]]]
-
    
    [:div.pure-u-1.padded-as-button {:style {:margin-bottom "120px"}}
     [file-table]]

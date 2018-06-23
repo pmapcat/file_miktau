@@ -17,9 +17,9 @@ type PushNewFilesRequest struct {
 }
 
 type FileActionRequest struct {
-	Error   error `json:"error"`
-	Action  int   `json:"action"` // symlinks/default/filebrowser
-	Request Query `json:"request"`
+	Error   error  `json:"error"`
+	Action  string `json:"action"` // symlinks/default/filebrowser
+	Request Query  `json:"request"`
 }
 type SwitchFoldersRequest struct {
 	Error    error  `json:"error"`

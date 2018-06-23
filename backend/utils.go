@@ -11,19 +11,14 @@ import (
 	"time"
 )
 
-func FailOnError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 func OpenFile(fpath string) error {
-	if is_dev_environ() {
-		log.Info("We are in dev environment")
-		log.Info("Successfully opened in a dev environ")
-		return nil
-	}
-	return open.Run(fpath)
+	// if is_dev_environ() {
+	// 	log.Info("We are in dev environment")
+	// 	log.Info("Successfully opened in a dev environ")
+	// 	return nil
+	// }
+	log.WithField("fpath", fpath).Info("Opening file in a default program")
+	return LogErr("Opening file in default program returned: ", open.Run(fpath))
 }
 
 // will log error, but on info level, in such case when error is supposed to happen
@@ -33,6 +28,14 @@ func LogInfoErr(msg string, err error) error {
 	}
 	return err
 }
+
+func LogFatal(err_msg string, err error) error {
+	if err != nil {
+		log.WithField("err", err).Fatal(err_msg)
+	}
+	return err
+}
+
 func LogErr(err_msg string, err error) error {
 	if err != nil {
 		log.WithField("err", err).Error(err_msg)

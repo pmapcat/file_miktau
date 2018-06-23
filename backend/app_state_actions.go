@@ -39,7 +39,7 @@ func (n *AppState) GetItemsSorted(field string) []*AppStateItem {
 		})
 	case "modified":
 		sort_slice(inverse, n.nodes, func(i, j int) bool {
-			return n.nodes[i].ModifiedInDays() > n.nodes[j].ModifiedInDays()
+			return n.nodes[i].Modified.Time().Sub(n.nodes[j].Modified.Time()) > 0
 		})
 	}
 	return n.nodes

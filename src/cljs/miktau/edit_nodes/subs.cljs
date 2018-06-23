@@ -3,11 +3,6 @@
             [clojure.string :as cljs-string]
             [miktau.meta-db :refer [meta-page?]]))
 
-(refe/reg-sub :edit-nodes/get-db-for-test-purposes (fn [db _] db))
-
-(comment
-  (println  (:show-warning? @(refe/subscribe [:edit-nodes/get-db-for-test-purposes]))))
-
 (defn can-submit?
   [db _]
   (or (not (empty? (:nodes-temp-tags-to-delete db)))

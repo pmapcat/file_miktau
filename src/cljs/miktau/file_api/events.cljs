@@ -1,4 +1,4 @@
-(ns miktau.file-api.views)
+(ns miktau.file-api.events)
 
 ;; send them to the server, redirect result to nodes, make them selected
 ;; what problems arise?

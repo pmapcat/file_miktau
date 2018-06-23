@@ -17,7 +17,7 @@
                  [environ "1.1.0"]
                  [day8.re-frame/http-fx "0.1.6"]
                  [cljs-ajax "0.7.3"]
-                 [day8.re-frame/re-frame-10x "0.3.3-react16"]                 
+                 ;; [day8.re-frame/re-frame-10x "0.3.3-react16"]                 
                  [com.stuartsierra/component "0.3.2"]
                  [org.danielsz/system "0.4.1"]
                  [day8.re-frame/undo "0.3.2"]
@@ -59,7 +59,7 @@
                            :output-to "dev-target/public/js/compiled/miktau.js"
                            :output-dir "dev-target/public/js/compiled/out"
                            :closure-defines      {"re_frame.trace.trace_enabled_QMARK_" true}
-                           :preloads             [day8.re-frame-10x.preload]
+                           ;; :preloads             [day8.re-frame-10x.preload]
                            :source-map-timestamp true}}
 
                {:id "test"

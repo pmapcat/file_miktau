@@ -46,6 +46,8 @@
    [:div
     (let [meta-page @(refe/subscribe [:meta])]
       (cond
+        (=  (:page meta-page) :init)
+        [generic-views/initial]
         (:loading? meta-page)
         [generic-views/processing]
         (:dragging? meta-page)

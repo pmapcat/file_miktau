@@ -89,11 +89,11 @@ func (n *AppState) MutableAddRemoveTagsToSelection(query Query, tags_to_add, tag
 	return records_affected
 }
 
-func (n *AppState) MutableSwitchFolders(new_root string) error {
+func (n *AppStateSync) MutableSwitchFolders(new_root string) error {
 	ap, err := NewAppStateOnFolder(new_root, AppStateItemIdentity)
 	if err != nil {
 		return err
 	}
-	n = ap
+	n.aps = ap
 	return nil
 }

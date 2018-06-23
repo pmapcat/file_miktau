@@ -13,7 +13,6 @@ type serve_ struct {
 var serve = serve_{}
 
 func (s *serve_) GetAppData(w rest.ResponseWriter, r *rest.Request) {
-	// lock data. (Read lock, because getting doesn't require write access to the struct)
 	CNIS.RLock()
 	defer CNIS.RUnlock()
 	enq := Query{}
@@ -108,7 +107,7 @@ func (s *serve_) SwitchFolders(w rest.ResponseWriter, r *rest.Request) {
 
 	// build new system structure based on
 	// newly loaded data from FS
-	err = CNIS.AppState().MutableSwitchFolders(enq.FilePath)
+	err = CNIS.MutableSwitchFolders(enq.FilePath)
 	if err != nil {
 		w.WriteJson(newErrorSwitchFoldersRequest(err))
 		return
@@ -117,7 +116,7 @@ func (s *serve_) SwitchFolders(w rest.ResponseWriter, r *rest.Request) {
 }
 
 func (s *serve_) CheckIsLive(w rest.ResponseWriter, r *rest.Request) {
-	w.WriteJson(map[string]string{"status": "alive and kickin!"})
+	w.WriteJson(map[string]string{"status": "alive"})
 }
 
 func (s *serve_) Serve(port int) {

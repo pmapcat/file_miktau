@@ -9,10 +9,6 @@
     (not (empty? (:nodes-selected db)))))
 (refe/reg-sub :nodes/selection-mode? selection-mode?)
 
-(refe/reg-sub :nodes/get-db-for-test-purposes (fn [db _] db))
-(comment
-  @(refe/subscribe [:nodes/get-db-for-test-purposes]))
-
 (defn order-by
   [db _]
   (let [nodes-sorted (:nodes-sorted db)]
@@ -116,13 +112,11 @@
                         :on-click [:nodes/redirect-to-edit-nodes]
                         :disabled? false}
        :links
-       [{:name "Open in a single folder"
+       [{:name "Open in a single folder "
          :on-click  [:nodes/file-op :symlinks]
-         :disabled? (> amount 150)}
-        {:name "Open each file individually"
-         :on-click  [:nodes/file-op :filebrowser]
-         :disabled? (> amount 20)}
-        {:name "Open each in default program"
-         :on-click  [:nodes/file-op :default]
-         :disabled? (> amount 10)}]})))
+         
+         :disabled? (> amount 150)}]})))
+
+
+
 (refe/reg-sub :nodes/nodes-selection nodes-selection-view)

@@ -25,8 +25,10 @@ func (o *on_time_) OnDate(year int, month int, day int) time.Time {
 func (o *on_time_) OnDateTime(year int, month int, day int, hour, minute int) time.Time {
 	return time.Date(year, time.Month(month), day, hour, minute, 0, 0, time.UTC)
 }
-
-func (o *on_time_) GmailLikeFormat(date_time time.Time) string {
+func (o *on_time_) NiceFormat(date_time time.Time) string {
+	return date_time.Format("2006/01/02 15:04")
+}
+func (o *on_time_) GmailLikeFormatDeprecated(date_time time.Time) string {
 	now := o.Now()
 
 	hours_since := now.Sub(date_time).Hours()
@@ -63,7 +65,7 @@ func newJSONTime(t time.Time) JSONTime {
 }
 
 func (t JSONTime) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + on_time.GmailLikeFormat(time.Time(t)) + `"`), nil
+	return []byte(`"` + on_time.NiceFormat(time.Time(t)) + `"`), nil
 }
 func (t JSONTime) Time() time.Time {
 	return time.Time(t)

@@ -8,6 +8,12 @@
   (.call
    (aget js/window "setTimeout") js/window cb time))
 
+(defn js-call
+  [context method & args]
+  (.apply (aget context method)
+          context (clj->js args)))
+
+
 
 (defn is-valid-user-tag?
   "1. alphanumeric

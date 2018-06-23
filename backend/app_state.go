@@ -47,8 +47,10 @@ func NewAppState(core_dir string, list_of_nodes []*AppStateItem) *AppState {
 	tasa := newThesaurusAndSortingAggregator()
 	mtasa := newMetaThesaurusAndSortingAggregator()
 	res := AppState{
-		_on_after_create:              []func([]*AppStateItem){MultifySingleHook(FileSystemHook), patch_db.BuildRetrieveSaved(core_dir)},
-		_on_after_update:              []func([]*AppStateItem){MultifySingleHook(FileSystemHook), patch_db.BuildStoreExisting(core_dir)},
+		_on_after_create: []func([]*AppStateItem){MultifySingleHook(FileSystemHook)},// patch_db.BuildRetrieveSaved(core_dir)
+
+		_on_after_update: []func([]*AppStateItem){MultifySingleHook(FileSystemHook)},// patch_db.BuildStoreExisting(core_dir)
+
 		nodes:                         []*AppStateItem{},
 		core_dir:                      core_dir,
 		_rebuild_after_mutable_action: []AppStateSubsription{tasa, mtasa},

@@ -7,7 +7,7 @@ import (
 )
 
 // Takes MUTABLE action on a file system
-func (n *AppState) SideEffectFileSystemActionOnAListOfFiles(query Query, action int) error {
+func (n *AppState) SideEffectFileSystemActionOnAListOfFiles(query Query, action string) error {
 	fpathes := []string{}
 	n.GetInBulk(query, func(item *AppStateItem) {
 		fpathes = append(fpathes, item.FilePath)

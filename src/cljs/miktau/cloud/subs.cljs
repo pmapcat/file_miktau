@@ -5,19 +5,6 @@
             [miktau.meta-db :refer [meta-page?]]
             [miktau.cloud.misc :as cloud-misc]))
 
-(defn get-db-for-test-purposes [db _]
-  (if-not (meta-page? db :cloud)
-    {}
-    db))
-(refe/reg-sub :cloud/get-db-for-test-purposes get-db-for-test-purposes)
-(comment
-  (:cloud @(refe/subscribe  [:cloud/get-db-for-test-purposes]))
- 
- )
-
-;; (let [[a b] (cljs-string/split "@had:sad" #":")]
-;;   (println a "   HOHOHOH  " b))
-
 (defn meta-cloud
   [db _]
   (if-not (meta-page? db :cloud)
@@ -41,14 +28,8 @@
      (sort-by :group)
      (group-by :group)
      (utils/map-val #(sort-by :compare-name %)))))
-
-;; (str (name (keyword "@asdasd: [asdasd-asd]-asd")))
 (refe/reg-sub :cloud/meta-cloud meta-cloud)
-(comment
-  (def db @(refe/subscribe [:cloud/get-db-for-test-purposes]))
-  (utils/filter-map-on-key utils/is-meta-tag? (:cloud db))
-  @(refe/subscribe [:cloud/meta-cloud])
-  )
+;; (str (name (keyword "@asdasd: [asdasd-asd]-asd")))
 
 (defn cloud
   [db _]
@@ -102,15 +83,9 @@
      [{:name "Edit tags on selection"
        :on-click  [:cloud/redirect-to-edit-nodes true]
        :disabled? false}
-      {:name "Open in a single folder"
+      {:name "Open in folder"
        :on-click  [:cloud/file-op :symlinks]
-       :disabled? (> amount 150)}
-      {:name "Open each file individually"
-       :on-click  [:cloud/file-op :filebrowser]
-       :disabled? (> amount 20)}
-      {:name "Open each in default program"
-       :on-click  [:cloud/file-op :default]
-       :disabled? (> amount 10)}]}))
+       :disabled? (> amount 150)}]}))
 (refe/reg-sub :cloud/nodes-selection nodes-selection-editable-view)
 
 
