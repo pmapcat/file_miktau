@@ -10,7 +10,6 @@
   "TODO: TEST
    params [_ nodes-selected-set cloud-selected-set ] are *nullable*"
   [{:keys [edit-nodes-warning]} [_ nodes-selected-set cloud-selected-set]]
-  (println edit-nodes-warning)
   {:db
    (assoc miktau-db/default-db
           :meta
@@ -29,6 +28,10 @@
   {:db db
    :fx-redirect [:api-handler/get-app-data :edit-nodes/got-app-data "" (:nodes-selected db) (:cloud-selected db)]})
 (refe/reg-event-fx :edit-nodes/get-app-data get-app-data)
+
+
+
+
 
 (defn aknowledge-warning
   [{:keys [db]} _]

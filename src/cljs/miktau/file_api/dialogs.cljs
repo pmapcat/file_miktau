@@ -3,31 +3,39 @@
 
 (def dialog-api (aget (js/require "electron") "remote" "dialog"))
 
-(utils/js-call
- dialog-api
- "showOpenDialog"
- nil
- (clj->js
-  {:title "My awesome title"
-   :buttonLabel "my awesome label"
-   :filters [{:name "only documents" :extensions [".xlsx" ".docx"]}
-             {:name "only word documents" :extensions [".docx"]}
-             ]
-   :message "Hello world on Mac OS"
-   
-   
-   :properties
-   ["openFile" "openDirectory" "multiSelections" "promptToCreate"]
-}
-  )
- 
- )
+(defn get-current-window
+  []
+  (utils/js-call
+   (aget (js/require "electron") "remote")
+   "getCurrentWindow"))
 
+(defn choose-root-dialog
+  [cb]
+  (utils/js-call
+   dialog-api
+   "showOpenDialog"
+   (get-current-window)
+   (clj->js
+    {:title "Choose root directory"
+     :buttonLabel "Choose root directory"
+     :message "Choose root directory"
+     :properties
+     ["openDirectory"]})
+   (fn [resulting-data]
+     (cb (str (first (js->clj resulting-data)))))))
 
-(dialog-api)
-
-
-
-
-
-
+(defn select-files-dialog
+  [cb]
+  (utils/js-call
+   dialog-api
+   "showOpenDialog"
+   (get-current-window)
+   (clj->js
+    {:title "Add files to the system"
+     :buttonLabel "Choose files"
+     :message "Add files to the system"
+     :properties
+     ["openFile"
+      "multiSelections"]})
+   (fn [resulting-data]
+     (cb (map str (js->clj resulting-data))))))

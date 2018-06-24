@@ -66,3 +66,18 @@
   []
   {:url  "/api"
    :params {}})
+
+(defn build-swap-root-directory
+  [new-root-directory]
+  {:url "/api/switch-folders"
+   :params {:file-path new-root-directory}})
+
+(defn build-open-single-file-in-default-program
+  [fpath]
+  {:url "/api/open-file-in-default-program"
+   :params {:file-path fpath}})
+
+(defn build-push-new-files
+  [fpathes]
+  {:url "/api/push-new-files"
+   :params {:new-file-paths fpathes}})

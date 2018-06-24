@@ -9,9 +9,7 @@ type ModifyRecordsRequest struct {
 }
 
 type PushNewFilesRequest struct {
-	Error error `json:"error"`
-	// symlink || move || copy
-	RootResolve  string   `json:"root-resolve"`
+	Error        error    `json:"error"`
 	NewFilePaths []string `json:"new-file-paths"`
 	NewFileIds   []int    `json:"new-file-ids"`
 }

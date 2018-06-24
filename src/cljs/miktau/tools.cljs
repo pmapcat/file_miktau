@@ -13,6 +13,14 @@
   (.apply (aget context method)
           context (clj->js args)))
 
+(defn inject-event
+  "Injects first param into event vector
+   have no idea how to insert at a certain index 
+   in Clojure vector, so, doing it crude way
+   Example: 
+   (inject-event \"blab\" [:hello/world]) => [:hello/world \"blab\"]"
+  [param event]
+  (into [] (cons (first event) (cons param (rest event)))))
 
 
 (defn is-valid-user-tag?

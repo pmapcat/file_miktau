@@ -133,7 +133,7 @@ func (s *serve_) Serve(port int) {
 		rest.Post("/api/get-app-data", s.GetAppData),
 		rest.Post("/api/update-records", s.UpdateRecords),
 		rest.Post("/api/bulk-operate-on-files", s.BulkFileWorkage),
-		rest.Post("/api/switch-projects", s.SwitchFolders),
+		rest.Post("/api/switch-folders", s.SwitchFolders),
 		rest.Post("/api/push-new-files", s.PushNewFiles),
 		rest.Post("/api/open-file-in-default-program", s.OpenFileInADefaultProgram),
 	)

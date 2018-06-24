@@ -4,6 +4,13 @@
    [miktau.meta-db :as meta-db]
    [day8.re-frame.undo :as undo-lib]))
 
+(refe/reg-event-db
+ :generic/init-static-page
+ (fn [db [_ page]]
+   (if (contains? #{:tos :oss-components :about :init} page)
+     (meta-db/set-page-db db page)
+     db)))
+
 (refe/reg-event-fx
  :error
  (fn [{:keys [db]} [_ error]]

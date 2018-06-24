@@ -67,7 +67,6 @@
                                                                (.log js/console e))
                                                              :type "file"}]]])
 
-
 (defn back-button
   []
   [:div {:style {:position "relative"}}

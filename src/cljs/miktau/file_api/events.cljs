@@ -1,4 +1,6 @@
-(ns miktau.file-api.events)
+(ns miktau.file-api.events
+  (:require [re-frame.core :as refe]
+            [miktau.meta-db :as meta-db]))
 
 ;; send them to the server, redirect result to nodes, make them selected
 ;; what problems arise?
@@ -19,14 +21,14 @@
 ;;    * on directory change will have to work with this
 ;;    * git? (on update operation reread the whole directory
 
-(defn got-files
-  [db [_ file-list]])
+(refe/reg-event-fx
+ :file-api/swap-root
+ (fn [{:keys  [db]} _]
+   {:db  db
+    :file-api/trigger-choose-root! [:api-handler/swap-root-directory]}))
 
-(defn chroot
-  [db [_ new-root]]
-  )
-
-
-
-
-
+(refe/reg-event-fx
+ :file-api/add-new-files
+ (fn [{:keys  [db]} _]
+   {:db  db
+    :file-api/trigger-choose-many-files! [:api-handler/push-new-files]}))

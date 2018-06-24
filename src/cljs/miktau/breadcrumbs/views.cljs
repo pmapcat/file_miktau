@@ -1,5 +1,6 @@
 (ns miktau.breadcrumbs.views
-  (:require [re-frame.core :as refe]))
+  (:require [re-frame.core :as refe]
+            [miktau.tools :refer [inject-event]]))
 
 (defn for-every-and-last
   [data-set]
@@ -9,12 +10,6 @@
           :index v
           :last? (= v last-by-index)
           :first? (= v 0)}])))
-(defn inject-event
-  "Injects first param into event vector
-   have no idea how to insert at a certain index 
-   in Clojure vector, so, doing it crude way"
-  [param event]
-  (into [] (cons (first event) (cons param (rest event)))))
 
 (defn breadcrumbs [redirector]
   (let [breadcrumbs @(refe/subscribe [:breadcrumbs/breadcrumbs])]

@@ -48,18 +48,30 @@
       (cond
         (=  (:page meta-page) :init)
         [generic-views/initial]
+        
         (:loading? meta-page)
         [generic-views/processing]
         (:dragging? meta-page)
         [generic-views/dropzone]
+
+        (= (:page meta-page) :tos)
+        [generic-views/tos]
+        (= (:page meta-page) :oss-components)
+        [generic-views/oss-components]
+        (= (:page meta-page) :about)
+        [generic-views/about]
+        
+        
         (= (:page meta-page) :cloud)
         [cloud-views/main]
+        
         (= (:page meta-page) :nodes)
         [nodes-views/main]
         (= (:page meta-page) :edit-nodes)
         [edit-nodes-views/main]
         (= (:page meta-page) :dropzone)
         [generic-views/dropzone]
+        
         :else
         [generic-views/initial]))]])
 

@@ -7,6 +7,9 @@ windows:
   - lein:
       layout: main-vertical
       panes:
+        - electron:
+            - cd electron/
+            - electron . --disable-http-cache
         - backend:
             - cd backend/
             - ./backend

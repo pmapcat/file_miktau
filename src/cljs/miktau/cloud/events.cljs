@@ -15,8 +15,12 @@
           (meta-db/set-loading-db (meta-db/set-page meta-db/meta-db :cloud) true)
           :cloud-selected (or cloud-selected-set #{}))
    :fx-redirect [:cloud/get-app-data]})
+
 (refe/reg-event-fx :cloud/init-page (undoable "init page") init)
 (refe/reg-event-fx :cloud/init-page-no-undo  init)
+(refe/reg-event-fx :cloud/init-page-empty
+                   (fn [_ _]
+                     (init nil [nil #{}])))
 
 
 (defn redirect-to-nodes
