@@ -1,5 +1,6 @@
 (ns miktau.breadcrumbs.views
   (:require [re-frame.core :as refe]
+            [miktau.generic.views :refer [view-navigate]]
             [miktau.tools :refer [inject-event]]))
 
 (defn for-every-and-last
@@ -14,11 +15,8 @@
 (defn breadcrumbs [redirector]
   (let [breadcrumbs @(refe/subscribe [:breadcrumbs/breadcrumbs])]
     [:div
-     [:div.mik-flush-right.unstyled-link {:style {:padding-right "5px" }}
-      "["
-      [:a.blue-clickable.unstyled-link {:href "#" :on-click #(refe/dispatch  [:nodes/init-page #{}  #{} {}]) } "Nodes "]
-      [:a.blue-clickable.unstyled-link {:href "#" :on-click #(refe/dispatch  [:cloud/init-page #{}  {}]) } "Cloud"]
-      "]"]
+     [view-navigate]
+     
 
      (if (:should-show-clear? breadcrumbs)
        [:a.unstyled-link.red-clickable {:on-click #(refe/dispatch [:breadcrumbs/clear redirector]) :style {:padding-right "5px"}} "[Clear]"]
