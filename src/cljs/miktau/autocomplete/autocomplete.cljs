@@ -71,6 +71,7 @@
         [:div {:style {:position "relative"}}
          [:input {:value cur-input
                   :placeholder placeholder
+                  :auto-focus true
                   :style {:width "100%" :height "1.9em" :padding-left "10px" :background "transparent"}
                   :type "text"
                   :on-change

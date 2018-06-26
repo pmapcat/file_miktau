@@ -3,6 +3,7 @@
             [re-frame.core :as re-frame]
 
             [miktau.generic.subs]
+            [miktau.file-api.menu :as electron-menu]
             
             [miktau.core-views :as miktau-core-views]
             [miktau.config :as config]))
@@ -17,6 +18,8 @@
 
 (defn mount-root []
   (re-frame/clear-subscription-cache!)
+  (electron-menu/set-menu!)
+  
   (.log js/console "BABABA")
   (reagent/render [miktau-core-views/main]
                   (.getElementById js/document "container")))

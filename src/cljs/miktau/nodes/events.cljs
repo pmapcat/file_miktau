@@ -14,7 +14,7 @@
    (assoc miktau-db/default-db
           :meta (meta-db/set-loading-db (meta-db/set-page meta-db/meta-db :nodes) true)
           :cloud-selected (or cloud-selected-set #{})
-          :nodes-selected    (or  nodes-selected-set {}))
+          :nodes-selected (or  nodes-selected-set {}))
    :fx-redirect [:nodes/get-app-data]})
 (refe/reg-event-fx :nodes/init-page (undoable "init nodes page") init)
 

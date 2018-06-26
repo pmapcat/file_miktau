@@ -2,7 +2,8 @@
   (:require
    [re-frame.core :as refe]
    [miktau.generic.views-utils :as views-utils]
-   [miktau.generic.tos :as tos]))
+   [miktau.generic.tos :as tos-page]
+   [miktau.generic.about :as about-page]))
 
 (defn view-navigate
   []
@@ -63,56 +64,26 @@
 (defn static-page-template
   [body]
   [:div.pure-g {:style {:margin-bottom "200px" :padding "5em"}}
-   [:div.mik-flush-center.background-1
-    body]
+   [:div.background-1
+    [:div.pure-u-1
+     body]]
    [:div {:style {:position "fixed" :left "0px" :right "0px" :bottom "0px" :background "white" :padding-right "20px" :box-shadow "grey 0px -1px 5px 0px"}}
     [:div.pure-u-1.padded-as-button
      [view-navigate]]]])
+
 (defn tos
   []
   [static-page-template
-   [tos/eula {}]])
+   [tos-page/eula]])
+
+(defn oss-components
+  []
+  [static-page-template
+   [about-page/components]])
 
 (defn about
   []
   [static-page-template
-   [:div
-    [:h1 "About"]
-    [:h2 "The reasons behind this system"]
-    [:p "In creating this system, we had the following goals in mind"]
-    [:h2 "Tools "]
-    [:p "We hoped to achieve these goals with the help of the following principles and tools"]
-    [:ul
-     [:li [:b "Spatial reasoning"] " The idea behind cloud is to use spatial reasoning to help in navigation"]
-     [:li [:b "Mechanical memory reasoning"] " The idea behind cloud is to use spatial reasoning to help in navigation"]
-     [:li [:b "Bulk renaming "] " The idea is to use bulk renaming  "]
-     ]
-    
-    [:ul
-     [:li "We hoped to "]
-     ]
-
-    
-    
-    [:]
-    [:ul 
-     [:li "Help to classify files in the system"]
-     [:li "Help to work with existing file classifications: "
-      [:ul
-       [:li "ReclasClassify files in bulk"]
-       ]
-      ]
-     [:li "Help to find files according"]
-     ]
-    
-    
-    [:p "TODO: write "]
-    ]
-   
-   ]
-  
-  
-  
-  )
+   [about-page/about]])
 
 

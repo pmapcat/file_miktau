@@ -10,6 +10,6 @@
    [:p " three reasons:"
     [:ul
      [:li "To receive and install updates;"]
-     [:li "To send error reports"]
-     [:li "to send anonymized usage information"]]
+     [:li "To send error reports;"]
+     [:li "to send anonymized usage information;"]]
     "if you do not want the Software to update automatically or send error reports, or send anonymized usage information you must uninstall the Software. "]})

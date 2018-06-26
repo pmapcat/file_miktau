@@ -1,4 +1,5 @@
-(ns miktau.generic.tos)
+(ns miktau.generic.tos
+  (:require [miktau.app-metadata :refer [app-metadata]]))
 
 (def default-eula-params
   {:company-name " Pumkin's CO "
@@ -6,16 +7,17 @@
    :email " info@pumkin.com "
    :address " Georgia, Batumi "
    :reasons
-   [:p " three reasons"
+   [:div
+    " three reasons"
     [:ul
      [:li "To receive and install updates;"]
      [:li "To send error reports"]
      [:li "to send anonymized usage information"]]
     "if you do not want the Software to update automatically or send error reports, or send anonymized usage information you must uninstall the Software. "]})
 
-
-(defn eula [params]
-  (let [company-name  (:company-name params)
+(defn eula []
+  (let [params app-metadata
+        company-name  (:company-name params)
         application-names  (:apps params)
         company-contact (:email params)
         company-place (:address params)

@@ -58,6 +58,10 @@
         [generic-views/tos]
         (= (:page meta-page) :about)
         [generic-views/about]
+
+        (= (:page meta-page) :oss-components)
+        [generic-views/oss-components]
+        
         
         
         (= (:page meta-page) :cloud)

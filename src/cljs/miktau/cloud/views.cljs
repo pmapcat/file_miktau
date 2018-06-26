@@ -54,18 +54,12 @@
     [autocomplete-views/filter-input [:cloud/get-app-data] false {:placeholder "Type tags in here…"}]]])
 
 (defn top-drawer []
-  
   [:div.top-drawer.padded-as-button {:style {:font-size "0.7em"}}
    [:div.pure-u-1-24]
    [:div.pure-u-23-24
     [:span.unstyled-link "Current root is: "]
-    [:a.red-clickable.unstyled-link  "[../some-current-root-dir/]"]
-    [:div.pure-button.pure-button-primary.mik-flush-right {:style {:font-size "0.7em" :display "inline-block" :margin-left "10px"}} [:b "Change root"]]
-    [:input.pure-button.pure-button-primary.mik-flush-right {:style {:font-size "0.7em" :display "inline-block" :margin-left "10px"}
-                                                             :on-change
-                                                             (fn [e]
-                                                               (.log js/console e))
-                                                             :type "file"}]]])
+    [:a.black.unstyled-link  "[../some-current-root-dir/]"]
+    [:div.pure-button.pure-button-primary.mik-flush-right {:style {:font-size "0.7em" :display "inline-block" :margin-left "10px"}} [:b "Change root"]]]])
 
 (defn back-button
   []
