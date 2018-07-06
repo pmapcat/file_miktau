@@ -13,7 +13,7 @@ const (
 )
 
 const (
-	MAX_ALLOWED_FILES_TO_BE_OPENED_IN_FILE_EXPLORER   = 100
+	MAX_ALLOWED_FILES_TO_BE_OPENED_IN_FILE_EXPLORER   = 153
 	MAX_ALLOWED_FILES_TO_BE_OPENED_IN_DEFAULT_PROGRAM = 32
 	DEFAULT_PAGE_SIZE                                 = 10
 	TAG_CONTEXT_MAX_SIZE                              = 5
@@ -38,7 +38,9 @@ func main() {
 	fs_backend.DropTempDirsCreated()
 
 	// load demo data set
-	LogErr("loading demo data set:", CNIS.MutableSwitchFolders("test_data/"))
+	LogErr("loading demo data set:", CNIS.MutableSwitchFolders("/home/mik/Downloads/metator_experiments/"))
+
+	CNIS.AppState().AddSubscription(newFileSystemAggregator())
 
 	// make :stub:, empty app state. Now, the user should select
 	// working folder

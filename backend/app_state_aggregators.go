@@ -16,7 +16,7 @@ func newThesaurusAndSortingAggregator() *ThesaurusAndSortingAggregator {
 	return &r
 }
 
-func (t *ThesaurusAndSortingAggregator) OnBeforeRun() {
+func (t *ThesaurusAndSortingAggregator) OnBeforeRun(a *AppState) {
 	t.reinit()
 }
 func (t *ThesaurusAndSortingAggregator) reinit() {
@@ -89,6 +89,7 @@ func (t *ThesaurusAndSortingAggregator) Aggregate(m *AppStateItem) {
 		t.patriarchs[m.Tags[0]] = true
 	}
 }
+func (t *ThesaurusAndSortingAggregator) OnAfterRun(m *AppState) {}
 
 type MetaThesaurusAndSortingAggregator struct {
 	thesaurus map[string]int
@@ -101,13 +102,14 @@ func newMetaThesaurusAndSortingAggregator() *MetaThesaurusAndSortingAggregator {
 	return &r
 }
 
-func (t *MetaThesaurusAndSortingAggregator) OnBeforeRun() {
+func (t *MetaThesaurusAndSortingAggregator) OnBeforeRun(a *AppState) {
 	t.reinit()
 }
 func (t *MetaThesaurusAndSortingAggregator) reinit() {
 	t.thesaurus = map[string]int{}
 	t.context = map[string]map[string]int{}
 }
+func (t *MetaThesaurusAndSortingAggregator) OnAfterRun(m *AppState) {}
 
 func (t *MetaThesaurusAndSortingAggregator) GetThesaurus() map[string]int {
 	return t.thesaurus
@@ -145,4 +147,53 @@ func (t *MetaThesaurusAndSortingAggregator) Aggregate(m *AppStateItem) {
 	sort.Slice(m.MetaTags, func(i int, j int) bool {
 		return t.thesaurus[m.MetaTags[i]] > t.thesaurus[m.MetaTags[j]]
 	})
+}
+
+type FileSystemAggregator struct {
+	RootDir   string
+	thesaurus map[string]int
+}
+
+func newFileSystemAggregator() *FileSystemAggregator {
+	r := FileSystemAggregator{}
+	return &r
+}
+
+func (t *FileSystemAggregator) OnBeforeRun(a *AppState) {
+	t.RootDir = a.core_dir
+	t.thesaurus = map[string]int{}
+}
+func (t *FileSystemAggregator) OnAfterRun(a *AppState) {
+	LogErr("If cleanup didn't work", SimplifiedCleanUp(a.core_dir))
+}
+
+// will rebuild file pathes on given nodes according to changes
+func (t *FileSystemAggregator) Aggregate(node *AppStateItem) {
+	// these are unreal. skip them
+	if t.RootDir == EMPTY_DATA_PATH || t.RootDir == IN_MEMORY_DB_PATH {
+		return
+	}
+
+	var err error
+	sort.Slice(node.Tags, func(i int, j int) bool {
+		return t.thesaurus[node.Tags[i]] > t.thesaurus[node.Tags[j]]
+	})
+
+	node.FilePath, err = fs_backend.MoveOnRootGivenTags(t.RootDir, node.FilePath, node.Tags)
+	if err != nil {
+		return
+	}
+	new_node, err := newAppStateItemFromFileNoStats(t.RootDir, node.FilePath)
+	LogErr("cannot get stats of a new file", err)
+	if err != nil {
+		return
+	}
+	node = new_node
+}
+
+func (t *FileSystemAggregator) Accumulate(m *AppStateItem) {
+
+	for _, tag := range m.Tags {
+		t.thesaurus[tag] += 1
+	}
 }

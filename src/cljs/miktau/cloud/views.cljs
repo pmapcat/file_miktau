@@ -34,13 +34,13 @@
    (for [[group items] @(refe/subscribe [:cloud/meta-cloud])]
      ^{:key group}
      [:div
-      [:h3.mik-cut-bottom.light-gray {:style {:font-size "0.5em"}} group]
+      [:h3.mik-cut-bottom.light-gray  group]
       (for [item items]
         ^{:key (:name item)}
         [:div.tag
          {:key (:name item)
           :on-click #(refe/dispatch (:on-click item))
-          :style {:display "block" :font-size "0.6em" :padding-left "10px"}
+          :style {:display "block"}
           :class
           (str
            (cond (:selected? item) "selected"
@@ -58,8 +58,7 @@
    [:div.pure-u-1-24]
    [:div.pure-u-23-24
     [:span.unstyled-link "Current root is: "]
-    [:a.black.unstyled-link  "[../some-current-root-dir/]"]
-    [:div.pure-button.pure-button-primary.mik-flush-right {:style {:font-size "0.7em" :display "inline-block" :margin-left "10px"}} [:b "Change root"]]]])
+    [:a.black.unstyled-link  "[../some-current-root-dir/]"]]])
 
 (defn back-button
   []
@@ -139,10 +138,10 @@
        [:span])
      
      [:div.pure-u-1
-      [:div.pure-u-1-8
+      [:div.pure-u-1-4
        [:div.padded-as-button
         [general-meta-panel]]]
-      [:div.pure-u-7-8
+      [:div.pure-u-3-4
        [:div.padded-as-button
         [general-cloud]
         (if (:show-empty-cloud emptiness)

@@ -120,6 +120,25 @@ func (f *fs_backend_) OpenEachInDefaultProgram(fpathes []string) error {
 	}
 	return nil
 }
+func (f *fs_backend_) GetFileInfo(fpath string) (os.FileInfo, error) {
+	return os.Stat(fpath)
+}
+
+// TESTED
+func (f *fs_backend_) MoveOnRootGivenTags(root_dir string, old_path string, tags []string) (string, error) {
+	new_directory := filepath.Join(append([]string{root_dir}, tags...)...)
+	// in case new file position is the same as old one (we save time by not moving files)
+	if new_directory == filepath.Dir(old_path) {
+		return old_path, nil
+	}
+	new_file_name := GenerateCollisionFreeFileName(new_directory, filepath.Base(old_path))
+	return filepath.Join(new_directory, new_file_name), LogErr("Moving files to the new base", f.mv(old_path, filepath.Join(new_directory, new_file_name)))
+}
+
+func (f *fs_backend_) mv(oldfpath string, newfpath string) error {
+	os.MkdirAll(filepath.Dir(newfpath), DEFAULT_PERMISSION)
+	return os.Rename(oldfpath, newfpath)
+}
 
 func (f *fs_backend_) Create(fpath string) error {
 	os.MkdirAll(filepath.Dir(fpath), DEFAULT_PERMISSION)

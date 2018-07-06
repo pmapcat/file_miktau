@@ -57,6 +57,24 @@ func TestBuildingAppStateOnFS(t *testing.T) {
 	})
 }
 
+func TestReflectionOnDataModification(t *testing.T) {
+	WithSimpleInDir(t, "simple_in_dir", func() {
+		res, err := fs_backend.MoveOnRootGivenTags("simple_in_dir", "simple_in_dir/work/natan/bibliostore/translator/blob.mp4", []string{"hello", "world", "near", "end"})
+		assert.Equal(t, err, nil)
+		assert.Equal(t, res, "simple_in_dir/hello/world/near/end/blob.mp4")
+		assert.Equal(t, MustIsFileExist("simple_in_dir/hello/world/near/end/blob.mp4"), true)
+		assert.Equal(t, MustIsFileExist("simple_in_dir/work/natan/bibliostore/translator/blob.mp4"), false)
+	})
+	WithSimpleInDir(t, "simple_in_dir", func() {
+		res, err := fs_backend.MoveOnRootGivenTags("simple_in_dir", "simple_in_dir/work/natan/bibliostore/translator/blob.mp4", []string{})
+		assert.Equal(t, err, nil)
+		assert.Equal(t, res, "simple_in_dir/blob.mp4")
+		assert.Equal(t, MustIsFileExist("simple_in_dir/blob.mp4"), true)
+		assert.Equal(t, MustIsFileExist("simple_in_dir/work/natan/bibliostore/translator/blob.mp4"), false)
+	})
+
+}
+
 func TestBuildSymlinksInADefaultProgram(t *testing.T) {
 	WithSimpleInDir(t, "simple_in_dir", func() {
 		cnis, err := NewAppStateOnFolder("simple_in_dir", AppStateItemIdentity)

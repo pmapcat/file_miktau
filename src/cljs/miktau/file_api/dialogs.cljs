@@ -20,9 +20,12 @@
      :buttonLabel "Choose root directory"
      :message "Choose root directory"
      :properties
-     ["openDirectory"]})
+     ["openDirectory" "showHiddenFiles"]})
    (fn [resulting-data]
      (cb (str (first (js->clj resulting-data)))))))
+(comment
+  (choose-root-dialog identity)
+  )
 
 (defn select-files-dialog
   [cb]

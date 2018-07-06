@@ -8,11 +8,11 @@ import (
 func TestGmailLikeTime(t *testing.T) {
 	on_time.WithWhateverTime(on_time.OnDate(2018, 12, 12), func() {
 		// within a single day
-		assert.Equal(t, on_time.GmailLikeFormat(on_time.OnDateTime(2018, 12, 11, 23, 12)), "23:12")
+		assert.Equal(t, on_time.GmailLikeFormatDeprecated(on_time.OnDateTime(2018, 12, 11, 23, 12)), "23:12")
 		// within ten days
-		assert.Equal(t, on_time.GmailLikeFormat(on_time.OnDateTime(2018, 12, 9, 12, 34)), "Dec 09")
+		assert.Equal(t, on_time.GmailLikeFormatDeprecated(on_time.OnDateTime(2018, 12, 9, 12, 34)), "Dec 09")
 		// later
-		assert.Equal(t, on_time.GmailLikeFormat(on_time.OnDateTime(2017, 1, 9, 12, 34)), "2017/01/09")
+		assert.Equal(t, on_time.GmailLikeFormatDeprecated(on_time.OnDateTime(2017, 1, 9, 12, 34)), "2017/01/09")
 	})
 
 }

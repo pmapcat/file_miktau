@@ -7,7 +7,7 @@
 
 (defn view-navigate
   []
-  [:div.mik-flush-right.unstyled-link {:style {:padding-right "5px" }}
+  [:div.unstyled-link {:style {:padding-left "5px" }}
    "["
    [:a.blue-clickable.unstyled-link {:href "#" :on-click #(refe/dispatch  [:nodes/init-page #{}  #{} {}]) } "Nodes "]
    [:a.blue-clickable.unstyled-link {:href "#" :on-click #(refe/dispatch  [:cloud/init-page #{}  {}]) } "Cloud"]
@@ -23,7 +23,7 @@
      "Hello"]
     [:p "Let's start by choosing a directory on which you would like to work on:"]
     [:div.pure-button.pure-button-primary
-     {:on-click #(refe/dispatch [:file-api/choose-root])}
+     {:on-click #(refe/dispatch [:file-api/swap-root])}
      [views-utils/icon "file_upload"]
      "Choose"]]])
 

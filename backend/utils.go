@@ -5,11 +5,25 @@ import (
 	"github.com/skratchdot/open-golang/open"
 	"math/rand"
 	"os"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 )
+
+// memoized IsHiddenDir function
+var IsHiddenDir = func() func(fname string) bool {
+	if runtime.GOOS != "windows" {
+		return func(fname string) bool {
+			return strings.HasPrefix(fname, ".")
+		}
+	}
+	// assume not hidden on windows systems
+	return func(fname string) bool {
+		return false
+	}
+}()
 
 func OpenFile(fpath string) error {
 	// if is_dev_environ() {
@@ -18,7 +32,16 @@ func OpenFile(fpath string) error {
 	// 	return nil
 	// }
 	log.WithField("fpath", fpath).Info("Opening file in a default program")
-	return LogErr("Opening file in default program returned: ", open.Run(fpath))
+	return LogErr("Opening file in default program returned: ", open.Start(fpath))
+}
+
+// will log error, but on info level, in such case when error is supposed to happen
+func LogInfo(msg string, value interface{}) {
+	log.WithField("field", value).Info(msg)
+}
+
+func LogDebug(msg string, value interface{}) {
+	log.WithField("field", value).Debug(msg)
 }
 
 // will log error, but on info level, in such case when error is supposed to happen

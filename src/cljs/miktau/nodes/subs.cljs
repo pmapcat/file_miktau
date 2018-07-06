@@ -114,7 +114,6 @@
        :links
        [{:name "Open in a single folder "
          :on-click  [:nodes/file-op :symlinks]
-         
          :disabled? (> amount 150)}]})))
 
 

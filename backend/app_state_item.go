@@ -20,6 +20,13 @@ type AppStateItem struct {
 	Modified                JSONTime    `json:"modified"`
 }
 
+func newAppStateItemFromFileNoStats(root, fpath string) (*AppStateItem, error) {
+	stat, err := fs_backend.GetFileInfo(fpath)
+	if err != nil {
+		return &AppStateItem{}, err
+	}
+	return newAppStateItemFromFile(root, stat, fpath), nil
+}
 func newAppStateItemFromFile(root string, stats os.FileInfo, fpath string) *AppStateItem {
 	// tags are unrooted
 	tags := strings.Split(strings.TrimPrefix(fp.Dir(fpath), root), string(fp.Separator))
@@ -28,6 +35,7 @@ func newAppStateItemFromFile(root string, stats os.FileInfo, fpath string) *AppS
 		Id:                      -1,
 		Name:                    fp.Base(fpath),
 		FilePath:                fpath,
+		FileInfo:                stats,
 		MetaTags:                []string{},
 		Tags:                    tags,
 		FileSizeInMb:            int(stats.Size() / 1000000),

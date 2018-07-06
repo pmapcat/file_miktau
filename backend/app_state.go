@@ -7,7 +7,8 @@ import (
 )
 
 type AppStateSubsription interface {
-	OnBeforeRun()
+	OnAfterRun(*AppState)
+	OnBeforeRun(*AppState)
 	Accumulate(*AppStateItem)
 	Aggregate(*AppStateItem)
 }
@@ -18,6 +19,7 @@ type AppState struct {
 	_rebuild_after_mutable_action []AppStateSubsription
 	agg_sorting                   *ThesaurusAndSortingAggregator
 	agg_meta                      *MetaThesaurusAndSortingAggregator
+	agg_fs                        *FileSystemAggregator
 	nodes                         []*AppStateItem
 	core_dir                      string
 	_transact_happening           bool
@@ -47,13 +49,12 @@ func NewAppState(core_dir string, list_of_nodes []*AppStateItem) *AppState {
 	tasa := newThesaurusAndSortingAggregator()
 	mtasa := newMetaThesaurusAndSortingAggregator()
 	res := AppState{
-		_on_after_create: []func([]*AppStateItem){MultifySingleHook(FileSystemHook)},// patch_db.BuildRetrieveSaved(core_dir)
+		_on_after_create: []func([]*AppStateItem){MultifySingleHook(FileSystemHook)}, // patch_db.BuildRetrieveSaved(core_dir)
 
-		_on_after_update: []func([]*AppStateItem){MultifySingleHook(FileSystemHook)},// patch_db.BuildStoreExisting(core_dir)
-
+		_on_after_update:              []func([]*AppStateItem){MultifySingleHook(FileSystemHook)}, // patch_db.BuildStoreExisting(core_dir)
 		nodes:                         []*AppStateItem{},
 		core_dir:                      core_dir,
-		_rebuild_after_mutable_action: []AppStateSubsription{tasa, mtasa},
+		_rebuild_after_mutable_action: []AppStateSubsription{tasa, mtasa, newFileSystemAggregator()},
 		agg_sorting:                   tasa,
 		agg_meta:                      mtasa,
 		_transact_happening:           false,
@@ -72,7 +73,11 @@ func NewAppStateOnFolder(fpath string, worker func(*AppStateItem) *AppStateItem)
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() {
+		if info.IsDir() {
+			if IsHiddenDir(info.Name()) {
+				return filepath.SkipDir
+			}
+		} else {
 			cni = append(cni, worker(newAppStateItemFromFile(fpath, info, path)))
 		}
 		return nil
@@ -81,4 +86,8 @@ func NewAppStateOnFolder(fpath string, worker func(*AppStateItem) *AppStateItem)
 		return &AppState{}, err
 	}
 	return NewAppState(fpath, cni), nil
+}
+func (a *AppState) AddSubscription(worker AppStateSubsription) {
+	a._rebuild_after_mutable_action = append(a._rebuild_after_mutable_action, worker)
+
 }

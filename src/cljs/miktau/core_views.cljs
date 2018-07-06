@@ -6,7 +6,10 @@
             [miktau.generic.views :as generic-views]
             
             [day8.re-frame.http-fx]
-            
+
+            [miktau.file-api.events]
+            [miktau.file-api.effects]
+            [miktau.file-api.subs]
             
             [miktau.api-handler.events]
             

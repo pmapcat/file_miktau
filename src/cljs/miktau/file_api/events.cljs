@@ -13,19 +13,14 @@
 ;;   * size of given file exceeds root size
 ;;   * directory structure is important to user
 ;;   * moving operation is costly
-;;   *
-
-;; What if?
-;;  * turn folder structure into meta
-;;  * write tags into a separate (at root) file.
-;;    * on directory change will have to work with this
-;;    * git? (on update operation reread the whole directory
 
 (refe/reg-event-fx
  :file-api/swap-root
  (fn [{:keys  [db]} _]
    {:db  db
     :file-api/trigger-choose-root! [:api-handler/swap-root-directory]}))
+
+
 
 (refe/reg-event-fx
  :file-api/add-new-files
