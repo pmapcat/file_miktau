@@ -65,7 +65,7 @@ func (n *AppState) SideEffectMutablePushNewFiles(file_paths []string) ([]int, er
 // Gathers data from FileSystem
 // for each file, check whether it is already in
 // This is O(N*K) algorithm, where K is the amount of file_pathes.
-// On larger systems, it might take larger time to work with it
+// On larger systems, it might take larger time to work
 func (n *AppState) SideEffectResolveIfPossibleWithinFileSystem(file_paths []string) ([]*ResolverAppStateItem, []*ResolverAppStateItem, error) {
 	finfos := []*ResolverAppStateItem{}
 	for _, v := range file_paths {

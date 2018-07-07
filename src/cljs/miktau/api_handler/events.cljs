@@ -87,9 +87,14 @@
 (refe/reg-event-fx
  :api-handler/push-new-files-response-wrapper-hack
  (fn [{:keys [db]} [_ response]]
-   {:db db
-    :fx-redirect [:edit-nodes/init-page  (into #{} (:new-file-ids response)) #{}]}))
-
+   (do
+     (.log js/console (str response))
+     {:db db
+      :fx-redirect [:edit-nodes/init-page  (into #{} (:new-file-ids response)) #{}]})))
+(comment
+  (:nodes-selected @(refe/subscribe [:generic/test-db]))
+  
+  )
 (defn push-new-files
   "[:api-handler/open-single-file-in-default-program :success-redirect \"some/wonderful/new/place/of/the/world/\"]
    In this case, response has not only Error. But also, the following struct

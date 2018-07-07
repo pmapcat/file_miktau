@@ -20,10 +20,7 @@ const (
 	DEFAULT_PERMISSION                                = 0777
 	TEMP_DIR_PREFIX                                   = "metator_prefix_"
 	PATCH_DB_PREFIX                                   = "metator_database_file.db"
-	DEMO_DACHA_PATH                                   = "/dacha_data_set/"
-	DEMO_DATA_PATH                                    = "test_data/demo_data_set/"
 	EMPTY_DATA_PATH                                   = ":empty:"
-	IN_MEMORY_DB_PATH                                 = ":memory:"
 	PATCH_DB_BUCKET                                   = "metator_bucket"
 )
 

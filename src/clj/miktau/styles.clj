@@ -136,7 +136,7 @@
    [:.tag.disabled:hover   {:color "HSL(123,1%,84%) !important" :cursor "default"}]
    [:.tag.can-select       {:color "black" :cursor "pointer" }]
    [:.tag.can-select:hover {:color (str (:light-green *apple-palette*))}]
-   [:.tag.selected         {:background (str (:light-green *apple-palette*) "!important;") :color (str "white !important")}]
+   [:.tag.selected         {:background (str (:light-green *apple-palette*) "!important;") :cursor "pointer"  :color (str "white !important")}]
    
    [:.complete.selected
     {:background (str (:light-green *apple-palette*) "!important;") :color (str "white !important")}]

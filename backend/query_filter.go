@@ -1,9 +1,5 @@
 package main
 
-import (
-	"path/filepath"
-)
-
 type query_filter_ struct{}
 
 var query_filter = query_filter_{}
@@ -12,9 +8,8 @@ var query_filter = query_filter_{}
 // that we must filter by filepaths
 func (a *query_filter_) FilterByFilePaths(n *AppStateItem, c *Query) (bool, bool) {
 	if len(c.FilePaths) > 0 {
-		fname_fpath := filepath.Join(n.FilePath, n.Name)
 		for _, fpath := range c.FilePaths {
-			if fname_fpath == fpath {
+			if n.FilePath == fpath {
 				return true, true
 			}
 		}

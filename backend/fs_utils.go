@@ -128,7 +128,12 @@ func SimplifiedCleanUp(fpath string) error {
 
 	// reverse iterate, same as range, but in reverse order
 	for i := len(result) - 1; i >= 0; i-- {
-		LogInfoErr("Removing dirs, **must error** on non empty dirs", os.Remove(result[i]))
+		err := os.Remove(result[i])
+		// in case,
+		if err != nil && err.(*os.PathError).Err.Error() == "directory not empty" {
+			continue
+		}
+		LogErr("Removing doesn't work: ", err)
 	}
 	return nil
 }

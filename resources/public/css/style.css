@@ -53,6 +53,7 @@
 
 .tag.selected {
   background: rgb(167, 178, 77)!important;;
+  cursor: pointer;
   color: white !important;
 }
 

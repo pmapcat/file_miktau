@@ -170,7 +170,7 @@ func (t *FileSystemAggregator) OnAfterRun(a *AppState) {
 // will rebuild file pathes on given nodes according to changes
 func (t *FileSystemAggregator) Aggregate(node *AppStateItem) {
 	// these are unreal. skip them
-	if t.RootDir == EMPTY_DATA_PATH || t.RootDir == IN_MEMORY_DB_PATH {
+	if t.RootDir == EMPTY_DATA_PATH {
 		return
 	}
 

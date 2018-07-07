@@ -1,7 +1,6 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
 )
@@ -23,22 +22,6 @@ type AppState struct {
 	nodes                         []*AppStateItem
 	core_dir                      string
 	_transact_happening           bool
-}
-
-func NewAppStateFromDachaDataSet(repeat int) *AppState {
-	nodes_list := []*AppStateItem{}
-	for i := 0; i < repeat; i++ {
-		nodes_list = append(nodes_list, buildDachaDataset()...)
-	}
-	return NewAppState(DEMO_DACHA_PATH, nodes_list)
-}
-
-func NewAppStateFromDemoDataSet(repeat int) *AppState {
-	nodes_list := []*AppStateItem{}
-	for i := 0; i < repeat; i++ {
-		nodes_list = append(nodes_list, buildDemoDataset()...)
-	}
-	return NewAppState(DEMO_DATA_PATH, nodes_list)
 }
 
 func NewEmptyAppState() *AppState {
@@ -65,9 +48,6 @@ func NewAppState(core_dir string, list_of_nodes []*AppStateItem) *AppState {
 
 // worker, is a backend helper that would read up
 func NewAppStateOnFolder(fpath string, worker func(*AppStateItem) *AppStateItem) (*AppState, error) {
-	log.Info("Reading the folder: ", fpath)
-	log.Info("Reading files, line by line")
-	log.Info("Populating AppStateItem with Files metadata")
 	cni := []*AppStateItem{}
 	err := filepath.Walk(fpath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

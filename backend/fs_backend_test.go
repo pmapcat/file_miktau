@@ -8,6 +8,8 @@ import (
 	"testing"
 )
 
+const DEMO_DATASET_TEMP_FOLDER = "simple_in_dir"
+
 // Returns whether the assertion was successful (true) or not (false).
 func MikEqual(t assert.TestingT, actual, expected interface{}, msgAndArgs ...interface{}) bool {
 	if !assert.ObjectsAreEqual(expected, actual) {
@@ -18,36 +20,32 @@ func MikEqual(t assert.TestingT, actual, expected interface{}, msgAndArgs ...int
 	return true
 }
 
-func WithDachaInDir(t *testing.T, root_dir string, cb func()) {
-	cnis := NewAppStateFromDachaDataSet(1)
-	assert.Equal(t, TestBuildProjectFolderOnDataSet(root_dir, cnis.nodes), nil)
-	cb()
+func withAnyInDir(t *testing.T, repeat int, ds []*AppStateItem, root_dir string, cb func(*AppState)) {
+	nodes_list := []*AppStateItem{}
+	for i := 0; i < repeat; i++ {
+		nodes_list = append(nodes_list, ds...)
+	}
+	assert.Equal(t, TestBuildProjectFolderOnDataSet(root_dir, nodes_list), nil)
+	aps, err := NewAppStateOnFolder(root_dir, AppStateItemIdentity)
+	assert.Equal(t, err, nil)
+	cb(aps)
 	assert.Equal(t, TearDownProjectOnDataSet(root_dir), nil)
 }
 
-func WithSimpleInDir(t *testing.T, root_dir string, cb func()) {
-	cnis := NewAppStateFromDemoDataSet(1)
-	assert.Equal(t, TestBuildProjectFolderOnDataSet(root_dir, cnis.nodes), nil)
-	cb()
-	assert.Equal(t, TearDownProjectOnDataSet(root_dir), nil)
+func WithDachaInDir(t *testing.T, repeat int, cb func(*AppState)) {
+	withAnyInDir(t, repeat, buildDachaDataset(), DEMO_DATASET_TEMP_FOLDER, cb)
+}
+
+func WithSimpleInDir(t *testing.T, repeat int, cb func(*AppState)) {
+	withAnyInDir(t, repeat, buildDemoDataset(), DEMO_DATASET_TEMP_FOLDER, cb)
 }
 
 func TearDownProjectOnDataSet(root_dir string) error {
 	return os.RemoveAll(root_dir)
 }
 
-func TestGenerateNiceLookingTreeDataSet(t *testing.T) {
-	cnis := NewAppStateFromDachaDataSet(1)
-	tmp_dir := "dacha_set/"
-	assert.Equal(t, TestBuildProjectFolderOnDataSet(tmp_dir, cnis.nodes), nil)
-	assert.Equal(t, TearDownProjectOnDataSet(tmp_dir), nil)
-}
-
 func TestBuildingAppStateOnFS(t *testing.T) {
-	WithSimpleInDir(t, "simple_in_dir", func() {
-		cnis, err := NewAppStateOnFolder("simple_in_dir", AppStateItemIdentity)
-		assert.Equal(t, err, nil)
-
+	WithSimpleInDir(t, 1, func(cnis *AppState) {
 		NewAppStateResponse(cnis, *newQuery()).MetaCloud()
 		assert.Equal(t, NewAppStateResponse(cnis, *newQuery()).SimpleCloud(),
 			map[string]int{"work": 20, "bibliostore": 8, "translator": 2, "natan": 13, "wiki": 1, "everybook": 1,
@@ -58,27 +56,24 @@ func TestBuildingAppStateOnFS(t *testing.T) {
 }
 
 func TestReflectionOnDataModification(t *testing.T) {
-	WithSimpleInDir(t, "simple_in_dir", func() {
-		res, err := fs_backend.MoveOnRootGivenTags("simple_in_dir", "simple_in_dir/work/natan/bibliostore/translator/blob.mp4", []string{"hello", "world", "near", "end"})
+	WithSimpleInDir(t, 1, func(cnis *AppState) {
+		res, err := fs_backend.MoveOnRootGivenTags(cnis.core_dir, jp(cnis.core_dir, "work/natan/bibliostore/translator/blob.mp4"), []string{"hello", "world", "near", "end"})
 		assert.Equal(t, err, nil)
-		assert.Equal(t, res, "simple_in_dir/hello/world/near/end/blob.mp4")
-		assert.Equal(t, MustIsFileExist("simple_in_dir/hello/world/near/end/blob.mp4"), true)
-		assert.Equal(t, MustIsFileExist("simple_in_dir/work/natan/bibliostore/translator/blob.mp4"), false)
+		assert.Equal(t, res, jp(cnis.core_dir, "hello/world/near/end/blob.mp4"))
+		assert.Equal(t, MustIsFileExist(jp(cnis.core_dir, "hello/world/near/end/blob.mp4")), true)
+		assert.Equal(t, MustIsFileExist(jp(cnis.core_dir, "work/natan/bibliostore/translator/blob.mp4")), false)
 	})
-	WithSimpleInDir(t, "simple_in_dir", func() {
-		res, err := fs_backend.MoveOnRootGivenTags("simple_in_dir", "simple_in_dir/work/natan/bibliostore/translator/blob.mp4", []string{})
+	WithSimpleInDir(t, 1, func(cnis *AppState) {
+		res, err := fs_backend.MoveOnRootGivenTags(cnis.core_dir, jp(cnis.core_dir, "work/natan/bibliostore/translator/blob.mp4"), []string{})
 		assert.Equal(t, err, nil)
-		assert.Equal(t, res, "simple_in_dir/blob.mp4")
-		assert.Equal(t, MustIsFileExist("simple_in_dir/blob.mp4"), true)
-		assert.Equal(t, MustIsFileExist("simple_in_dir/work/natan/bibliostore/translator/blob.mp4"), false)
+		assert.Equal(t, res, jp(cnis.core_dir, "blob.mp4"))
+		assert.Equal(t, MustIsFileExist(jp(cnis.core_dir, "blob.mp4")), true)
+		assert.Equal(t, MustIsFileExist(jp("work/natan/bibliostore/translator/blob.mp4")), false)
 	})
-
 }
 
 func TestBuildSymlinksInADefaultProgram(t *testing.T) {
-	WithSimpleInDir(t, "simple_in_dir", func() {
-		cnis, err := NewAppStateOnFolder("simple_in_dir", AppStateItemIdentity)
-		assert.Equal(t, err, nil)
+	WithSimpleInDir(t, 1, func(cnis *AppState) {
 		fpathes := []string{}
 		for _, v := range cnis.nodes {
 			fpathes = append(fpathes, v.FilePath)

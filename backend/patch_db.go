@@ -13,7 +13,7 @@ var patch_db = patch_db_{}
 
 func (p *patch_db_) _storeData(root string, pr []*PatchRecord) error {
 	// not applied on :memory:
-	if root == IN_MEMORY_DB_PATH {
+	if root == EMPTY_DATA_PATH {
 		return nil
 	}
 
@@ -43,7 +43,7 @@ func (p *patch_db_) _storeData(root string, pr []*PatchRecord) error {
 }
 
 func (p *patch_db_) _retrieveData(root string, keys []string, cb func(string, *PatchRecord)) error {
-	if root == IN_MEMORY_DB_PATH || root == EMPTY_DATA_PATH {
+	if root == EMPTY_DATA_PATH {
 		return nil
 	}
 
@@ -71,7 +71,7 @@ func (p *patch_db_) _retrieveData(root string, keys []string, cb func(string, *P
 }
 
 func (p *patch_db_) BuildRetrieveSaved(core_dir string) func([]*AppStateItem) {
-	if core_dir == IN_MEMORY_DB_PATH || core_dir == EMPTY_DATA_PATH {
+	if core_dir == EMPTY_DATA_PATH {
 		return func([]*AppStateItem) {}
 	}
 
@@ -100,7 +100,7 @@ func (p *patch_db_) BuildRetrieveSaved(core_dir string) func([]*AppStateItem) {
 	}
 }
 func (p *patch_db_) BuildStoreExisting(core_dir string) func([]*AppStateItem) {
-	if core_dir == IN_MEMORY_DB_PATH {
+	if core_dir == EMPTY_DATA_PATH {
 		return func([]*AppStateItem) {}
 	}
 

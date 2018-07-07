@@ -20,7 +20,8 @@
    {:style {:padding "5em"}}
    [:div.mik-flush-center.background-1
     [:a.padded-as-button.unstyled-link  { :style {:font-size "4em"}}
-     "Hello"]
+     "Hello :)"]
+    [:p "It is " [:b.red "highly recommended "]  " to backup your working directory before you start messing with it"]
     [:p "Let's start by choosing a directory on which you would like to work on:"]
     [:div.pure-button.pure-button-primary
      {:on-click #(refe/dispatch [:file-api/swap-root])}
