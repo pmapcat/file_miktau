@@ -60,8 +60,8 @@ func (f *fs_backend_) DropTempDirsCreated() error {
 	return nil
 }
 
-func (f *fs_backend_) SymlinkInRootGivenForeignPathes(root string, fpathes []string) ([]string, error) {
-	if !MustIsFileExist(root) {
+func (f *fs_backend_) symlinkInDirGivenForeignPathes(root string, fpathes []string) ([]string, error) {
+	if !MustIsFSExist(root) {
 		return []string{}, errors.New("Root doesn't exist: " + root)
 	}
 	result := []string{}
@@ -80,24 +80,20 @@ func (f *fs_backend_) SymlinkInRootGivenForeignPathes(root string, fpathes []str
 	return result, nil
 }
 
+func (f *fs_backend_) SymlinkInRootGivenForeignPathes(root string, fpathes []string) ([]string, error) {
+	return f.symlinkInDirGivenForeignPathes(root, fpathes)
+}
+func (f *fs_backend_) ln_s(oldpath, newpath string) error {
+	return os.Symlink(oldpath, newpath)
+}
+
 func (f *fs_backend_) SymlinkInTempGivenPathes(fpathes []string) (string, error) {
 	tmpdir, err := ioutil.TempDir("", TEMP_DIR_PREFIX)
 	if err != nil {
 		return "", err
 	}
-
-	for _, v := range fpathes {
-		v, err = filepath.Abs(v)
-		if err != nil {
-			return "", err
-		}
-		err := os.Symlink(v,
-			filepath.Join(tmpdir, GenerateCollisionFreeFileName(tmpdir, filepath.Base(v))))
-		if err != nil {
-			return "", err
-		}
-	}
-	return tmpdir, nil
+	_, err = f.symlinkInDirGivenForeignPathes(tmpdir, fpathes)
+	return tmpdir, err
 }
 
 func (f *fs_backend_) OpenAsSymlinksInASingleFolder(fpathes []string) error {

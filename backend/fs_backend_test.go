@@ -72,6 +72,41 @@ func TestReflectionOnDataModification(t *testing.T) {
 	})
 }
 
+func TestSymlinkInRootGivenForeignPathes(t *testing.T) {
+	WithTempDir(t, func(temp_dir string) {
+		touch(t, jp(temp_dir, "a_file.mp4"))
+		touch(t, jp(temp_dir, "a_file.docx"))
+		touch(t, jp(temp_dir, "a_file.brabus"))
+
+		WithSimpleInDir(t, 1, func(cnis *AppState) {
+			new_paths, err := fs_backend.SymlinkInRootGivenForeignPathes(DEMO_DATASET_TEMP_FOLDER, []string{
+				jp(temp_dir, "a_file.mp4"),
+				jp(temp_dir, "a_file.docx"),
+				jp(temp_dir, "a_file.docx"),
+			})
+			assert.Equal(t, err, nil)
+			assert.Equal(t, new_paths, []string{
+				jp(DEMO_DATASET_TEMP_FOLDER, "a_file.mp4"),
+				jp(DEMO_DATASET_TEMP_FOLDER, "a_file.docx"),
+				jp(DEMO_DATASET_TEMP_FOLDER, "a_file_1.docx")})
+
+			// do the same, but files now are within root
+			new_paths, err = fs_backend.SymlinkInRootGivenForeignPathes(DEMO_DATASET_TEMP_FOLDER, []string{
+				jp(DEMO_DATASET_TEMP_FOLDER, "a_file.mp4"),
+				jp(DEMO_DATASET_TEMP_FOLDER, "a_file.docx"),
+				jp(DEMO_DATASET_TEMP_FOLDER, "a_file_1.docx"),
+			})
+			assert.Equal(t, err, nil)
+			assert.Equal(t, new_paths, []string{
+				jp(DEMO_DATASET_TEMP_FOLDER, "a_file_1.mp4"),
+				jp(DEMO_DATASET_TEMP_FOLDER, "a_file_2.docx"),
+				jp(DEMO_DATASET_TEMP_FOLDER, "a_file_1_1.docx")})
+
+		})
+	})
+
+}
+
 func TestBuildSymlinksInADefaultProgram(t *testing.T) {
 	WithSimpleInDir(t, 1, func(cnis *AppState) {
 		fpathes := []string{}

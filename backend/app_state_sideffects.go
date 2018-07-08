@@ -34,7 +34,7 @@ func (n *AppState) SideEffectMutablePushNewFiles(file_paths []string) ([]int, er
 	if err != nil {
 		return []int{}, err
 	}
-	// take unresolved items, and extract strings from them
+	// take unresolved items, and extract file paths from them
 	unresolved_items_strings := []string{}
 	for _, v := range unresolved_items {
 		unresolved_items_strings = append(unresolved_items_strings, v.CameWithPath)
