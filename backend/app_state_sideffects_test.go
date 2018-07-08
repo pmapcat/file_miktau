@@ -17,7 +17,7 @@ func touch(t *testing.T, fname string) {
 	assert.Equal(t, err, nil)
 }
 
-func TestSideEffectMutablePushNewFiles(t *testing.T) {
+func TestSideEffectResolveIfPossibleWithinFileSystem(t *testing.T) {
 	WithSimpleInDir(t, 1, func(cnis *AppState) {
 		resolved, unresolved, err := cnis.SideEffectResolveIfPossibleWithinFileSystem([]string{
 			jp(DEMO_DATASET_TEMP_FOLDER, "blab.mp4"),
@@ -32,6 +32,44 @@ func TestSideEffectMutablePushNewFiles(t *testing.T) {
 		assert.Equal(t, resolved[0].Node.Name, "blab.mp4")
 		assert.Equal(t, resolved[0].Node.Id, 0)
 		assert.Equal(t, resolved[1].Node.Id, 6)
+	})
+
+	WithTempDir(t, func(temp_path string) {
+		touch(t, jp(temp_path, "some_demo_file.mp4"))
+		touch(t, jp(temp_path, "another_file.mp4"))
+		touch(t, jp(temp_path, "blab.mp4"))
+		touch(t, jp(temp_path, "mordor.mp4"))
+		WithSimpleInDir(t, 1, func(cnis *AppState) {
+			assert.Equal(t, fs_backend.ln_s(
+				jp(DEMO_DATASET_TEMP_FOLDER, "work/everybook/dramo.mp4"),
+				jp(temp_path, "new_file.mp4")), nil)
+			resolved, unresolved, err := cnis.SideEffectResolveIfPossibleWithinFileSystem([]string{
+				// one file that is an internal item
+				jp(DEMO_DATASET_TEMP_FOLDER, "work/natan/bibliostore/translator/blob.mp4"),
+				// one file that is added from the external source
+				jp(temp_path, "some_demo_file.mp4"),
+				// one file that repeats (by name) the file that already exists in the system
+				jp(temp_path, "blab.mp4"),
+				// one file, that is already within the system, but which symlinked to the outside system
+				// to not to clash it within
+				jp(temp_path, "new_file.mp4"),
+				// one file that doesn't exist
+				jp(temp_path, "gornitsa"),
+			})
+			assert.Equal(t, err, nil)
+			assert.Equal(t, len(resolved), 2)
+			fpa := []string{}
+			for _, v := range resolved {
+				fpa = append(fpa, v.Node.FilePath)
+			}
+			assert.Equal(t, fpa, []string{
+				jp(DEMO_DATASET_TEMP_FOLDER, "/work/natan/bibliostore/translator/blob.mp4"),
+				jp(DEMO_DATASET_TEMP_FOLDER, "work/everybook/dramo.mp4"),
+			})
+
+			assert.Equal(t, len(unresolved), 2)
+			assert.Equal(t, resolved[1].Node.FilePath, jp(DEMO_DATASET_TEMP_FOLDER, "work/everybook/dramo.mp4"))
+		})
 	})
 }
 
@@ -66,9 +104,9 @@ func TestSideEffectMutabablePushNewFiles(t *testing.T) {
 				bo = append(bo, v.FilePath)
 			}
 			assert.Equal(t, bo, []string{
+				jp(DEMO_DATASET_TEMP_FOLDER, "work/everybook/dramo.mp4"),
 				jp(DEMO_DATASET_TEMP_FOLDER, "some_demo_file.mp4"),
 				jp(DEMO_DATASET_TEMP_FOLDER, "blab_1.mp4"),
-				jp(DEMO_DATASET_TEMP_FOLDER, "work/everybook/dramo.mp4"),
 			})
 
 			// now, the same resolution within the root, should yield the same files (without dublicated copies)
@@ -87,8 +125,8 @@ func TestSideEffectMutabablePushNewFiles(t *testing.T) {
 			}
 			assert.Equal(t, bo, []string{
 				jp(DEMO_DATASET_TEMP_FOLDER, "some_demo_file.mp4"),
-				jp(DEMO_DATASET_TEMP_FOLDER, "another_file.mp4"),
 				jp(DEMO_DATASET_TEMP_FOLDER, "blab_1.mp4"),
+				jp(DEMO_DATASET_TEMP_FOLDER, "another_file.mp4"),
 			})
 
 		})

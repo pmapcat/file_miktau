@@ -20,10 +20,11 @@
    {:db  db
     :file-api/trigger-choose-root! [:api-handler/swap-root-directory]}))
 
-
-
 (refe/reg-event-fx
  :file-api/add-new-files
  (fn [{:keys  [db]} _]
    {:db  db
     :file-api/trigger-choose-many-files! [:api-handler/push-new-files]}))
+
+
+

@@ -69,7 +69,7 @@ func (n *AppState) SideEffectMutablePushNewFiles(file_paths []string) ([]int, er
 func (n *AppState) SideEffectResolveIfPossibleWithinFileSystem(file_paths []string) ([]*ResolverAppStateItem, []*ResolverAppStateItem, error) {
 	finfos := []*ResolverAppStateItem{}
 	for _, v := range file_paths {
-		stat, err := os.Lstat(v)
+		stat, err := os.Stat(v)
 		if err != nil {
 			log.WithError(err).WithField("path", v).
 				Error("Path is not resolvable, skipping")
@@ -94,7 +94,6 @@ func (n *AppState) SideEffectResolveIfPossibleWithinFileSystem(file_paths []stri
 				results = append(results, resolver_node)
 				finfos[point_index] = nil
 			}
-			break
 		}
 	}
 	unresolved := []*ResolverAppStateItem{}

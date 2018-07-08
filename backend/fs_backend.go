@@ -84,6 +84,14 @@ func (f *fs_backend_) SymlinkInRootGivenForeignPathes(root string, fpathes []str
 	return f.symlinkInDirGivenForeignPathes(root, fpathes)
 }
 func (f *fs_backend_) ln_s(oldpath, newpath string) error {
+	oldpath, err := filepath.Abs(oldpath)
+	if err != nil {
+		return err
+	}
+	newpath, err = filepath.Abs(newpath)
+	if err != nil {
+		return err
+	}
 	return os.Symlink(oldpath, newpath)
 }
 

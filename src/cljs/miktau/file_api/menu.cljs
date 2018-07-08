@@ -22,7 +22,7 @@
     :submenu
     [{:label "Choose root folder" :accelerator "Ctrl+N"
       :click #(refe/dispatch [:file-api/swap-root])}
-     {:label "Add files"  :accelerator "Ctrl+A"
+     {:label "Add files"  :accelerator "Ctrl+O"
       :click #(refe/dispatch [:file-api/add-new-files])}
      {:role "quit"}]}
    {:label "Operations"
@@ -30,15 +30,14 @@
     [{:label "Undo" :accelerator "Ctrl+Z"
       :click #(refe/dispatch [:undo])}
      {:type "separator"}
-     {:label "Switch to nodes"  :accelerator "Ctrl+O"
+     {:label "Switch to nodes"  :accelerator "F2"
       :click #(refe/dispatch [:nodes/init-page #{} #{}])}
-     {:label "Switch to cloud"  :accelerator "Ctrl+L"
+     {:label "Switch to cloud"  :accelerator "F3"
       :click #(refe/dispatch [:cloud/init-page #{}])}
-     {:label "Switch to edit view"  :accelerator "Ctrl+D"
+     {:label "Switch to edit view"  :accelerator "F4"
       :click #(refe/dispatch [:edit-nodes/init-page #{"*"} #{}])}
-     
      {:type "separator"}
-     {:role "reload" :label "Reload app (on errors)"}]}
+     {:role "reload" :label "Reload app (on errors)" :accelerator "F5"}]}
    {:label "About"
     :submenu
     [{:label "Components"

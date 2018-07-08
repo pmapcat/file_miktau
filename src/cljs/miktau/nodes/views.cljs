@@ -2,8 +2,7 @@
   (:require [miktau.generic.views-utils :as views-utils]
             [miktau.breadcrumbs.views :as breadcrumbs-views]
             [miktau.autocomplete.views :as autocomplete-views]            
-            [re-frame.core :as refe]
-            [miktau.tools :as utils]))
+            [re-frame.core :as refe]))
 
 (defn for-every-and-last
   [data-set]
@@ -125,7 +124,9 @@
      [radio-button "" #(refe/dispatch (:on-click  node)) (:selected? node)]]]
    [:td
     [:a.unstyled-link.black-clickable 
-     {:style {:font-weight "300" :word-wrap "break-word"}}
+     {:style {:font-weight "300" :word-wrap "break-word"} :on-click #(refe/dispatch
+                                                                      [:api-handler/open-single-file-in-default-program (:fpath node)])}
+     
      (:name node)]]
    [:td
     [tagging-in-a-single-node-item (:tags node)]

@@ -13,15 +13,16 @@ type AppStateSubsription interface {
 }
 
 type AppState struct {
-	_on_after_create              []func([]*AppStateItem)
-	_on_after_update              []func([]*AppStateItem)
-	_rebuild_after_mutable_action []AppStateSubsription
-	agg_sorting                   *ThesaurusAndSortingAggregator
-	agg_meta                      *MetaThesaurusAndSortingAggregator
-	agg_fs                        *FileSystemAggregator
-	nodes                         []*AppStateItem
-	core_dir                      string
-	_transact_happening           bool
+	_on_after_create    []func([]*AppStateItem)
+	_on_after_update    []func([]*AppStateItem)
+	_call_after_init    []AppStateSubsription
+	_call_after_update  []AppStateSubsription
+	agg_sorting         *ThesaurusAndSortingAggregator
+	agg_meta            *MetaThesaurusAndSortingAggregator
+	agg_fs              *FileSystemAggregator
+	nodes               []*AppStateItem
+	core_dir            string
+	_transact_happening bool
 }
 
 func NewEmptyAppState() *AppState {
@@ -34,13 +35,14 @@ func NewAppState(core_dir string, list_of_nodes []*AppStateItem) *AppState {
 	res := AppState{
 		_on_after_create: []func([]*AppStateItem){MultifySingleHook(FileSystemHook)}, // patch_db.BuildRetrieveSaved(core_dir)
 
-		_on_after_update:              []func([]*AppStateItem){MultifySingleHook(FileSystemHook)}, // patch_db.BuildStoreExisting(core_dir)
-		nodes:                         []*AppStateItem{},
-		core_dir:                      core_dir,
-		_rebuild_after_mutable_action: []AppStateSubsription{tasa, mtasa, newFileSystemAggregator()},
-		agg_sorting:                   tasa,
-		agg_meta:                      mtasa,
-		_transact_happening:           false,
+		_on_after_update:    []func([]*AppStateItem){MultifySingleHook(FileSystemHook)}, // patch_db.BuildStoreExisting(core_dir)
+		nodes:               []*AppStateItem{},
+		core_dir:            core_dir,
+		_call_after_init:    []AppStateSubsription{tasa, mtasa},
+		_call_after_update:  []AppStateSubsription{tasa, mtasa, newFileSystemAggregator()},
+		agg_sorting:         tasa,
+		agg_meta:            mtasa,
+		_transact_happening: false,
 	}
 	res.MutableCreate(list_of_nodes)
 	return &res

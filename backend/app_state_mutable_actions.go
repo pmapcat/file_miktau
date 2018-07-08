@@ -34,25 +34,22 @@ func (c *AppState) _transact(action int, worker func() []*AppStateItem) {
 			v(applied_items)
 		}
 	}
-
-	for _, action := range c._rebuild_after_mutable_action {
+	for _, action := range c._call_after_update {
 		action.OnBeforeRun(c)
 	}
-	for _, action := range c._rebuild_after_mutable_action {
+	for _, action := range c._call_after_update {
 		for _, v := range c.nodes {
 			action.Accumulate(v)
 		}
 	}
-	for _, action := range c._rebuild_after_mutable_action {
+	for _, action := range c._call_after_update {
 		for _, v := range c.nodes {
 			action.Aggregate(v)
 		}
 	}
-
-	for _, action := range c._rebuild_after_mutable_action {
+	for _, action := range c._call_after_update {
 		action.OnAfterRun(c)
 	}
-
 }
 
 func (n *AppState) MutableCreate(nodes []*AppStateItem) []int {

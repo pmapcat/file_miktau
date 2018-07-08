@@ -60,11 +60,13 @@
              :can-select?    true}))]
     {:selected? selected?
      :modified (node-next :modified)
+     :fpath    (node-next :file-path)
      :modified-as-prev?
      (= (:modified node-next) (:modified node-prev))
      :id (:id node-next)
      :on-click [:nodes/select-node (:id node-next)]
      :name (:name node-next)
+
      :all-tags-repeat-as-prev? (:same-as-prev? (last all-tags))
      :all-tags (map keyword (node-next :tags))
      :tags all-tags}))
