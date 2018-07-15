@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"log"
+	"strings"
 )
 
 const (
@@ -28,6 +30,14 @@ var USE_PATCH_DB = false
 var CNIS = WrapSync(NewEmptyAppState())
 
 func main() {
+	for _, v := range buildDemoDataset() {
+		log.Println(strings.Join(v.Tags, " "))
+	}
+
+	for _, v := range buildDachaDataset() {
+		log.Println(strings.Join(v.Tags, " "))
+	}
+
 	port := flag.Int("port", 4000, "On what port should the app be served")
 	flag.Parse()
 
