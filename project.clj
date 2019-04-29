@@ -1,34 +1,31 @@
 (defproject miktau "0.1.0"
-  :description "This is a METATOR project. "
+  :description "Metator project"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.10.238" :scope "provided"]
-                 [pjstadig/humane-test-output "0.8.3"    :scope "test"]
-                 [com.cognitect/transit-clj "0.8.309"]
-                 [ring "1.6.3"]
-                 ;; [eftest "0.5.1"]
-                 [ring/ring-defaults "0.3.1"]
+  :dependencies [[org.clojure/clojure "1.10.0"]
+                 [org.clojure/clojurescript "1.10.439" :scope "provided"]
+                 [com.cognitect/transit-clj "0.8.313"]
+                 [ring "1.7.1"]
+                 [ring/ring-defaults "0.3.2"]
                  [bk/ring-gzip "0.3.0"]
                  [radicalzephyr/ring.middleware.logger "0.6.0"]
                  [clj-logging-config "1.9.12"]
-                 [compojure "1.6.1"]
                  [environ "1.1.0"]
-                 [day8.re-frame/http-fx "0.1.6"]
-                 [cljs-ajax "0.7.3"]
-                 ;; [day8.re-frame/re-frame-10x "0.3.3-react16"]                 
                  [com.stuartsierra/component "0.3.2"]
                  [org.danielsz/system "0.4.1"]
-                 [day8.re-frame/undo "0.3.2"]
                  [org.clojure/tools.namespace "0.2.11"]
-                 [re-frame "0.10.5"]
+                 [compojure "1.6.1"]
+                 [re-frame "0.10.6"]
+                 [lambdaisland/garden-watcher "0.3.3"]
+                 
                  [com.andrewmcveigh/cljs-time "0.5.2"]
-                 [lambdaisland/garden-watcher "0.3.2"]]
+                 [day8.re-frame/http-fx "0.1.6"]
+                 [cljs-ajax "0.7.3"]
+                 [day8.re-frame/undo "0.3.2"]]
+
   :plugins [[lein-cljsbuild "1.1.7"]
-            [lein-environ "1.1.0"]
-            [cider/cider-nrepl "0.17.0"]]
-  
+            [lein-environ "1.1.0"]]
 
   :min-lein-version "2.6.1"
 
@@ -58,8 +55,6 @@
                            :asset-path "js/compiled/out"
                            :output-to "dev-target/public/js/compiled/miktau.js"
                            :output-dir "dev-target/public/js/compiled/out"
-                           :closure-defines      {"re_frame.trace.trace_enabled_QMARK_" true}
-                           ;; :preloads             [day8.re-frame-10x.preload]
                            :source-map-timestamp true}}
 
                {:id "test"
@@ -109,19 +104,18 @@
   :doo {:build "test"}
 
   :profiles {:dev
-             {:dependencies [[figwheel "0.5.15"]
-                             [figwheel-sidecar "0.5.15"]
-                             [com.cemerick/piggieback "0.2.2"]
-                             [org.clojure/tools.nrepl "0.2.13"]
-                             [lein-doo "0.1.10"]
-                             [reloaded.repl "0.2.4"]
-                             [day8.re-frame/re-frame-10x "0.3.3"]]
+             {:dependencies [[figwheel "0.5.18"]
+                             [figwheel-sidecar "0.5.18"]
+                             [cider/piggieback "0.4.0"]
+                             [cider/cider-nrepl "0.18.0"]
+                             [lein-doo "0.1.11"]
+                             [reloaded.repl "0.2.4"]]
 
-              :plugins [[lein-figwheel "0.5.15"]
-                        [lein-doo "0.1.10"]]
+              :plugins [[lein-figwheel "0.5.18"]
+                        [lein-doo "0.1.11"]]
 
               :source-paths ["dev"]
-              :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}
+              :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}}
 
              :uberjar
              {:source-paths ^:replace ["src/clj" "src/cljc"]

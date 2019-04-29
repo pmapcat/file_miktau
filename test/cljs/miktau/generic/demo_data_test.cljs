@@ -1,4 +1,5 @@
 (ns miktau.generic.demo-data-test)
+
 (def demo-db
   {:loading? true
    :filtering ""

@@ -69,7 +69,8 @@ func NewAppStateOnFolder(fpath string, worker func(*AppStateItem) *AppStateItem)
 	}
 	return NewAppState(fpath, cni), nil
 }
+
 func (a *AppState) AddSubscription(worker AppStateSubsription) {
-	a._rebuild_after_mutable_action = append(a._rebuild_after_mutable_action, worker)
+	a._call_after_update = append(a._call_after_update, worker)
 
 }
