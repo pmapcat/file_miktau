@@ -2,8 +2,6 @@ package main
 
 import (
 	"flag"
-	"log"
-	"strings"
 )
 
 const (
