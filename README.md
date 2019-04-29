@@ -138,6 +138,13 @@ There are other, higher order operations on selections:
 ### Tree list view
 ![Tree list view](https://github.com/MichaelLeachim/file_miktau/blob/master/4readme/tree.png)
 
+Tree list view allows to see files (or nodes), in a traditional list form. It shows tags 
+in the form of the tree, disabling those parts of the path that are already shown on the shown. 
+So, it will be easier to see tag tree behind visual cluter
+
+It is possible, in this view, to select node items separately and tag them in smaller, non 
+previously defined, groups
+
 ### Autotags
 ![Autotags](https://github.com/MichaelLeachim/file_miktau/blob/master/4readme/autotags.png)
 
@@ -172,11 +179,12 @@ on already made taxonomy.
 ## App structure and technical moments
 
 The in memory app state store is implemented in GO, and should run fairly 
-smoothly 
+smoothly on ~30 000 files. 
 
+On the client side the app uses ReFrame as its framework and is implemented
+in ClojureScript
 
 ## TODO
 
-* Build 
-
-
+* Build CSV backend instead of FS one
+* Make it easier to navigate within the folder
