@@ -1,6 +1,6 @@
 # The friendly tagger
 
-TODO: start screen here
+![Begin of the app](https://github.com/MichaelLeachim/file_miktau/blob/master/4readme/startscreen.png)
 
 This program is an attempt to look at folder 
 organization on a computer from a different angle.
@@ -8,7 +8,6 @@ organization on a computer from a different angle.
 **!!Important notice!!** Do not try to work with it on 
 an important folder without making backup first. 
 **It will mess with your file structure**
-
 
 ## Concepts 
 
@@ -23,9 +22,7 @@ Tag name is unique and does not depend on context . There is a only one tag with
 
 
 
-
-
-TODO: image of large tag cloud
+![Begin of the app](https://github.com/MichaelLeachim/file_miktau/blob/master/4readme/cloud.png)
 
 Tag cloud, is a list of all tags, with the same 
 
