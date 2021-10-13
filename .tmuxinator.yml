@@ -11,10 +11,10 @@ windows:
             - cd electron/
             - electron . --disable-http-cache
         - backend:
-            - cd backend/
+            - cd /go/src/backend
             - ./backend
         - shell:
-            - sudo /etc/init.d/nginx start
+            - /etc/init.d/nginx start
             - ls
         - repl:
             - lein repl
