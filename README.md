@@ -19,12 +19,43 @@ This program is work in progress. It will lose your data
 
 ## How to run
 
-```bash
+### build & run container
+```
+xhost +local:docker
+sudo docker build -t file-miktau . && sudo docker run -it \
+--privileged --env DISPLAY=$DISPLAY \
+-v $XAUTH:/root/.Xauthority \
+-v /tmp/.X11-unix:/tmp/.X11-unix \
+-v /dev/urandom:/dev/random file-miktau 
 
-git clone https://github.com/MichaelLeachim/file_miktau;
-cd file_miktau;
-tmuxinator .;
+```
 
+### inside docker
+
+```
+cd /home/mik/Projects/file_miktau/electron && electron . --disable-http-cache 
+```
+#### or
+
+```
+./start.sh
+```
+
+if it is stuck. Try to reload several times by pressing f5.  
+It usually gets unstuck as a result. 
+
+### Rebuild frontend
+
+```
+lein repl 
+(go)
+```
+
+### Rebuild backend
+
+```
+cd backend
+go build
 ```
 
 ## Concepts 

@@ -20,6 +20,7 @@
    :server-info (server-info (:http-port config))))
 
 (defn -main [& _]
+  (println "[main] main has started")
   (let [config (config)]
     (-> config
         app-system

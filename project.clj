@@ -32,6 +32,7 @@
   :source-paths ["src/clj" "src/cljs" "src/cljc"]
 
   :test-paths ["test/clj" "test/cljc"]
+  :jvm-opts ["-Xmx1g" "-server"]
 
   :clean-targets ^{:protect false} [:target-path :compile-path "resources/public/js" "dev-target"]
 
@@ -43,7 +44,8 @@
   ;; nREPL by default starts in the :main namespace, we want to start in `user`
   ;; because that's where our development helper functions like (go) and
   ;; (browser-repl) live.
-  :repl-options {:init-ns user}
+  :repl-options {:init-ns user
+                 :timeout 120000}
 
   :cljsbuild {:builds
               [{:id "app"
